@@ -14,8 +14,8 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 
 @OpenAPIDefinition(info = @Info(
-	title = "PlayUs User Service API",
-	description = "PlayUs 사용자 관리 서비스 API 문서",
+	title = "PlayUs To Watch in Person Service API",
+	description = "PlayUs 직관 서비스 API 문서",
 	version = "v1.0.0"))
 
 @Configuration
