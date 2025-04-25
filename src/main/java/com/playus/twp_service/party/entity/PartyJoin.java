@@ -2,24 +2,21 @@ package com.playus.twp_service.party.entity;
 
 import com.playus.twp_service.party.enums.Status;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "party_join")
 public class PartyJoin {
 
     @EmbeddedId
     private PartyJoinId id;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @MapsId("userId")
-//    @JoinColumn(name = "id", nullable = false)
-//    private User user;
-
+    @MapsId("userId")
     @Column(nullable = false, name = "user_id")
     private Long userId;
 
@@ -33,7 +30,7 @@ public class PartyJoin {
     private Status status;
 
     @Column(nullable = false, name = "is_writer")
-    private boolean isWriter;
+    private Boolean isWriter;
 
     @Column(nullable = false, name = "require_message", length = 100)
     private String requireMessage;
