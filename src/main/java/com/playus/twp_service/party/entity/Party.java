@@ -46,22 +46,22 @@ public class Party extends BaseTimeEntity {
 //    private List<PartyJoin> participants;
 
     @Builder
-    private Party(String title, String text, Long maximumParticipants, Long minimumParticipants, String thumbnailUrl, PartyGender partyGender, Method method){
+    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants,  String thumbnailUrl, PartyGender partyGender, Method method){
         this.title = title;
         this.text = text;
-        this.maximumParticipants = maximumParticipants;
         this.minimumParticipants = minimumParticipants;
+        this.maximumParticipants = maximumParticipants;
         this.thumbnailUrl = thumbnailUrl;
         this.partyGender = partyGender;
         this.method = method;
     }
 
-    public static Party create(String title, String text, Long maximumParticipants, Long minimumParticipants, String thumbnailUrl, PartyGender partyGender, Method method){
+    public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants,  String thumbnailUrl, PartyGender partyGender, Method method){
         return Party.builder()
                 .title(title)
                 .text(text)
-                .maximumParticipants(maximumParticipants)
                 .minimumParticipants(minimumParticipants)
+                .maximumParticipants(maximumParticipants)
                 .thumbnailUrl(thumbnailUrl)
                 .partyGender(partyGender)
                 .method(method)
