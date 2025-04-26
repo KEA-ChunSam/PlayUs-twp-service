@@ -40,7 +40,7 @@ public class PartyDocument extends BaseTimeEntity {
     @NotNull
     @Field(name = "thumbnail_url")
     @Size(min = 1, max = 255)
-    private String thumnailUrl;
+    private String thumbnailUrl;
 
     @NotNull
     @Field(name = "party_gender")
@@ -50,23 +50,25 @@ public class PartyDocument extends BaseTimeEntity {
     private Method method;
 
     @Builder
-    private PartyDocument(String title, String text, Long minimumParticipants, Long maximumParticipants, String thumnailUrl, PartyGender partyGender, Method method) {
+    private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, Method method) {
+        this.id = id;
         this.title = title;
         this.text = text;
         this.minimumParticipants = minimumParticipants;
         this.maximumParticipants = maximumParticipants;
-        this.thumnailUrl = thumnailUrl;
+        this.thumbnailUrl = thumbnailUrl;
         this.partyGender = partyGender;
         this.method = method;
     }
 
-    public static PartyDocument create(String title, String text, Long minimumParticipants, Long maximumParticipants, String thumnailUrl, PartyGender partyGender, Method method) {
+    public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, Method method) {
         return PartyDocument.builder()
+                .id(id)
                 .title(title)
                 .text(text)
                 .minimumParticipants(minimumParticipants)
                 .maximumParticipants(maximumParticipants)
-                .thumnailUrl(thumnailUrl)
+                .thumbnailUrl(thumbnailUrl)
                 .partyGender(partyGender)
                 .method(method)
                 .build();
