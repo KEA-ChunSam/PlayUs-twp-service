@@ -19,7 +19,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class PartyDocument extends BaseTimeEntity {
 
     @Id
-    @Field(name = "party_id")
     private Long id;
 
     @NotNull
