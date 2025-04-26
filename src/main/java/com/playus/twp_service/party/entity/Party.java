@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,7 +17,6 @@ public class Party extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="party_id")
     private Long id;
 
     @Column(nullable = false, length = 225)
@@ -44,9 +41,6 @@ public class Party extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Method method;
-
-//    @Column(nullable = false)
-//    private List<Integer> age;
 
 //    @OneToMany(mappedBy = "party")
 //    private List<PartyJoin> participants;
