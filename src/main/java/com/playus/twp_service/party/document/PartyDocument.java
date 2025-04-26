@@ -22,7 +22,7 @@ public class PartyDocument extends BaseTimeEntity {
     private Long id;
 
     @NotNull
-    @Size(min = 1, max = 255)
+    @Size(min = 1, max = 225)
     private String title;
 
     @NotNull
