@@ -27,13 +27,15 @@ public class PartyAgeDocument {
     private Integer age;
 
     @Builder
-    private PartyAgeDocument(PartyDocument party, Integer age) {
+    private PartyAgeDocument(Long id, PartyDocument party, Integer age) {
+        this.id = id;
         this.party = party;
         this.age = age;
     }
 
-    public static PartyAgeDocument create(PartyDocument party, Integer age) {
+    public static PartyAgeDocument createForOnlyTest(Long id, PartyDocument party, Integer age) {
         return PartyAgeDocument.builder()
+                .id(id)
                 .party(party)
                 .age(age)
                 .build();

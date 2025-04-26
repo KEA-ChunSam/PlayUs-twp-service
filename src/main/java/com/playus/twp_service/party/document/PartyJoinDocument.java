@@ -1,6 +1,5 @@
 package com.playus.twp_service.party.document;
 
-import com.playus.twp_service.party.entity.PartyJoinId;
 import com.playus.twp_service.party.enums.Status;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
@@ -46,7 +45,8 @@ public class PartyJoinDocument {
     private String requireMessage;
 
     @Builder
-    private PartyJoinDocument(Long userId, PartyDocument party, Status status, Boolean isWriter, String requireMessage) {
+    private PartyJoinDocument(Long id, Long userId, PartyDocument party, Status status, Boolean isWriter, String requireMessage) {
+        this.id = id;
         this.userId = userId;
         this.party = party;
         this.status = status;
@@ -54,8 +54,9 @@ public class PartyJoinDocument {
         this.requireMessage = requireMessage;
     }
 
-    public static PartyJoinDocument create(Long userId, PartyDocument party, Status status, String requireMessage) {
+    public static PartyJoinDocument createForOnlyTest(Long id, Long userId, PartyDocument party, Status status, String requireMessage) {
         return PartyJoinDocument.builder()
+                .id(id)
                 .userId(userId)
                 .party(party)
                 .status(status)
