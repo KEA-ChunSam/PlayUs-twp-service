@@ -17,15 +17,10 @@ public class PartyJoin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @EmbeddedId
-//    private PartyJoinId id;
-
-//    @MapsId("userId")
     @Column(nullable = false, name = "user_id")
     private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-//    @MapsId("partyId")
     @JoinColumn(name = "party_id", nullable = false)
     private Party party;
 
