@@ -1,5 +1,6 @@
 package com.playus.twp_service.chat.repository;
 
+import com.playus.twp_service.IntegrationTestSupport;
 import com.playus.twp_service.chat.entity.ChatRoom;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,11 +11,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class ChatRoomRepositoryTest {
 
-    @Autowired
+class ChatRoomRepositoryTest extends IntegrationTestSupport {
+
+//    @Autowired
     ChatRoomRepository chatRoomRepository;
 
     @AfterEach
