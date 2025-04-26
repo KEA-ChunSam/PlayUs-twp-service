@@ -1,6 +1,6 @@
 package com.playus.twp_service.chat.entity;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;

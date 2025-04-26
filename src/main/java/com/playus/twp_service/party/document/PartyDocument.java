@@ -3,7 +3,7 @@ package com.playus.twp_service.party.document;
 import com.playus.twp_service.global.BaseTimeEntity;
 import com.playus.twp_service.party.enums.Method;
 import com.playus.twp_service.party.enums.PartyGender;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;

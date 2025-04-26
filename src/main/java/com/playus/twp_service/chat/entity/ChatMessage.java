@@ -1,7 +1,7 @@
 package com.playus.twp_service.chat.entity;
 
 import com.playus.twp_service.global.BaseTimeEntity;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

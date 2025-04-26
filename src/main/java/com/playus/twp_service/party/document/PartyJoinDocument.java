@@ -1,7 +1,7 @@
 package com.playus.twp_service.party.document;
 
 import com.playus.twp_service.party.enums.Status;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
