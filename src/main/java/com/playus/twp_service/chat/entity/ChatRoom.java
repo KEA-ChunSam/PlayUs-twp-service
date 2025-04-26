@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,7 +16,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class ChatRoom extends BaseTimeEntity {
 
     @Id
-    @Field(name = "chat_room_id")
     private String id;
 
     @NotNull
