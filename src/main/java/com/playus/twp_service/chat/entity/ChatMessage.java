@@ -19,7 +19,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class ChatMessage extends BaseTimeEntity {
 
     @Id
-    @Field(name = "chat_message_id")
     private String id;
 
     @DBRef(lazy = true)

@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class ChatPart {
 
     @Id
-    @Field(name="chat_part_id")
     private String id;
 
     @NotNull
