@@ -1,4 +1,4 @@
-package com.playus.twp_service.config;
+package com.playus.twp_service.config.mongo;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;

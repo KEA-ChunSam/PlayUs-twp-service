@@ -1,4 +1,4 @@
-package com.playus.twp_service.config;
+package com.playus.twp_service.config.mongo;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
