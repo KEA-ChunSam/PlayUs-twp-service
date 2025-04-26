@@ -41,10 +41,11 @@ public class ChatMessage extends BaseTimeEntity {
         this.isRead = isRead;
     }
 
-    public static ChatMessage create(ChatPart chatPart, String message) {
+    public static ChatMessage create(ChatPart chatPart, String message, Boolean isRead) {
         return ChatMessage.builder()
                 .chatPart(chatPart)
                 .message(message)
+                .isRead(isRead)
                 .build();
     }
 }
