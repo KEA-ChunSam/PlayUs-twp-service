@@ -19,7 +19,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class PartyJoinDocument {
 
     @Id
-    private PartyJoinId id;
+    private Long id;
+
+//    @Id
+//    private PartyJoinId id;
 
     @NotNull
     @Field(name = "user_id")

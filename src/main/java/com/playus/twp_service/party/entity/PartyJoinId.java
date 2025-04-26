@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@Embeddable
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode
+//@Embeddable
+//@Getter
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@EqualsAndHashCode
 public class PartyJoinId implements Serializable {
     private Long userId;
     private Long partyId;

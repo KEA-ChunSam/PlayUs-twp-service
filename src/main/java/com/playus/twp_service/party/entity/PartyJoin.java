@@ -13,15 +13,19 @@ import lombok.NoArgsConstructor;
 @Table(name = "party_join")
 public class PartyJoin {
 
-    @EmbeddedId
-    private PartyJoinId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @MapsId("userId")
+//    @EmbeddedId
+//    private PartyJoinId id;
+
+//    @MapsId("userId")
     @Column(nullable = false, name = "user_id")
     private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("partyId")
+//    @MapsId("partyId")
     @JoinColumn(name = "party_id", nullable = false)
     private Party party;
 
