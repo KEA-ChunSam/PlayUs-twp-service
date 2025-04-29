@@ -20,9 +20,6 @@ public class PartyJoinDocument {
     @Id
     private Long id;
 
-//    @Id
-//    private PartyJoinId id;
-
     @NotNull
     @Field(name = "user_id")
     private Long userId;
