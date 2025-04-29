@@ -52,12 +52,4 @@ public class PartyJoin {
                 .requireMessage(requireMessage)
                 .build();
     }
-
-    public void updateAll(PartyJoin partyJoin) {
-        this.userId = partyJoin.userId;
-        this.party = partyJoin.party;
-        this.status = partyJoin.status;
-        this.isWriter = partyJoin.isWriter;
-        this.requireMessage = partyJoin.requireMessage;
-    }
 }
