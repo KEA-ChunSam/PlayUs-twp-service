@@ -42,9 +42,6 @@ public class Party extends BaseTimeEntity {
     @Column(nullable = false)
     private Method method;
 
-//    @OneToMany(mappedBy = "party")
-//    private List<PartyJoin> participants;
-
     @Builder
     private Party(String title, String text, Long minimumParticipants, Long maximumParticipants,  String thumbnailUrl, PartyGender partyGender, Method method){
         this.title = title;
