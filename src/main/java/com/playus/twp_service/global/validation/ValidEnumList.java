@@ -1,5 +1,6 @@
 package com.playus.twp_service.global.validation;
 
+import com.playus.twp_service.global.Describable;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -17,5 +18,5 @@ public @interface ValidEnumList {
     Class<?>[] groups() default {};
     Class<? extends Payload> [] payload() default {};
 
-    Class<? extends Enum<?>> enumClass();
+    Class<? extends Describable> enumClass();
 }
