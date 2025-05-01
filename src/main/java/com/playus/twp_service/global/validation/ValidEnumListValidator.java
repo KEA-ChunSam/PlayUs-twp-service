@@ -10,14 +10,14 @@ import java.util.stream.Collectors;
 public class ValidEnumListValidator implements ConstraintValidator<ValidEnumList, List<String>> {
 
     private Set<String> validDescriptions;
-    private String emptyMessage;
-    private String notFoundMessage;
+    private String emptyValueMessage;
+    private String invalidValueMessage;
     private String overValueMessage;
 
     @Override
     public void initialize(ValidEnumList annotation) {
-        emptyMessage = annotation.emptyMessage();
-        notFoundMessage = annotation.notFoundMessage();
+        emptyValueMessage = annotation.emptyValueMessage();
+        invalidValueMessage = annotation.invalidValueMessage();
         overValueMessage = annotation.overValueMessage();
 
         validDescriptions = Arrays.stream(annotation.enumClass().getEnumConstants())
@@ -28,7 +28,7 @@ public class ValidEnumListValidator implements ConstraintValidator<ValidEnumList
     @Override
     public boolean isValid(List<String> valueList, ConstraintValidatorContext context) {
         if (isEmptyList(valueList)) {
-            setCustomMessageInValidationContext(context, emptyMessage);
+            setCustomMessageInValidationContext(context, emptyValueMessage);
             return false;
         }
 
@@ -38,7 +38,7 @@ public class ValidEnumListValidator implements ConstraintValidator<ValidEnumList
         }
 
         if (invalidValueExistsInList(valueList)) {
-            setCustomMessageInValidationContext(context, notFoundMessage);
+            setCustomMessageInValidationContext(context, invalidValueMessage);
             return false;
         }
 
