@@ -7,7 +7,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ValidListEnumValidator implements ConstraintValidator<ValidEnumList, List<String>> {
+public class ValidEnumListValidator implements ConstraintValidator<ValidEnumList, List<String>> {
 
     private Set<String> validDescriptions;
     private String emptyMessage;
