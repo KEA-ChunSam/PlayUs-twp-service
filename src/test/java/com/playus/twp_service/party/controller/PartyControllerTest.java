@@ -80,7 +80,7 @@ class PartyControllerTest extends ControllerTestSupport {
         given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
-        assertBadRequestOfPartyCreateRequest(request, "/party", "신청 방식이 비어 있습니다!");
+        assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 신청 방식입니다!");
     }
 
 
@@ -108,7 +108,7 @@ class PartyControllerTest extends ControllerTestSupport {
         given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
-        assertBadRequestOfPartyCreateRequest(request, "/party", "참여 원하는 성별이 비어 있습니다!");
+        assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 성별 형식입니다!");
     }
 
 
@@ -139,7 +139,7 @@ class PartyControllerTest extends ControllerTestSupport {
         given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
-        assertBadRequestOfPartyCreateRequest(request, "/party", "참여자 나이가 비어 있습니다!");
+        assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 참여자 나이입니다!");
     }
 
     static Stream<Arguments> invalidAgeGroupProvider() {
@@ -164,7 +164,7 @@ class PartyControllerTest extends ControllerTestSupport {
         given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
-        assertBadRequestOfPartyCreateRequest(request, "/party", "참여자 나이가 비어 있습니다!");
+        assertBadRequestOfPartyCreateRequest(request, "/party", "참여자 나이는 최대 6개까지 가능합니다!");
     }
 
 
