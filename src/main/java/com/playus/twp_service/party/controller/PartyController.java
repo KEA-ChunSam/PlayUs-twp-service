@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/party")
@@ -19,7 +21,8 @@ public class PartyController {
     private final PartyService partyService;
 
     @PostMapping
-    public ResponseEntity<PartyCreateResponse> createParty(@Valid PartyCreateRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(partyService.createParty(request));
+    public Mono<ResponseEntity<PartyCreateResponse>> createParty(@Valid @RequestBody PartyCreateRequest request) {
+        return partyService.createParty(request)
+                .map(partyCreateResponse -> ResponseEntity.status(HttpStatus.CREATED).body(partyCreateResponse));
     }
 }
