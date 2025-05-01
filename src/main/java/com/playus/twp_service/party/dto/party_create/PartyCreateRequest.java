@@ -16,10 +16,10 @@ public record PartyCreateRequest(
         @NotBlank(message = "직관팟 제목이 비어 있습니다!")
         String title,
 
-        @ValidEnum(enumClass = PartyJoinMethod.class, emptyMessage = "신청 방식이 비어 있습니다!", notFoundMessage = "잘못된 신청 방식입니다!")
+        @ValidEnum(enumClass = PartyJoinMethod.class, emptyValueMessage = "신청 방식이 비어 있습니다!", invalidValueMessage = "잘못된 신청 방식입니다!")
         String method,
 
-        @ValidEnum(enumClass = PartyGender.class, emptyMessage = "참여 원하는 성별이 비어 있습니다!", notFoundMessage = "잘못된 성별 형식입니다!")
+        @ValidEnum(enumClass = PartyGender.class, emptyValueMessage = "참여 원하는 성별이 비어 있습니다!", invalidValueMessage = "잘못된 성별 형식입니다!")
         String gender,
 
         @ValidEnumList(enumClass = PartyAgeGroup.class, emptyMessage = "참여자 나이가 비어 있습니다!",

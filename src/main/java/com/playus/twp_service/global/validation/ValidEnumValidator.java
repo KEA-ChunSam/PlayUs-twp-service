@@ -13,13 +13,13 @@ public class ValidEnumValidator implements ConstraintValidator<ValidEnum, String
 
 
     private Set<String> enumValues;
-    private String emptyMessage;
-    private String notFoundMeessage;
+    private String emptyValueMessage;
+    private String invalidValueMessage;
 
     @Override
     public void initialize(ValidEnum annotation) {
-        emptyMessage = annotation.emptyMessage();
-        notFoundMeessage = annotation.notFoundMessage();
+        emptyValueMessage = annotation.emptyValueMessage();
+        invalidValueMessage = annotation.invalidValueMessage();
         enumValues = Arrays.stream(annotation.enumClass().getEnumConstants())
                 .map(Describable::getDescription)
                 .collect(Collectors.toSet());
@@ -29,12 +29,12 @@ public class ValidEnumValidator implements ConstraintValidator<ValidEnum, String
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (isEmptyValue(value)) {
-            setCustomMessageInValidationContext(context, emptyMessage);
+            setCustomMessageInValidationContext(context, emptyValueMessage);
             return false;
         }
 
-        if (isNotExistValueInEnum(value)) {
-            setCustomMessageInValidationContext(context, notFoundMeessage);
+        if (isInvalidValue(value)) {
+            setCustomMessageInValidationContext(context, invalidValueMessage);
             return false;
         }
 
@@ -47,7 +47,7 @@ public class ValidEnumValidator implements ConstraintValidator<ValidEnum, String
                 .addConstraintViolation();
     }
 
-    private boolean isNotExistValueInEnum(String value) {
+    private boolean isInvalidValue(String value) {
         return !enumValues.contains(value);
     }
 

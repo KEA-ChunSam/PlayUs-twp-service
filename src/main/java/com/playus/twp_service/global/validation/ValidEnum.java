@@ -15,8 +15,8 @@ import java.lang.annotation.Target;
 public @interface ValidEnum {
 
     String message() default "";
-    String emptyMessage();
-    String notFoundMessage();
+    String emptyValueMessage();
+    String invalidValueMessage();
     Class<?>[] groups() default {};
     Class<? extends Payload> [] payload() default {};
 
