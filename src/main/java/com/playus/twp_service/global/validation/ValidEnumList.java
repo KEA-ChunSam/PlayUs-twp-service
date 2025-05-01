@@ -14,7 +14,11 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = ValidListEnumValidator.class)
 public @interface ValidEnumList {
 
-    String message();
+    String message() default "";
+    String emptyMessage();
+    String notFoundMessage();
+    String overValueMessage();
+
     Class<?>[] groups() default {};
     Class<? extends Payload> [] payload() default {};
 
