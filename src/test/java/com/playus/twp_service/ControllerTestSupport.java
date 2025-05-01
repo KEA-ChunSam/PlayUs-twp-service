@@ -1,6 +1,5 @@
 package com.playus.twp_service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.playus.twp_service.party.controller.PartyController;
 import com.playus.twp_service.party.service.PartyService;
 import org.springframework.beans.factory.annotation.Autowired;
