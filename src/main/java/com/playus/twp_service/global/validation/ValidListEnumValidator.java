@@ -1,31 +1,41 @@
 package com.playus.twp_service.global.validation;
 
+import com.playus.twp_service.global.Describable;
+import com.playus.twp_service.party.enums.PartyAgeGroup;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class ValidListEnumValidator implements ConstraintValidator<ValidEnumList, String> {
+public class ValidListEnumValidator implements ConstraintValidator<ValidEnumList, List<String>> {
 
-    private Set<String> enumValues;
+    private Set<String> validDescriptions;
 
     @Override
     public void initialize(ValidEnumList annotation) {
-        enumValues = Arrays.stream(annotation.enumClass().getEnumConstants())
-                .map(Enum::name)
+        validDescriptions = Arrays.stream(annotation.enumClass().getEnumConstants())
+                .map(Describable::getDescription)
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
-        // 필드가 null, 비어 있거나 list 중 하나 이상의 값이 enum에 속해 잇지 않는 경우
-        if (value == null || value.isEmpty()) {
-            return true;
+    public boolean isValid(List<String> value, ConstraintValidatorContext context) {
+        if (Objects.isNull(value) || value.isEmpty()) {
+            return false;
         }
-        // 필드의 값이 Enum 값들에 포함되어 있는지 확인
-        return enumValues.contains(value);
+
+        for (String val : value) {
+            if (isNotContainedFromEnumList(val)) {
+                return false; // 하나라도 description에 없으면 검증 실패
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isNotContainedFromEnumList(String val) {
+        return !validDescriptions.contains(val);
     }
 }
