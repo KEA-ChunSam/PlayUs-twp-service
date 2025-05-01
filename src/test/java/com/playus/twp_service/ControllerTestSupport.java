@@ -18,9 +18,6 @@ public abstract class ControllerTestSupport {
     @Autowired
     protected WebTestClient webTestClient;
 
-    @Autowired
-    protected ObjectMapper objectMapper;
-
     @MockitoBean
     protected PartyService partyService;
 }
