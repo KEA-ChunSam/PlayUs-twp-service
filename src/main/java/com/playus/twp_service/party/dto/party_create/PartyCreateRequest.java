@@ -2,7 +2,7 @@ package com.playus.twp_service.party.dto.party_create;
 
 import com.playus.twp_service.global.validation.ValidEnum;
 import com.playus.twp_service.global.validation.ValidEnumList;
-import com.playus.twp_service.party.enums.Method;
+import com.playus.twp_service.party.enums.PartyJoinMethod;
 import com.playus.twp_service.party.enums.PartyAgeGroup;
 import com.playus.twp_service.party.enums.PartyGender;
 import jakarta.validation.constraints.NotBlank;
@@ -16,7 +16,7 @@ public record PartyCreateRequest(
         @NotBlank(message = "직관팟 제목이 비어 있습니다!")
         String title,
 
-        @ValidEnum(enumClass = Method.class, message = "신청 방식이 비어 있습니다!")
+        @ValidEnum(enumClass = PartyJoinMethod.class, message = "신청 방식이 비어 있습니다!")
         String method,
 
         @ValidEnum(enumClass = PartyGender.class, message = "참여 원하는 성별이 비어 있습니다!")

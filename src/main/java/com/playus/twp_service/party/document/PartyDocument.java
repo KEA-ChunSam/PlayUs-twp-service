@@ -1,7 +1,7 @@
 package com.playus.twp_service.party.document;
 
 import com.playus.twp_service.global.BaseTimeEntity;
-import com.playus.twp_service.party.enums.Method;
+import com.playus.twp_service.party.enums.PartyJoinMethod;
 import com.playus.twp_service.party.enums.PartyGender;
 import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotNull;
@@ -46,10 +46,10 @@ public class PartyDocument extends BaseTimeEntity {
     private PartyGender partyGender;
 
     @NotNull
-    private Method method;
+    private PartyJoinMethod partyJoinMethod;
 
     @Builder
-    private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, Method method) {
+    private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod) {
         this.id = id;
         this.title = title;
         this.text = text;
@@ -57,10 +57,10 @@ public class PartyDocument extends BaseTimeEntity {
         this.maximumParticipants = maximumParticipants;
         this.thumbnailUrl = thumbnailUrl;
         this.partyGender = partyGender;
-        this.method = method;
+        this.partyJoinMethod = partyJoinMethod;
     }
 
-    public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, Method method) {
+    public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod) {
         return PartyDocument.builder()
                 .id(id)
                 .title(title)
@@ -69,7 +69,7 @@ public class PartyDocument extends BaseTimeEntity {
                 .maximumParticipants(maximumParticipants)
                 .thumbnailUrl(thumbnailUrl)
                 .partyGender(partyGender)
-                .method(method)
+                .partyJoinMethod(partyJoinMethod)
                 .build();
     }
 }

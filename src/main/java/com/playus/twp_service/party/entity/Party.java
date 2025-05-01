@@ -1,7 +1,7 @@
 package com.playus.twp_service.party.entity;
 
 import com.playus.twp_service.global.BaseTimeEntity;
-import com.playus.twp_service.party.enums.Method;
+import com.playus.twp_service.party.enums.PartyJoinMethod;
 import com.playus.twp_service.party.enums.PartyGender;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -40,20 +40,20 @@ public class Party extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Method method;
+    private PartyJoinMethod partyJoinMethod;
 
     @Builder
-    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants,  String thumbnailUrl, PartyGender partyGender, Method method){
+    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants,  String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod){
         this.title = title;
         this.text = text;
         this.minimumParticipants = minimumParticipants;
         this.maximumParticipants = maximumParticipants;
         this.thumbnailUrl = thumbnailUrl;
         this.partyGender = partyGender;
-        this.method = method;
+        this.partyJoinMethod = partyJoinMethod;
     }
 
-    public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants,  String thumbnailUrl, PartyGender partyGender, Method method){
+    public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants,  String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod){
         return Party.builder()
                 .title(title)
                 .text(text)
@@ -61,7 +61,7 @@ public class Party extends BaseTimeEntity {
                 .maximumParticipants(maximumParticipants)
                 .thumbnailUrl(thumbnailUrl)
                 .partyGender(partyGender)
-                .method(method)
+                .partyJoinMethod(partyJoinMethod)
                 .build();
     }
 

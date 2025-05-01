@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public enum Method implements Describable {
+public enum PartyJoinMethod implements Describable {
 
     FIRST_COME("선착순"), RESERVATION("승인제");
 
