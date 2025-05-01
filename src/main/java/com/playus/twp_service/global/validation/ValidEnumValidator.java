@@ -11,10 +11,15 @@ import java.util.stream.Collectors;
 
 public class ValidEnumValidator implements ConstraintValidator<ValidEnum, String> {
 
+
     private Set<String> enumValues;
+    private String emptyMessage;
+    private String notFoundMeessage;
 
     @Override
     public void initialize(ValidEnum annotation) {
+        emptyMessage = annotation.emptyMessage();
+        notFoundMeessage = annotation.notFoundMessage();
         enumValues = Arrays.stream(annotation.enumClass().getEnumConstants())
                 .map(Describable::getDescription)
                 .collect(Collectors.toSet());
@@ -22,15 +27,31 @@ public class ValidEnumValidator implements ConstraintValidator<ValidEnum, String
 
 
     @Override
-    public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
-        if (isInvalidEnum(value)) {
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        if (isEmptyValue(value)) {
+            setCustomMessageInValidationContext(context, emptyMessage);
+            return false;
+        }
+
+        if (isNotExistValueInEnum(value)) {
+            setCustomMessageInValidationContext(context, notFoundMeessage);
             return false;
         }
 
         return enumValues.contains(value);
     }
 
-    private static boolean isInvalidEnum(String value) {
+    private void setCustomMessageInValidationContext(ConstraintValidatorContext context, String validationMessage) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(validationMessage)
+                .addConstraintViolation();
+    }
+
+    private boolean isNotExistValueInEnum(String value) {
+        return !enumValues.contains(value);
+    }
+
+    private static boolean isEmptyValue(String value) {
         return StringUtils.isEmpty(value);
     }
 }
