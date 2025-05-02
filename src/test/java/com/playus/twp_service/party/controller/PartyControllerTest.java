@@ -168,6 +168,20 @@ class PartyControllerTest extends ControllerTestSupport {
     }
 
 
+
+    @DisplayName("직관팟 생성 중 소개 문구는 필수이다.")
+    @NullAndEmptySource
+    @ParameterizedTest(name = "message = {0}")
+    void createParty_EMPTY_MESSAGE(String emptyMessage) {
+        // given
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), emptyMessage);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+
+        // when // then
+        assertBadRequestOfPartyCreateRequest(request, "/party", "직관팟 소개 문구가 비어 있습니다!");
+    }
+
     private WebTestClient.BodySpec<String, ?> assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) {
         return webTestClient.post()
                 .uri(requestUri)
