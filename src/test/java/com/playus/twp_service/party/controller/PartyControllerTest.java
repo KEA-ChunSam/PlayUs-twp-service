@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -18,8 +20,11 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockAuthentication;
 
 class PartyControllerTest extends ControllerTestSupport {
+
+    Long userId = 1L;
 
     @DisplayName("직관팟을 생성할 수 있다.")
     @Test
@@ -27,10 +32,12 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, "url", "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
-        webTestClient.post()
+        webTestClient
+                .mutateWith(mockAuthentication(new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")))))
+                .post()
                 .uri("/party")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
@@ -50,7 +57,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of(emptyTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "직관팟 제목이 비어 있습니다!");
@@ -66,7 +73,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", emptyMethod, "남자만", List.of("10대", "20대"), 1L, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "신청 방식이 비어 있습니다!");
@@ -79,7 +86,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", invalidMethod, "남자만", List.of("10대", "20대"), 1L, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 신청 방식입니다!");
@@ -95,7 +102,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", emptyGender, List.of("10대", "20대"), 1L, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "참여 원하는 성별이 비어 있습니다!");
@@ -108,7 +115,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 성별 형식입니다!");
@@ -125,7 +132,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "참여자 나이가 비어 있습니다!");
@@ -139,7 +146,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 참여자 나이입니다!");
@@ -164,7 +171,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> tooManyAgeList = List.of("10대", "20대", "30대", "40대", "50대", "60대", "70대", "80대", "90대");
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", tooManyAgeList, 1L, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "참여자 나이는 최대 6개까지 가능합니다!");
@@ -177,7 +184,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_EMPTY_MINIMUM() {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), null, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "최소 참여 인원이 비어 있습니다!");
@@ -188,7 +195,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_INVALID_MINIMUM() {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 0L, 10L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "최소 참여 인원은 1명 이상이여야 합니다!");
@@ -201,7 +208,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_EMPTY_MAXIMUM() {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, null, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "최대 참여 인원이 비어 있습니다!");
@@ -212,7 +219,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_MINIMUM_MAXIMUM() {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 10L, 9L, "url","message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!");
@@ -226,7 +233,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, emptyImageUrl, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "사진 URL이 비어 있습니다!");
@@ -241,14 +248,16 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, "url",emptyMessage);
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
-        given(partyService.createParty(any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(Mono.just(mockResponse));
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "직관팟 소개 문구가 비어 있습니다!");
     }
 
     private WebTestClient.BodySpec<String, ?> assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) {
-        return webTestClient.post()
+        return webTestClient
+                .mutateWith(mockAuthentication(new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")))))
+                .post()
                 .uri(requestUri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
