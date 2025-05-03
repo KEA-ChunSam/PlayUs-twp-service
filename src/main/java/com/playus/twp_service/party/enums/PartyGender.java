@@ -15,4 +15,11 @@ public enum PartyGender implements Describable {
 
     private String description;
 
+    public static PartyGender toEnumValue(String description) {
+        return Arrays.stream(PartyGender.values())
+                .filter(gender -> gender.getDescription().equals(description))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid PartyGender description: " + description));
+    }
+
 }
