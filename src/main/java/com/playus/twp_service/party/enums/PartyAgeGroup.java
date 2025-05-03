@@ -21,4 +21,13 @@ public enum PartyAgeGroup implements Describable {
         this.description = description;
         this.age = age;
     }
+
+    public static int getAgeByDescription(String description) {
+        for (PartyAgeGroup group : PartyAgeGroup.values()) {
+            if (group.getDescription().equals(description)) {
+                return group.getAge();
+            }
+        }
+        throw new IllegalArgumentException("Invalid description: " + description);
+    }
 }
