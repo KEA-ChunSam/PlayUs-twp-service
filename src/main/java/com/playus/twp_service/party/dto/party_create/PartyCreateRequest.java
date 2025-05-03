@@ -64,4 +64,8 @@ public record PartyCreateRequest(
                 .build();
     }
 
+    public Party toParty() {
+        return Party.create(title, message, minimumParticipants, maximumParticipants, thumbnailUrl, PartyGender.toEnumValue(gender), PartyJoinMethod.toEnumValue(method));
+    }
+
 }
