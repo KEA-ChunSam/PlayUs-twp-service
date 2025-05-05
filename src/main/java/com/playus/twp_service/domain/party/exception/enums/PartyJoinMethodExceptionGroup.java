@@ -3,10 +3,22 @@ package com.playus.twp_service.domain.party.exception.enums;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PartyJoinMethodExceptionGroup {
+import java.io.Serial;
 
+/**
+ * 파티 참여 방법 (선착순, 승인제) 과 관련된 예외 그룹화
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public abstract class PartyJoinMethodExceptionGroup {
+
+    /**
+     * 유효하지 않은 참여 설명이 제공되었을 때 발생
+     */
     public static class InvalidDescriptionException extends RuntimeException {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         public InvalidDescriptionException(String message) {
             super(message);
         }
