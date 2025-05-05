@@ -4,6 +4,7 @@ import com.playus.twp_service.party.controller.PartyController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,10 +18,20 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 public class GlobalControllerAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(WebExchangeBindException.class)
-    public ResponseEntity<String> webExchangeBindExceptionHandler(WebExchangeBindException e) {
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<String> bindExceptionHandler(BindException e) {
         String errorMessage = e.getAllErrors().get(0).getDefaultMessage();
         log.warn("Validation Error: {}", errorMessage);
         return ResponseEntity.badRequest().body(errorMessage);
     }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> otherExceptionHandler(Exception e) {
+        String errorMessage = e.getMessage();
+        log.error("Validation Error: {}", errorMessage);
+        return ResponseEntity.badRequest().body(errorMessage);
+    }
+
+
 }
