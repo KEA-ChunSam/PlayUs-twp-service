@@ -7,29 +7,42 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
-import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
-import org.springframework.security.web.server.SecurityWebFilterChain;
+
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
-@EnableWebFluxSecurity
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
-    public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
-        return http
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-                .authorizeExchange(exchanges -> exchanges
-                        .anyExchange().hasAuthority("USER"))
-                .addFilterBefore(new JwtFilter(jwtUtil), SecurityWebFiltersOrder.AUTHENTICATION)
-                .build();
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.formLogin(AbstractHttpConfigurer::disable);
+        http.httpBasic(AbstractHttpConfigurer::disable);
+        http.cors((httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource)));
+        http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.authorizeHttpRequests(auth -> auth
+                .anyRequest().authenticated()
+        );
+
+        // 세션 관리: Stateless
+        http.sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
+
+        return http.build();
+
     }
 }
