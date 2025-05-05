@@ -7,9 +7,7 @@ import com.playus.twp_service.party.enums.PartyJoinMethod;
 import com.playus.twp_service.party.enums.PartyAgeGroup;
 import com.playus.twp_service.party.enums.PartyGender;
 import com.playus.twp_service.party.validation.ValidMinimumMaximumParticipants;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
 
 import java.util.List;
@@ -20,6 +18,7 @@ import java.util.List;
 public record PartyCreateRequest(
 
         @NotBlank(message = "직관팟 제목이 비어 있습니다!")
+        @Size(min = 1, max = 225, message = "제목의 길이를 1~225자 이내로 작성해 주세요!")
         String title,
 
         @ValidEnum(enumClass = PartyJoinMethod.class, emptyValueMessage = "신청 방식이 비어 있습니다!", invalidValueMessage = "잘못된 신청 방식입니다!")
@@ -44,6 +43,7 @@ public record PartyCreateRequest(
         String thumbnailUrl,
 
         @NotBlank(message = "직관팟 소개 문구가 비어 있습니다!")
+        @Size(min = 1, max = 100, message = "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!")
         String message
 
 ) {
