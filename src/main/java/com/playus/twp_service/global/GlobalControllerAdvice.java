@@ -42,7 +42,7 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> otherExceptionHandler(Exception e) {
         String errorMessage = e.getMessage();
-        log.error("Validation Error: {}", errorMessage);
+        log.error("Unexpected Error: {}", errorMessage);
         return ResponseEntity.internalServerError().body(errorMessage);
     }
 }
