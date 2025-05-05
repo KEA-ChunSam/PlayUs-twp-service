@@ -34,6 +34,8 @@ public class SecurityConfig {
         http.cors((httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource)));
         http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**")
+                .permitAll()
                 .anyRequest().authenticated()
         );
 
