@@ -69,7 +69,7 @@ dependencies {
 	testImplementation("com.h2database:h2:2.3.232")
 
 	// Swagger
-//	implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 
 	// JJWT Core
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
