@@ -63,6 +63,18 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "직관팟 제목이 비어 있습니다!");
     }
 
+    @DisplayName("직관팟 생성 중 제목은 225자를 넘길 수 없다.")
+    @Test
+    void createParty_EXCEED_TITLE() throws Exception {
+        String exceedTitle = "a".repeat(226);
+        PartyCreateRequest request = PartyCreateRequest.of(exceedTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, "url","message");
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
+
+        // when // then
+        assertBadRequestOfPartyCreateRequest(request, "/party", "제목의 길이를 1~225자 이내로 작성해 주세요!");
+    }
+
 
 
 
@@ -252,6 +264,19 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "직관팟 소개 문구가 비어 있습니다!");
+    }
+
+    @DisplayName("직관팟 생성 중 소개 문구는 100자 이내여야 한다.")
+    @Test
+    void createParty_EXCEED_MESSAGE() throws Exception {
+        // given
+        String exceedMessage = "a".repeat(101);
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, "url", exceedMessage);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
+
+        // when // then
+        assertBadRequestOfPartyCreateRequest(request, "/party", "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!");
     }
 
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
