@@ -40,6 +40,7 @@ public record PartyCreateRequest(
         Long maximumParticipants,
 
         @NotBlank(message = "사진 URL이 비어 있습니다!")
+        @Pattern(regexp = "^(https?|ftp)://.*$", message = "올바른 URL 형식이 아닙니다!")
         String thumbnailUrl,
 
         @NotBlank(message = "직관팟 소개 문구가 비어 있습니다!")
