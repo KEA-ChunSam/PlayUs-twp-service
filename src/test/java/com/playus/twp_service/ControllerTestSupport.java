@@ -1,8 +1,8 @@
 package com.playus.twp_service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.playus.twp_service.party.controller.PartyController;
-import com.playus.twp_service.party.service.PartyService;
+import com.playus.twp_service.domain.party.controller.PartyController;
+import com.playus.twp_service.domain.party.service.PartyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;

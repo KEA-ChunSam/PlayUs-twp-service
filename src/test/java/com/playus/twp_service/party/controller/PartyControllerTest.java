@@ -1,8 +1,8 @@
 package com.playus.twp_service.party.controller;
 
 import com.playus.twp_service.ControllerTestSupport;
-import com.playus.twp_service.party.dto.party_create.PartyCreateRequest;
-import com.playus.twp_service.party.dto.party_create.PartyCreateResponse;
+import com.playus.twp_service.domain.party.dto.party_create.PartyCreateRequest;
+import com.playus.twp_service.domain.party.dto.party_create.PartyCreateResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
