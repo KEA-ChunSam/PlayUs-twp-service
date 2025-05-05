@@ -31,7 +31,7 @@ public class PartyJoin {
     @Column(nullable = false, name = "is_writer")
     private Boolean isWriter;
 
-    @Column(nullable = false, name = "require_message", length = 100)
+    @Column(name = "require_message", length = 100)
     private String requireMessage;
 
     @Builder
