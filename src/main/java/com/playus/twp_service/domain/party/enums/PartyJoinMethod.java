@@ -1,5 +1,6 @@
 package com.playus.twp_service.domain.party.enums;
 
+import com.playus.twp_service.domain.party.exception.enums.PartyGenderExceptionGroup;
 import com.playus.twp_service.global.Describable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,6 @@ public enum PartyJoinMethod implements Describable {
         return Arrays.stream(PartyJoinMethod.values())
                 .filter(gender -> gender.getDescription().equals(description))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid PartyGender description: " + description));
+                .orElseThrow(() -> new PartyGenderExceptionGroup.InvalidDescriptionException("Invalid PartyGender description: " + description));
     }
 }
