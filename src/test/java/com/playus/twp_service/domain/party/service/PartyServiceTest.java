@@ -1,4 +1,4 @@
-package com.playus.twp_service.party.service;
+package com.playus.twp_service.domain.party.service;
 
 import com.playus.twp_service.IntegrationTestSupport;
 import com.playus.twp_service.domain.party.dto.party_create.PartyCreateRequest;
@@ -12,7 +12,6 @@ import com.playus.twp_service.domain.party.enums.Status;
 import com.playus.twp_service.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twp_service.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twp_service.domain.party.repository.write.PartyRepository;
-import com.playus.twp_service.domain.party.service.PartyService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

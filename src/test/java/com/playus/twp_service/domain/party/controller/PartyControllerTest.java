@@ -1,4 +1,4 @@
-package com.playus.twp_service.party.controller;
+package com.playus.twp_service.domain.party.controller;
 
 import com.playus.twp_service.ControllerTestSupport;
 import com.playus.twp_service.domain.party.dto.party_create.PartyCreateRequest;

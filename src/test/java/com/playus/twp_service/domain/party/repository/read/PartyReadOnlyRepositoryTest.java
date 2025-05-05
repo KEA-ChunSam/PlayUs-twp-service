@@ -1,4 +1,4 @@
-package com.playus.twp_service.party.repository.read;
+package com.playus.twp_service.domain.party.repository.read;
 
 import com.playus.twp_service.IntegrationTestSupport;
 
