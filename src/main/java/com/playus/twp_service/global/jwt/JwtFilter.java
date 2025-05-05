@@ -1,40 +1,64 @@
 package com.playus.twp_service.global.jwt;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.server.reactive.ServerHttpRequest;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.util.Objects;
+import java.io.IOException;
 
-@RequiredArgsConstructor
-public class JwtFilter implements WebFilter {
+public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
+    public JwtFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
         String authorization = null;
+        Cookie[] cookies = request.getCookies();
 
-        ServerHttpRequest request = exchange.getRequest();
-
-        if (request.getCookies().containsKey("Authorization")) {
-            authorization = Objects.requireNonNull(request.getCookies().getFirst("Authorization")).getValue();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("Authorization".equals(cookie.getName())) {
+                    authorization = cookie.getValue();
+                    break;
+                }
+            }
         }
 
-        if (authorization == null || jwtUtil.isExpired(authorization)) {
-            return chain.filter(exchange);
+        if (authorization == null) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        Long userId = Long.parseLong(jwtUtil.getUserId(authorization));
-        Authentication authToken = new UsernamePasswordAuthenticationToken(userId, null);
+        String token = authorization;
+
+        if (jwtUtil.isExpired(token)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        Long userId = Long.parseLong(jwtUtil.getUserId(token));
+
+
+        Authentication authToken = new UsernamePasswordAuthenticationToken(
+                userId, null
+        );
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        return chain.filter(exchange);
+        filterChain.doFilter(request, response);
     }
 }
+
