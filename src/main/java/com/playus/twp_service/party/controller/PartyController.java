@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/party")
@@ -22,8 +21,7 @@ public class PartyController {
     private final PartyService partyService;
 
     @PostMapping
-    public Mono<ResponseEntity<PartyCreateResponse>> createParty(@AuthenticationPrincipal Long userId, @Valid @RequestBody PartyCreateRequest request) {
-        return partyService.createParty(userId, request)
-                .map(partyCreateResponse -> ResponseEntity.status(HttpStatus.CREATED).body(partyCreateResponse));
+    public ResponseEntity<PartyCreateResponse> createParty(@AuthenticationPrincipal Long userId, @Valid @RequestBody PartyCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(partyService.createParty(userId, request));
     }
 }
