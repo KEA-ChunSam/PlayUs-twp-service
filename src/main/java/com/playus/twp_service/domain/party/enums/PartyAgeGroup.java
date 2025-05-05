@@ -1,8 +1,10 @@
 package com.playus.twp_service.domain.party.enums;
 
 import com.playus.twp_service.global.Describable;
+import com.playus.twp_service.domain.party.exception.enums.PartyAgeGroupExceptionGroup;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 
 @Getter
 @NoArgsConstructor
@@ -28,6 +30,6 @@ public enum PartyAgeGroup implements Describable {
                 return group.getAge();
             }
         }
-        throw new IllegalArgumentException("Invalid description: " + description);
+        throw new PartyAgeGroupExceptionGroup.InvalidDescriptionException("Invalid description: " + description);
     }
 }
