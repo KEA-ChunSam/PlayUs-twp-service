@@ -3,6 +3,7 @@ package com.playus.twp_service.domain.party.controller;
 import com.playus.twp_service.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twp_service.domain.party.dto.party_create.PartyCreateResponse;
 import com.playus.twp_service.domain.party.service.PartyService;
+import com.playus.twp_service.domain.party.specification.PartyControllerSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/party")
 @RequiredArgsConstructor
-public class PartyController {
+public class PartyController implements PartyControllerSpecification {
 
     private final PartyService partyService;
 
