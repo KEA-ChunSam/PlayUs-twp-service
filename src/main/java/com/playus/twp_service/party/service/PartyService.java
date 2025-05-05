@@ -31,7 +31,7 @@ public class PartyService {
 
         Party party = partyRepository.save(request.toParty());
 
-        partyJoinRepository.save(PartyJoin.create(userId, party, Status.WAIT, null));
+        partyJoinRepository.save(PartyJoin.create(userId, party, Status.ACCEPT, null));
 
         List<PartyAge> partyAgeList = convertStringPartyAgeToIntegerPartyAge(request, party);
         partyAgeRepository.saveAll(partyAgeList);
