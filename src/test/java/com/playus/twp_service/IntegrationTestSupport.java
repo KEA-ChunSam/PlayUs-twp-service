@@ -10,11 +10,13 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
+import java.time.Duration;
+
 @ActiveProfiles("test")
 @SpringBootTest
 public abstract class IntegrationTestSupport {
 
-    private static final String MYSQL_VERSION = "mysql:latest";
+    private static final String MYSQL_VERSION = "mysql:8.0.32";
     private static final String REDIS_VERSION = "redis:latest";
     private static final String MONGO_VERSION = "mongo:latest";
 
@@ -27,7 +29,7 @@ public abstract class IntegrationTestSupport {
     private static final int MONGO_PORT = 27017;
 
     static {
-        mySQL = new MySQLContainer<>(MYSQL_VERSION).waitingFor(Wait.forListeningPort());
+        mySQL = new MySQLContainer<>(MYSQL_VERSION).waitingFor(Wait.forListeningPort()).withStartupTimeout(Duration.ofSeconds(60));
 
         redis = new GenericContainer(DockerImageName.parse(REDIS_VERSION))
                 .withExposedPorts(REDIS_PORT)
