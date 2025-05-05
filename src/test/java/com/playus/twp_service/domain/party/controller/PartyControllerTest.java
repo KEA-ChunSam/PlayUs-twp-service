@@ -227,7 +227,7 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "최대 참여 인원이 비어 있습니다!");
     }
 
-    @DisplayName("직관팟 최소 인원은 최대 인원보다 커야 한다.")
+    @DisplayName("직관팟 최소 인원은 최대 인원보다 클 수 없다.")
     @Test
     void createParty_MINIMUM_MAXIMUM() throws Exception {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 10L, 9L, thumbnailUrl,"message");
