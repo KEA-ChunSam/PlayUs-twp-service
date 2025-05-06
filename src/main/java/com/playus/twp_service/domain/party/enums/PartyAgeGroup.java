@@ -14,7 +14,7 @@ public enum PartyAgeGroup implements Describable {
     AGE_30("30대", 30),
     AGE_40("40대", 40),
     AGE_50("50대", 50),
-    AGE_60("60대", 60);
+    AGE_60("60대 이상", 60);
 
     private String description;
     private int age;

@@ -181,7 +181,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_TOO_MANY_AGE() throws Exception {
 
         // given
-        List<String> tooManyAgeList = List.of("10대", "20대", "30대", "40대", "50대", "60대", "70대", "80대", "90대");
+        List<String> tooManyAgeList = List.of("10대", "20대", "30대", "40대", "50대", "60대 이상", "70대", "80대", "90대");
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", tooManyAgeList, 1L, 10L, thumbnailUrl,"message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
