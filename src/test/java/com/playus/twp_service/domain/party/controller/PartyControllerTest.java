@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PartyControllerTest extends ControllerTestSupport {
 
     Long userId = 1L;
-    String thumbnailUrl = "http://image.com";
+    List<String> thumbnailUrl = List.of("http://image.com");
     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")));
 
     @DisplayName("직관팟을 생성할 수 있다.")
@@ -262,10 +262,11 @@ class PartyControllerTest extends ControllerTestSupport {
 
 
 
-    @DisplayName("직관팟 생성 중 사진 url은 http/https/ftp로 시작해야 한다")
-    @CsvSource(value = {"ftp://example.com", "http://example.com", "https://example.com", "ftp://example.com"})
+
+    @DisplayName("직관팟 생성 중 사진 url은 비어 있거나, http/https/ftp로 시작해야 한다.")
+    @MethodSource("validUrlGroupProvider")
     @ParameterizedTest(name = "url = {0}")
-    void createParty_VALID_IMAGE_URL(String validUrl) throws Exception {
+    void createParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, validUrl, "message");
         PartyCreateResponse response = PartyCreateResponse.of(1L, true);
@@ -282,10 +283,36 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.success").value("true"));
     }
 
+    static Stream<Arguments> validUrlGroupProvider() {
+        return Stream.of(
+                Arguments.of(List.of()),
+                Arguments.of(List.of("http://image.com")),
+                Arguments.of(List.of("https://image.com")),
+                Arguments.of(Arrays.asList("http://image.com", "https://image.com")),
+                Arguments.of(Arrays.asList("http://image.co.kr", "https://image.com", "ftp://image.com"))
+                );
+    }
+
+    @DisplayName("직관팟 생성 중 사진 url은 최대 10개까지만 담을 수 있다.")
+    @Test
+    void createParty_NULL_IMAGE_URL() throws Exception {
+        // given
+        List<String> tooManyUrlList = List.of("http://image.com", "https://image.com", "ftp://image.com", "http://image.com",
+                                                        "https://image.com", "ftp://image.com", "ftp://image.com", "http://image.com",
+                                                        "https://image.com", "ftp://image.com", "http://image.com");
+        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, tooManyUrlList, "message");
+        PartyCreateResponse response = PartyCreateResponse.of(1L, true);
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyCreateRequest(request, "/party", "썸네일은 최대 10개까지만 가능합니다!");
+    }
+
     @DisplayName("직관팟 생성 중 사진 url은 올바른 format이여야 한다.")
-    @CsvSource(value = {"abc.com", "www.naver.com", "abc@123.com", "123456788", "htttps://example.com"})
+    @MethodSource("invalidUrlGroupProvider")
     @ParameterizedTest(name = "url = {0}")
-    void createParty_INVALID_IMAGE_URL(String invalidUrl) throws Exception {
+    void createParty_INVALID_IMAGE_URL(List<String> invalidUrl) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, "message");
         PartyCreateResponse response = PartyCreateResponse.of(1L, true);
@@ -295,6 +322,14 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "올바른 URL 형식이 아닙니다!");
     }
 
+    static Stream<Arguments> invalidUrlGroupProvider() {
+        return Stream.of(
+                Arguments.of(List.of("abc://123.com", "123456")),
+                Arguments.of(List.of("!@#$%%", "#$%^&%$#", "#(*##$#$")),
+                Arguments.of(Arrays.asList("사진 URL", "IMAGE URL")),
+                Arguments.of(Arrays.asList("abc@123.com", "www.abc.com"))
+                );
+    }
 
 
 
