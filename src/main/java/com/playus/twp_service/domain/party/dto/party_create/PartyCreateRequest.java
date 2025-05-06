@@ -39,9 +39,12 @@ public record PartyCreateRequest(
         @Min(value = 1, message = "최대 참여 인원은 1명 이상이여야 합니다!")
         Long maximumParticipants,
 
-        @NotBlank(message = "사진 URL이 비어 있습니다!")
-        @Pattern(regexp = "^(https?|ftp)://.*$", message = "올바른 URL 형식이 아닙니다!")
-        String thumbnailUrl,
+        @Size(max = 10, message = "썸네일은 최대 10개까지만 가능합니다!")
+        List<
+                @NotBlank(message = "사진 URL이 비어 있습니다!")
+                @Pattern(regexp = "^(https?|ftp)://.*$", message = "올바른 URL 형식이 아닙니다!")
+                        String>
+                thumbnailUrl,
 
         @NotBlank(message = "직관팟 소개 문구가 비어 있습니다!")
         @Size(max = 100, message = "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!")
@@ -51,7 +54,7 @@ public record PartyCreateRequest(
 
     public static PartyCreateRequest of(String title, String method, String gender, List<String> ageGroup,
                                         Long minimumParticipants, Long maximumParticipants,
-                                        String thumbnailUrl, String message) {
+                                        List<String> thumbnailUrl, String message) {
 
         return PartyCreateRequest.builder()
                 .title(title)
@@ -66,7 +69,7 @@ public record PartyCreateRequest(
     }
 
     public Party toParty() {
-        return Party.create(title, message, minimumParticipants, maximumParticipants, thumbnailUrl, PartyGender.toEnumValue(gender), PartyJoinMethod.toEnumValue(method));
+        return Party.create(title, message, minimumParticipants, maximumParticipants, PartyGender.toEnumValue(gender), PartyJoinMethod.toEnumValue(method));
     }
 
 }
