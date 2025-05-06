@@ -108,6 +108,8 @@ class PartyControllerTest extends ControllerTestSupport {
 
 
 
+
+
     @DisplayName("직관팟 생성 중 참여 원하는 성별은 필수이다.")
     @NullAndEmptySource
     @ParameterizedTest(name = "gender = {0}")
@@ -123,7 +125,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
     @DisplayName("직관팟 생성 중 성별은 정해진 양식대로 입력해야 한다.")
     @CsvSource(value = {"MALE", "FEMALE", "NO_MATTER", "ㄱㄴㄷㄹㅁㅂㅅㅇ", "!@#$%^&", "123456789"})
-    @ParameterizedTest(name = "method = {0}")
+    @ParameterizedTest(name = "gender = {0}")
     void createParty_INVALID_GENDER(String invalidGender) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl,"message");
@@ -132,6 +134,26 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 성별 형식입니다!");
+    }
+
+    @DisplayName("직관팟 생성 중 성별은 남자만, 여자만, 상관없음 중 하나만 입력해아 한다.")
+    @CsvSource(value = {"남자만", "여자만", "상관없음"})
+    @ParameterizedTest(name = "gender = {0}")
+    void createParty_VALID_GENDER(String gender) throws Exception {
+        // given
+        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", gender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyCreateResponse response = PartyCreateResponse.of(1L, true);
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
+
+        // when // then
+        mockMvc.perform(post("/party")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.partyId").value("1"))
+                .andExpect(jsonPath("$.success").value("true"));
     }
 
 

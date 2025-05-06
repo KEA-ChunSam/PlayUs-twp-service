@@ -12,7 +12,7 @@ import java.util.Arrays;
 @NoArgsConstructor
 @AllArgsConstructor
 public enum PartyGender implements Describable {
-    MALE("남자만"), FEMALE("여자만"), NO_MATTER("상관 없음");
+    MALE("남자만"), FEMALE("여자만"), NO_MATTER("상관없음");
 
     private String description;
 
