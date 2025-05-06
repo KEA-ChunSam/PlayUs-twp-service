@@ -31,9 +31,6 @@ public class Party extends BaseTimeEntity {
     @Column(nullable = false, name = "maximum_participants")
     private Long maximumParticipants;
 
-    @Column(length = 255, name = "thumbnail_url", nullable = false)
-    private String thumbnailUrl;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, name = "party_gender")
     private PartyGender partyGender;
@@ -43,23 +40,21 @@ public class Party extends BaseTimeEntity {
     private PartyJoinMethod partyJoinMethod;
 
     @Builder
-    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants,  String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod){
+    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod){
         this.title = title;
         this.text = text;
         this.minimumParticipants = minimumParticipants;
         this.maximumParticipants = maximumParticipants;
-        this.thumbnailUrl = thumbnailUrl;
         this.partyGender = partyGender;
         this.partyJoinMethod = partyJoinMethod;
     }
 
-    public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants,  String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod){
+    public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod){
         return Party.builder()
                 .title(title)
                 .text(text)
                 .minimumParticipants(minimumParticipants)
                 .maximumParticipants(maximumParticipants)
-                .thumbnailUrl(thumbnailUrl)
                 .partyGender(partyGender)
                 .partyJoinMethod(partyJoinMethod)
                 .build();
