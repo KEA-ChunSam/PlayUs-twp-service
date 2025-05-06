@@ -5,6 +5,7 @@ import com.playus.twp_service.domain.party.dto.party_create.PartyCreateResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +21,7 @@ public interface PartyControllerSpecification {
     @Operation(
             summary = "직관팟 생성",
             description = "로그인한 사용자가 작성자로서 직관팟을 생성합니다.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            requestBody = @RequestBody(
                     required = true,
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
