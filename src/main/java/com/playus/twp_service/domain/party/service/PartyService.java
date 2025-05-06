@@ -5,16 +5,19 @@ import com.playus.twp_service.domain.party.dto.party_create.PartyCreateResponse;
 import com.playus.twp_service.domain.party.entity.Party;
 import com.playus.twp_service.domain.party.entity.PartyAge;
 import com.playus.twp_service.domain.party.entity.PartyJoin;
+import com.playus.twp_service.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twp_service.domain.party.enums.PartyAgeGroup;
 import com.playus.twp_service.domain.party.enums.Status;
 import com.playus.twp_service.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twp_service.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twp_service.domain.party.repository.write.PartyRepository;
+import com.playus.twp_service.domain.party.repository.write.PartyThumbnailUrlRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -25,7 +28,7 @@ public class PartyService {
     private final PartyRepository partyRepository;
     private final PartyJoinRepository partyJoinRepository;
     private final PartyAgeRepository partyAgeRepository;
-
+    private final PartyThumbnailUrlRepository partyThumbnailUrlRepository;
 
     public PartyCreateResponse createParty(Long userId, PartyCreateRequest request) {
 
@@ -33,13 +36,32 @@ public class PartyService {
 
         partyJoinRepository.save(PartyJoin.create(userId, party, Status.ACCEPT, null));
 
-        List<PartyAge> partyAgeList = convertStringPartyAgeToIntegerPartyAge(request, party);
+        List<PartyAge> partyAgeList = toPartyAgeEntity(request, party);
         partyAgeRepository.saveAll(partyAgeList);
+
+        saveThumbnailUrlIfPresent(request, party);
 
         return PartyCreateResponse.of(party.getId(), Boolean.TRUE);
     }
 
-    private static List<PartyAge> convertStringPartyAgeToIntegerPartyAge(PartyCreateRequest request, Party party) {
+    private void saveThumbnailUrlIfPresent(PartyCreateRequest request, Party party) {
+        if (thumbnailUrlExistsIn(request)) {
+            List<PartyThumbnailUrl> partyThumbnailUrlList = toPartyThumbnailUrlEntity(request, party);
+            partyThumbnailUrlRepository.saveAll(partyThumbnailUrlList);
+        }
+    }
+
+    private static List<PartyThumbnailUrl> toPartyThumbnailUrlEntity(PartyCreateRequest request, Party party) {
+        return request.thumbnailUrl().stream()
+                .map(thumbnailUrl -> PartyThumbnailUrl.create(party, thumbnailUrl))
+                .toList();
+    }
+
+    private static boolean thumbnailUrlExistsIn(PartyCreateRequest request) {
+        return !Objects.isNull(request.thumbnailUrl()) && !request.thumbnailUrl().isEmpty();
+    }
+
+    private static List<PartyAge> toPartyAgeEntity(PartyCreateRequest request, Party party) {
         return request.ageGroup().stream()
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
