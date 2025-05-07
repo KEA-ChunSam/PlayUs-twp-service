@@ -43,6 +43,6 @@ public class GlobalControllerAdvice {
     public ResponseEntity<String> otherExceptionHandler(Exception e) {
         String errorMessage = e.getMessage();
         log.error("Unexpected Error: {}", errorMessage);
-        return ResponseEntity.internalServerError().body(errorMessage);
+        return ResponseEntity.internalServerError().body("서버 에러가 발생했습니다! 관리자에게 문의해 주세요!");
     }
 }
