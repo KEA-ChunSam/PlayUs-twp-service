@@ -2,6 +2,8 @@ package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyAge;
 import com.playus.twpservice.domain.party.entity.PartyJoin;
@@ -44,6 +46,13 @@ public class PartyService {
         return PartyCreateResponse.of(party.getId(), Boolean.TRUE);
     }
 
+    public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
+        return null;
+    }
+
+
+
+
     private void saveThumbnailUrlIfPresent(PartyCreateRequest request, Party party) {
         if (thumbnailUrlExistsIn(request)) {
             List<PartyThumbnailUrl> partyThumbnailUrlList = toPartyThumbnailUrlEntity(request, party);
@@ -66,4 +75,6 @@ public class PartyService {
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
     }
+
+
 }
