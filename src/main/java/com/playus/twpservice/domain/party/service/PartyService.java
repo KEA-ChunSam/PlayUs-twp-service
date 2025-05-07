@@ -1,0 +1,69 @@
+package com.playus.twpservice.domain.party.service;
+
+import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
+import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
+import com.playus.twpservice.domain.party.entity.Party;
+import com.playus.twpservice.domain.party.entity.PartyAge;
+import com.playus.twpservice.domain.party.entity.PartyJoin;
+import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
+import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
+import com.playus.twpservice.domain.party.enums.Status;
+import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
+import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
+import com.playus.twpservice.domain.party.repository.write.PartyRepository;
+import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class PartyService {
+
+
+    private final PartyRepository partyRepository;
+    private final PartyJoinRepository partyJoinRepository;
+    private final PartyAgeRepository partyAgeRepository;
+    private final PartyThumbnailUrlRepository partyThumbnailUrlRepository;
+
+    public PartyCreateResponse createParty(Long userId, PartyCreateRequest request) {
+
+        Party party = partyRepository.save(request.toParty());
+
+        partyJoinRepository.save(PartyJoin.create(userId, party, Status.ACCEPT, null));
+
+        List<PartyAge> partyAgeList = toPartyAgeEntity(request, party);
+        partyAgeRepository.saveAll(partyAgeList);
+
+        saveThumbnailUrlIfPresent(request, party);
+
+        return PartyCreateResponse.of(party.getId(), Boolean.TRUE);
+    }
+
+    private void saveThumbnailUrlIfPresent(PartyCreateRequest request, Party party) {
+        if (thumbnailUrlExistsIn(request)) {
+            List<PartyThumbnailUrl> partyThumbnailUrlList = toPartyThumbnailUrlEntity(request, party);
+            partyThumbnailUrlRepository.saveAll(partyThumbnailUrlList);
+        }
+    }
+
+    private static List<PartyThumbnailUrl> toPartyThumbnailUrlEntity(PartyCreateRequest request, Party party) {
+        return request.thumbnailUrl().stream()
+                .map(thumbnailUrl -> PartyThumbnailUrl.create(party, thumbnailUrl))
+                .toList();
+    }
+
+    private static boolean thumbnailUrlExistsIn(PartyCreateRequest request) {
+        return !Objects.isNull(request.thumbnailUrl()) && !request.thumbnailUrl().isEmpty();
+    }
+
+    private static List<PartyAge> toPartyAgeEntity(PartyCreateRequest request, Party party) {
+        return request.ageGroup().stream()
+                .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
+                .toList();
+    }
+}
