@@ -84,6 +84,11 @@ class PartyServiceTest extends IntegrationTestSupport {
                 .extracting("age")
                 .containsExactlyInAnyOrder(10, 20);
         assertThat(result).extracting("success").isEqualTo(true);
+
+        Long savedPartyId = savedParty.getId();
+        assertThat(savedPartyJoin.getParty().getId()).isEqualTo(savedPartyId);
+        assertThat(savedPartyUrl.getParty().getId()).isEqualTo(savedPartyId);
+        assertThat(savedPartyAges).allMatch(age -> age.getParty().getId().equals(savedPartyId));
     }
 
     @DisplayName("썸네일 URL이 비어 있을 때에도 직관팟을 생성할 수 있다.")
