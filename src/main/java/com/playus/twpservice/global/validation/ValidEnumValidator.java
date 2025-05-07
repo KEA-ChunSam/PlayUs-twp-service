@@ -25,7 +25,6 @@ public class ValidEnumValidator implements ConstraintValidator<ValidEnum, String
                 .collect(Collectors.toSet());
     }
 
-
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (isEmptyValue(value)) {
@@ -38,7 +37,7 @@ public class ValidEnumValidator implements ConstraintValidator<ValidEnum, String
             return false;
         }
 
-        return enumValues.contains(value);
+        return true;
     }
 
     private void setCustomMessageInValidationContext(ConstraintValidatorContext context, String validationMessage) {
