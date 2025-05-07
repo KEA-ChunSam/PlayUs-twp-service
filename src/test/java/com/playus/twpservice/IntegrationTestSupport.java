@@ -29,7 +29,10 @@ public abstract class IntegrationTestSupport {
     private static final int MONGO_PORT = 27017;
 
     static {
-        mySQL = new MySQLContainer<>(MYSQL_VERSION).waitingFor(Wait.forListeningPort()).withStartupTimeout(Duration.ofSeconds(60));
+        mySQL = new MySQLContainer<>(MYSQL_VERSION)
+                .waitingFor(Wait.forListeningPort())
+                .withStartupTimeout(Duration.ofSeconds(60))
+                .withReuse(true);
 
         redis = new GenericContainer(DockerImageName.parse(REDIS_VERSION))
                 .withExposedPorts(REDIS_PORT)
