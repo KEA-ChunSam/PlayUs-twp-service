@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(
         basePackages = "com.playus.twpservice.domain.party.repository.write"
 )
-@EntityScan(basePackages = "com.playus.twp_service.domain.party.entity")
+@EntityScan(basePackages = "com.playus.twpservice.domain.party.entity")
 public class JpaConfig {
 }
