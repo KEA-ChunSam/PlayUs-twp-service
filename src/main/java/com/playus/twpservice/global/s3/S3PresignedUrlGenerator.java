@@ -21,16 +21,23 @@ public class S3PresignedUrlGenerator {
 
     public String generatePresignedUrl(String imageFileName) {
 
-        PutObjectRequest objectRequest = PutObjectRequest.builder()
+        PutObjectRequest objectRequest = createPutObjectRequest(imageFileName);
+        PutObjectPresignRequest presignRequest = createPresignedRequest(objectRequest, 10);
+
+        return s3Presigner.presignPutObject(presignRequest).url().toString();
+    }
+
+    private PutObjectRequest createPutObjectRequest(String imageFileName) {
+        return PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(imageFileName)
                 .build();
+    }
 
-        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10))
+    private static PutObjectPresignRequest createPresignedRequest(PutObjectRequest objectRequest, int minutes) {
+        return PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(minutes))
                 .putObjectRequest(objectRequest)
                 .build();
-
-        return s3Presigner.presignPutObject(presignRequest).url().toString();
     }
 }
