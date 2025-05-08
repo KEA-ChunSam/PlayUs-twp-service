@@ -61,7 +61,8 @@ class PartyServiceTest extends IntegrationTestSupport {
     void createParty() {
         // given
         Long userId = 1L;
-        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, List.of("url"), "message");
+        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, List.of("url", "url2"), "message");
 
         // when
         PartyCreateResponse result = partyService.createParty(userId, request);
@@ -69,7 +70,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // then
         assertThat(partyRepository.count()).isEqualTo(1);
         assertThat(partyJoinRepository.count()).isEqualTo(1);
-        assertThat(partyThumbnailUrlRepository.count()).isEqualTo(1);
+        assertThat(partyThumbnailUrlRepository.count()).isEqualTo(2);
 
         Party savedParty = partyRepository.findAll().get(0);
         assertThat(savedParty.getTitle()).isEqualTo("title");
@@ -83,8 +84,11 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(savedPartyJoin.getStatus()).isEqualTo(Status.ACCEPT);
         assertThat(savedPartyJoin.getRequireMessage()).isNull();
 
-        PartyThumbnailUrl savedPartyUrl = partyThumbnailUrlRepository.findAll().get(0);
-        assertThat(savedPartyUrl.getThumbnailUrl()).isEqualTo("url");
+        List<PartyThumbnailUrl> savedUrl = partyThumbnailUrlRepository.findAll();
+        assertThat(savedUrl).hasSize(2);
+        assertThat(savedUrl)
+                .extracting("thumbnailUrl")
+                .containsExactlyInAnyOrder("url", "url2");
 
         List<PartyAge> savedPartyAges = partyAgeRepository.findAll();
         assertThat(savedPartyAges).hasSize(2);
@@ -95,7 +99,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         Long savedPartyId = savedParty.getId();
         assertThat(savedPartyJoin.getParty().getId()).isEqualTo(savedPartyId);
-        assertThat(savedPartyUrl.getParty().getId()).isEqualTo(savedPartyId);
+        assertThat(savedUrl).allMatch(url -> url.getParty().getId().equals(savedPartyId));
         assertThat(savedPartyAges).allMatch(age -> age.getParty().getId().equals(savedPartyId));
     }
 
