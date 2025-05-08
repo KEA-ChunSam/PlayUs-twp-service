@@ -34,11 +34,11 @@ public record ErrorResponse(
 
 
 
-    private static ErrorResponse createErrorResponse(HttpStatus badRequest, String message) {
+    private static ErrorResponse createErrorResponse(HttpStatus errorStatus, String errorMessage) {
         return ErrorResponse.builder()
-                .code(badRequest.value())
-                .status(badRequest)
-                .message(message)
+                .code(errorStatus.value())
+                .status(errorStatus)
+                .message(errorMessage)
                 .build();
     }
 }
