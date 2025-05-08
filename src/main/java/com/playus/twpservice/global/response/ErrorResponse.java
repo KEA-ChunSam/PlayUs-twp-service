@@ -26,6 +26,8 @@ public record ErrorResponse(
         return createErrorResponse(HttpStatus.NOT_FOUND, errorMessage);
     }
 
+
+
     public static ErrorResponse internalServerError (String errorMessage) {
         return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
     }
