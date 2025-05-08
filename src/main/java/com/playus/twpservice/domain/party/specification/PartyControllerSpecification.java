@@ -2,6 +2,8 @@ package com.playus.twpservice.domain.party.specification;
 
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -61,4 +63,41 @@ public interface PartyControllerSpecification {
             )
     })
     ResponseEntity<PartyCreateResponse> createParty(Long userId, PartyCreateRequest request);
+
+    @Tag(name = "Post", description = "Presigned URL 발급 API")
+    @Operation(
+            summary = "Presigned URL 발급",
+            description = "프론트에서 이미지를 직접 저장하기 위한 Presigned URL을 생성 및 반환합니다. (버킷에 저장할 때는 PUT으로)",
+            requestBody = @RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "Presigned URL 발급 요청 예시",
+                                    value = """
+                    {
+                      "imageFileName": "party_thumbnail.jpg"
+                    }
+                    """
+                            )
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "발급 성공",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "Presigned URL 발급 응답 예시",
+                                    value = """
+                    {
+                      "presignedUrl": "http://presigned-url.com"
+                    }
+                    """
+                            )
+                    )
+            )
+    })
+    PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request);
 }

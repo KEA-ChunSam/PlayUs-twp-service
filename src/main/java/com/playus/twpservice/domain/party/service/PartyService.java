@@ -2,6 +2,8 @@ package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyAge;
 import com.playus.twpservice.domain.party.entity.PartyJoin;
@@ -12,6 +14,7 @@ import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
+import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +27,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PartyService {
 
-
+    private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
     private final PartyRepository partyRepository;
     private final PartyJoinRepository partyJoinRepository;
     private final PartyAgeRepository partyAgeRepository;
@@ -43,6 +46,13 @@ public class PartyService {
 
         return PartyCreateResponse.of(party.getId(), Boolean.TRUE);
     }
+
+    public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
+        return new PresignedUrlForSaveImageResponse(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName()));
+    }
+
+
+
 
     private void saveThumbnailUrlIfPresent(PartyCreateRequest request, Party party) {
         if (thumbnailUrlExistsIn(request)) {
@@ -66,4 +76,6 @@ public class PartyService {
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
     }
+
+
 }

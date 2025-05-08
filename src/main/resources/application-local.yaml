@@ -33,6 +33,20 @@ spring:
         show_sql: true
 
   jwt:
-    secret: "secretkeysecretkeysecretkeysecretkeysecretkeysecretkeysecretkey"
+    secret: secretsecretsecretesecretesecretesecret
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${STORAGE_ACCESS_KEY}
+      secret-key: ${STORAGE_SECRET_KEY}
+    s3:
+      bucket : ${BUCKET_NAME}
+      endpoint : ${BUCKET_ENDPOINT}
+
+
+
+
+
 
 

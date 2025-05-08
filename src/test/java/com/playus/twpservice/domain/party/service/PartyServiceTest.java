@@ -3,6 +3,8 @@ package com.playus.twpservice.domain.party.service;
 import com.playus.twpservice.IntegrationTestSupport;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyAge;
 import com.playus.twpservice.domain.party.entity.PartyJoin;
@@ -14,19 +16,25 @@ import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
+import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.*;
 
 class PartyServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private PartyService partyService;
+
+    @MockitoBean
+    private S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
     @Autowired
     private PartyRepository partyRepository;
@@ -53,7 +61,8 @@ class PartyServiceTest extends IntegrationTestSupport {
     void createParty() {
         // given
         Long userId = 1L;
-        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, List.of("url"), "message");
+        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, List.of("url", "url2"), "message");
 
         // when
         PartyCreateResponse result = partyService.createParty(userId, request);
@@ -61,7 +70,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // then
         assertThat(partyRepository.count()).isEqualTo(1);
         assertThat(partyJoinRepository.count()).isEqualTo(1);
-        assertThat(partyThumbnailUrlRepository.count()).isEqualTo(1);
+        assertThat(partyThumbnailUrlRepository.count()).isEqualTo(2);
 
         Party savedParty = partyRepository.findAll().get(0);
         assertThat(savedParty.getTitle()).isEqualTo("title");
@@ -75,8 +84,11 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(savedPartyJoin.getStatus()).isEqualTo(Status.ACCEPT);
         assertThat(savedPartyJoin.getRequireMessage()).isNull();
 
-        PartyThumbnailUrl savedPartyUrl = partyThumbnailUrlRepository.findAll().get(0);
-        assertThat(savedPartyUrl.getThumbnailUrl()).isEqualTo("url");
+        List<PartyThumbnailUrl> savedUrl = partyThumbnailUrlRepository.findAll();
+        assertThat(savedUrl).hasSize(2);
+        assertThat(savedUrl)
+                .extracting("thumbnailUrl")
+                .containsExactlyInAnyOrder("url", "url2");
 
         List<PartyAge> savedPartyAges = partyAgeRepository.findAll();
         assertThat(savedPartyAges).hasSize(2);
@@ -87,7 +99,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         Long savedPartyId = savedParty.getId();
         assertThat(savedPartyJoin.getParty().getId()).isEqualTo(savedPartyId);
-        assertThat(savedPartyUrl.getParty().getId()).isEqualTo(savedPartyId);
+        assertThat(savedUrl).allMatch(url -> url.getParty().getId().equals(savedPartyId));
         assertThat(savedPartyAges).allMatch(age -> age.getParty().getId().equals(savedPartyId));
     }
 
@@ -127,5 +139,19 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(partyThumbnailUrlRepository.count()).isZero();
     }
 
+    @DisplayName("이미지 저장 위한 Presigned URL 을 발급받을 수 있다.")
+    @Test
+    void generatePresignedUrlForSaveImage() {
+        // given
+        String responseUrl = "http://presigned-url.com";
+        PresignedUrlForSaveImageRequest request = new PresignedUrlForSaveImageRequest("image.jpg");
+        given(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName())).willReturn(responseUrl);
+
+        // when
+        PresignedUrlForSaveImageResponse result = partyService.generatePresignedUrlForSaveImage(request);
+
+        // then
+        assertThat(result.presignedUrl()).isEqualTo(responseUrl);
+    }
 
 }

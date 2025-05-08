@@ -11,6 +11,7 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import software.amazon.awssdk.core.exception.SdkException;
 
 @Slf4j
 @RestControllerAdvice(assignableTypes = {
@@ -36,6 +37,14 @@ public class GlobalControllerAdvice {
         String errorMessage = e.getMessage();
         log.warn("Validation Error: {}", errorMessage);
         return ResponseEntity.badRequest().body(errorMessage);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(SdkException.class)
+    public ResponseEntity<String> sdkExceptionHandler(Exception e) {
+        String errorMessage = e.getMessage();
+        log.error("Object Storage Error: {}", errorMessage);
+        return ResponseEntity.internalServerError().body("서버 에러가 발생했습니다! 관리자에게 문의해 주세요!");
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
