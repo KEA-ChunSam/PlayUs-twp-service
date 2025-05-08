@@ -34,3 +34,12 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
         show_sql: true
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${STORAGE_ACCESS_KEY}
+      secret-key: ${STORAGE_SECRET_KEY}
+    s3:
+      bucket : ${BUCKET_NAME}
+      endpoint : ${BUCKET_ENDPOINT}
