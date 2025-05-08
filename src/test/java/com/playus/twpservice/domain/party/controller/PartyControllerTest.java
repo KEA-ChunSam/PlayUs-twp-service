@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -379,21 +378,21 @@ class PartyControllerTest extends ControllerTestSupport {
                         .with(authentication(token)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("이미지 파일명은 필수입니다!"));
-
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("이미지 파일명은 필수입니다!"));
     }
 
 
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
-        String responseBody = mockMvc.perform(post(requestUri)
+        mockMvc.perform(post(requestUri)
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        assertThat(responseBody).isEqualTo(expectedResult);
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value(expectedResult));
     }
 }
