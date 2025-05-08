@@ -147,7 +147,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         PresignedUrlForSaveImageResponse result = partyService.generatePresignedUrlForSaveImage(request);
 
         // then
-        assertThat(result.getPresignedUrl()).isEqualTo(responseUrl);
+        assertThat(result.presignedUrl()).isEqualTo(responseUrl);
     }
 
 }

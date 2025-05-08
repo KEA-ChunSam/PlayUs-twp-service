@@ -1,15 +1,8 @@
 package com.playus.twpservice.domain.party.dto.presigned;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor
-public class PresignedUrlForSaveImageResponse {
+public record PresignedUrlForSaveImageResponse(
+        String presignedUrl
+) {
 
-    private String presignedUrl;
-
-    public PresignedUrlForSaveImageResponse(String presignedUrl) {
-        this.presignedUrl = presignedUrl;
-    }
 }
