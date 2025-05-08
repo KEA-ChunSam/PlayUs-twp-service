@@ -3,6 +3,8 @@ package com.playus.twpservice.domain.party.service;
 import com.playus.twpservice.IntegrationTestSupport;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
+import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyAge;
 import com.playus.twpservice.domain.party.entity.PartyJoin;
@@ -24,6 +26,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.*;
 
 class PartyServiceTest extends IntegrationTestSupport {
 
@@ -132,5 +135,19 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(partyThumbnailUrlRepository.count()).isZero();
     }
 
+    @DisplayName("이미지 저장 위한 Presigned URL 을 발급받을 수 있다.")
+    @Test
+    void generatePresignedUrlForSaveImage() {
+        // given
+        String responseUrl = "http://presigned-url.com";
+        PresignedUrlForSaveImageRequest request = new PresignedUrlForSaveImageRequest("image.jpg");
+        given(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName())).willReturn(responseUrl);
+
+        // when
+        PresignedUrlForSaveImageResponse result = partyService.generatePresignedUrlForSaveImage(request);
+
+        // then
+        assertThat(result.getPresignedUrl()).isEqualTo(responseUrl);
+    }
 
 }
