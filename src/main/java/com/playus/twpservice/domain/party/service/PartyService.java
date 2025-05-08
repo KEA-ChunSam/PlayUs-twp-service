@@ -14,6 +14,7 @@ import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
+import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PartyService {
 
-
+    private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
     private final PartyRepository partyRepository;
     private final PartyJoinRepository partyJoinRepository;
     private final PartyAgeRepository partyAgeRepository;
@@ -47,7 +48,7 @@ public class PartyService {
     }
 
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
-        return null;
+        return new PresignedUrlForSaveImageResponse(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName()));
     }
 
 
