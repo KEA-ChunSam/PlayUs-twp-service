@@ -38,6 +38,7 @@ public interface PartyControllerSpecification {
                       "minimumParticipants": 3,
                       "maximumParticipants": 5,
                       "thumbnailUrl": "https://image.example.com/party.jpg",
+                      "matchId" : "1",
                       "message": "재밌게 응원할 분 구해요!"
                     }
                     """
@@ -55,7 +56,7 @@ public interface PartyControllerSpecification {
                                     value = """
                     {
                       "partyId": 1,
-                      "success": true
+                      "chatRoomId": "chatRoomId"
                     }
                     """
                             )
