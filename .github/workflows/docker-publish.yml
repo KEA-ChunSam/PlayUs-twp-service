@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+  workflow_dispatch:  # 수동 실행 허용
 
 permissions:
   contents: read
@@ -15,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -49,13 +50,11 @@ jobs:
           BRANCH_NAME=${GITHUB_REF##*/}
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BUILD_VERSION=${{ github.run_number }}-${SHORT_SHA}
-
           if [[ "$BRANCH_NAME" == "main" ]]; then
             echo "BASE_TAG=latest" >> $GITHUB_ENV
           elif [[ "$BRANCH_NAME" == "develop" ]]; then
             echo "BASE_TAG=dev" >> $GITHUB_ENV
           fi
-
           echo "BUILD_VERSION=$BUILD_VERSION" >> $GITHUB_ENV
 
       - name: Build Docker image
@@ -67,3 +66,36 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/playus-twp-service:${{ env.BASE_TAG }}
           docker push ${{ secrets.DOCKER_USERNAME }}/playus-twp-service:${{ env.BUILD_VERSION }}
+
+      - name: Update patch-image.yaml
+        if: success()
+        run: |
+          BRANCH_NAME=${GITHUB_REF##*/}
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            K8S_BRANCH="main" 
+          elif [[ "$BRANCH_NAME" == "develop" ]]; then
+            K8S_BRANCH="develop"
+          fi
+          
+          git clone --single-branch --branch "$K8S_BRANCH" https://x-access-token:${{ secrets.K8S_REPO_TOKEN }}@github.com/KEA-ChunSam/PlayUs-k8s.git
+          
+          if [[ "$BRANCH_NAME" == "main" ]]; then 
+            echo "Skipping main branch update (prod) for now"
+          elif [[ "$BRANCH_NAME" == "develop" ]]; then
+            sed -i "/name: twp-service/{n;s|image: .*|image: ${{ secrets.DOCKER_USERNAME }}/playus-twp-service:${{ env.BUILD_VERSION }}|}" PlayUs-k8s/overlays/develop/twp-service/patch-image.yaml
+          fi
+
+          cd PlayUs-k8s
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          
+          # 변경사항 있으면 커밋, 없으면 빈 커밋 생성
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .
+            git commit -m "Update twp-service image to ${{ env.BUILD_VERSION }} on $BRANCH_NAME"
+          else
+            echo "No changes detected, creating empty commit to trigger deploy"
+            git commit --allow-empty -m "Update twp-service image to ${{ env.BUILD_VERSION }} on $BRANCH_NAME"
+          fi
+          
+          git push https://x-access-token:${{ secrets.K8S_REPO_TOKEN }}@github.com/KEA-ChunSam/PlayUs-k8s.git
