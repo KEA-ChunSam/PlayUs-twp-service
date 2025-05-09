@@ -32,8 +32,8 @@ public interface PartyControllerSpecification {
                                     value = """
                     {
                       "title": "롯데 vs LG 직관 같이 가요!",
-                      "method": "선착순",
-                      "gender": "남자만",
+                      "partyJoinMethod": "선착순",
+                      "partyGender": "남자만",
                       "ageGroup": ["10대", "20대"],
                       "minimumParticipants": 3,
                       "maximumParticipants": 5,
