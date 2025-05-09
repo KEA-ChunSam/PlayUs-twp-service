@@ -36,7 +36,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty() throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse response = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse response = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
         // when // then
@@ -47,7 +47,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.partyId").value("1"))
-                .andExpect(jsonPath("$.success").value("true"));
+                .andExpect(jsonPath("$.chatRoomId").value("id"));
     }
 
     //  직관팟 생성 title 이슈
@@ -57,7 +57,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_EMPTY_TITLE(String emptyTitle) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of(emptyTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -69,7 +69,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_EXCEED_TITLE() throws Exception {
         String exceedTitle = "a".repeat(226);
         PartyCreateRequest request = PartyCreateRequest.of(exceedTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -83,7 +83,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_EMPTY_METHOD(String emptyMethod) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", emptyMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -96,7 +96,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_INVALID_METHOD(String invalidMethod) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", invalidMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -110,7 +110,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_EMPTY_GENDER(String emptyGender) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", emptyGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -123,7 +123,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_INVALID_GENDER(String invalidGender) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -136,7 +136,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_VALID_GENDER(String gender) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", gender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse response = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse response = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
         // when // then
@@ -147,7 +147,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.partyId").value("1"))
-                .andExpect(jsonPath("$.success").value("true"));
+                .andExpect(jsonPath("$.chatRoomId").value("id"));
     }
 
     //  직관팟 생성 ageGroup 이슈
@@ -158,7 +158,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -172,7 +172,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -197,7 +197,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         List<String> tooManyAgeList = List.of("10대", "20대", "30대", "40대", "50대", "60대 이상", "70대", "80대", "90대");
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", tooManyAgeList, 1L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -209,7 +209,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void createParty_EMPTY_MINIMUM() throws Exception {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), null, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -220,7 +220,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void createParty_INVALID_MINIMUM() throws Exception {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 0L, 10L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -232,7 +232,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void createParty_EMPTY_MAXIMUM() throws Exception {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, null, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -243,7 +243,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void createParty_MINIMUM_MAXIMUM() throws Exception {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 10L, 9L, thumbnailUrl, 1L, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -257,7 +257,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, validUrl, 1L, "message");
-        PartyCreateResponse response = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse response = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
         // when // then
@@ -268,7 +268,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.partyId").value("1"))
-                .andExpect(jsonPath("$.success").value("true"));
+                .andExpect(jsonPath("$.chatRoomId").value("id"));
     }
 
     static Stream<Arguments> validUrlGroupProvider() {
@@ -290,7 +290,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 "https://image.com", "ftp://image.com", "http://image.com");
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
                 1L, 10L, tooManyUrlList, 1L, "message");
-        PartyCreateResponse response = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse response = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
         // when // then
@@ -303,7 +303,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_INVALID_IMAGE_URL(List<String> invalidUrl) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, 1L, "message");
-        PartyCreateResponse response = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse response = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
         // when // then
@@ -325,7 +325,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_EMPTY_MATCH_ID() throws Exception {
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"),
                 1L, 10L, thumbnailUrl, null, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -339,7 +339,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long invalidMatchId = Long.valueOf(invalidMatchIdStr);
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"),
                 1L, 10L, thumbnailUrl, invalidMatchId, "message");
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -353,7 +353,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_EMPTY_MESSAGE(String emptyMessage) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, emptyMessage);
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
@@ -366,7 +366,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         String exceedMessage = "a".repeat(101);
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, exceedMessage);
-        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, "id");
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
         // when // then
