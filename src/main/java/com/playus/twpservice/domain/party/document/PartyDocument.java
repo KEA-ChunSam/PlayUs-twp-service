@@ -26,7 +26,11 @@ public class PartyDocument extends BaseTimeEntity {
     private String title;
 
     @NotNull
-    private String text;
+    private PartyJoinMethod partyJoinMethod;
+
+    @NotNull
+    @Field(name = "party_gender")
+    private PartyGender partyGender;
 
     @NotNull
     @Field(name = "minimum_participants")
@@ -37,19 +41,26 @@ public class PartyDocument extends BaseTimeEntity {
     private Long maximumParticipants;
 
     @NotNull
+    @Field(name = "match_id")
+    private Long matchId;
+
+    @NotNull
+    @Field(name = "chatroom_id")
+    private String chatRoomId;
+
+    @NotNull
+    private String text;
+
+    @NotNull
     @Field(name = "thumbnail_url")
     @Size(min = 1, max = 255)
     private String thumbnailUrl;
 
-    @NotNull
-    @Field(name = "party_gender")
-    private PartyGender partyGender;
 
-    @NotNull
-    private PartyJoinMethod partyJoinMethod;
 
     @Builder
-    private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod) {
+    private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants,
+                          String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long matchId, String chatRoomId) {
         this.id = id;
         this.title = title;
         this.text = text;
@@ -58,9 +69,13 @@ public class PartyDocument extends BaseTimeEntity {
         this.thumbnailUrl = thumbnailUrl;
         this.partyGender = partyGender;
         this.partyJoinMethod = partyJoinMethod;
+        this.matchId = matchId;
+        this.chatRoomId = chatRoomId;
     }
 
-    public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod) {
+    public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants,
+                                                  Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod,
+                                                  Long matchId, String chatRoomId) {
         return PartyDocument.builder()
                 .id(id)
                 .title(title)
@@ -70,6 +85,8 @@ public class PartyDocument extends BaseTimeEntity {
                 .thumbnailUrl(thumbnailUrl)
                 .partyGender(partyGender)
                 .partyJoinMethod(partyJoinMethod)
+                .matchId(matchId)
+                .chatRoomId(chatRoomId)
                 .build();
     }
 }
