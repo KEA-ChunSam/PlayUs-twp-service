@@ -46,6 +46,10 @@ public record PartyCreateRequest(
                         String>
                 thumbnailUrl,
 
+        @NotNull(message = "경기 ID는 필수입니다!")
+        @Min(value = 1, message = "경기 ID는 1 이상이어야 합니다!")
+        Long matchId,
+
         @NotBlank(message = "직관팟 소개 문구가 비어 있습니다!")
         @Size(max = 100, message = "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!")
         String message
@@ -54,7 +58,7 @@ public record PartyCreateRequest(
 
     public static PartyCreateRequest of(String title, String method, String gender, List<String> ageGroup,
                                         Long minimumParticipants, Long maximumParticipants,
-                                        List<String> thumbnailUrl, String message) {
+                                        List<String> thumbnailUrl, Long matchId, String message) {
 
         return PartyCreateRequest.builder()
                 .title(title)
@@ -64,6 +68,7 @@ public record PartyCreateRequest(
                 .minimumParticipants(minimumParticipants)
                 .maximumParticipants(maximumParticipants)
                 .thumbnailUrl(thumbnailUrl)
+                .matchId(matchId)
                 .message(message)
                 .build();
     }
