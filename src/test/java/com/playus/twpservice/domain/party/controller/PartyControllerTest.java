@@ -30,11 +30,12 @@ class PartyControllerTest extends ControllerTestSupport {
     List<String> thumbnailUrl = List.of("http://image.com");
     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")));
 
+    //  직관팟 생성 happy case
     @DisplayName("직관팟을 생성할 수 있다.")
     @Test
     void createParty() throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse response = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
@@ -49,12 +50,13 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.success").value("true"));
     }
 
+    //  직관팟 생성 title 이슈
     @DisplayName("직관팟 생성 중 제목은 필수이다.")
     @NullAndEmptySource
     @ParameterizedTest(name = "title = {0}")
     void createParty_EMPTY_TITLE(String emptyTitle) throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of(emptyTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of(emptyTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -66,7 +68,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void createParty_EXCEED_TITLE() throws Exception {
         String exceedTitle = "a".repeat(226);
-        PartyCreateRequest request = PartyCreateRequest.of(exceedTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of(exceedTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -74,12 +76,13 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "제목의 길이를 1~225자 이내로 작성해 주세요!");
     }
 
+    //  직관팟 생성 method 이슈
     @DisplayName("직관팟 생성 중 신청 방식은 필수이다.")
     @NullAndEmptySource
     @ParameterizedTest(name = "method = {0}")
     void createParty_EMPTY_METHOD(String emptyMethod) throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("제목", emptyMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", emptyMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -92,7 +95,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @ParameterizedTest(name = "method = {0}")
     void createParty_INVALID_METHOD(String invalidMethod) throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("제목", invalidMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", invalidMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -100,12 +103,13 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 신청 방식입니다!");
     }
 
+    //  직관팟 생성 gender 이슈
     @DisplayName("직관팟 생성 중 참여 원하는 성별은 필수이다.")
     @NullAndEmptySource
     @ParameterizedTest(name = "gender = {0}")
     void createParty_EMPTY_GENDER(String emptyGender) throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", emptyGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", emptyGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -118,7 +122,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @ParameterizedTest(name = "gender = {0}")
     void createParty_INVALID_GENDER(String invalidGender) throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -131,7 +135,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @ParameterizedTest(name = "gender = {0}")
     void createParty_VALID_GENDER(String gender) throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", gender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", gender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse response = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
@@ -146,13 +150,14 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.success").value("true"));
     }
 
+    //  직관팟 생성 ageGroup 이슈
     @DisplayName("직관팟 생성 중 참여자 나이는 필수이다.")
     @NullAndEmptySource
     @ParameterizedTest(name = "age = {0}")
     void createParty_EMPTY_AGE(List<String> emptyAgeList) throws Exception {
 
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -166,7 +171,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_INVALID_AGE(List<String> emptyAgeList) throws Exception {
 
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -191,7 +196,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // given
         List<String> tooManyAgeList = List.of("10대", "20대", "30대", "40대", "50대", "60대 이상", "70대", "80대", "90대");
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", tooManyAgeList, 1L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", tooManyAgeList, 1L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -199,10 +204,11 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "참여자 나이는 최대 6개까지 가능합니다!");
     }
 
+    //  직관팟 생성 minimumParticipants 이슈
     @DisplayName("직관팟 최소 인원은 필수이다.")
     @Test
     void createParty_EMPTY_MINIMUM() throws Exception {
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), null, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), null, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -213,7 +219,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @DisplayName("직관팟 최소 인원은 1 이상이여야 한다.")
     @Test
     void createParty_INVALID_MINIMUM() throws Exception {
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 0L, 10L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 0L, 10L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -221,10 +227,11 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "최소 참여 인원은 1명 이상이여야 합니다!");
     }
 
+    //  직관팟 생성 maximumParticipants 이슈
     @DisplayName("직관팟 최대 인원은 필수이다.")
     @Test
     void createParty_EMPTY_MAXIMUM() throws Exception {
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, null, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, null, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -235,7 +242,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @DisplayName("직관팟 최소 인원은 최대 인원보다 클 수 없다.")
     @Test
     void createParty_MINIMUM_MAXIMUM() throws Exception {
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 10L, 9L, thumbnailUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 10L, 9L, thumbnailUrl, 1L, "message");
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -243,12 +250,13 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!");
     }
 
+    //  직관팟 생성 thumbnailUrl 이슈
     @DisplayName("직관팟 생성 중 사진 url은 비어 있거나, http/https/ftp로 시작해야 한다.")
     @MethodSource("validUrlGroupProvider")
     @ParameterizedTest(name = "url = {0}")
     void createParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, validUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, validUrl, 1L, "message");
         PartyCreateResponse response = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
@@ -281,7 +289,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 "https://image.com", "ftp://image.com", "ftp://image.com", "http://image.com",
                 "https://image.com", "ftp://image.com", "http://image.com");
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
-                1L, 10L, tooManyUrlList, "message");
+                1L, 10L, tooManyUrlList, 1L, "message");
         PartyCreateResponse response = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
@@ -294,7 +302,7 @@ class PartyControllerTest extends ControllerTestSupport {
     @ParameterizedTest(name = "url = {0}")
     void createParty_INVALID_IMAGE_URL(List<String> invalidUrl) throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, "message");
+        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, 1L, "message");
         PartyCreateResponse response = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
 
@@ -311,12 +319,40 @@ class PartyControllerTest extends ControllerTestSupport {
         );
     }
 
+    //  직관팟 생성 matchId 이슈
+    @DisplayName("직관팟 생성 시 경기 ID는 필수이다.")
+    @Test
+    void createParty_EMPTY_MATCH_ID() throws Exception {
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, thumbnailUrl, null, "message");
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
+
+        // when // then
+        assertBadRequestOfPartyCreateRequest(request, "/party", "경기 ID는 필수입니다!");
+    }
+
+    @DisplayName("직관팟 생성 시 경기 ID는 1 이상이여야 한다.")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidMatchId = {0}")
+    void createParty_INVALID_MATCH_ID(String invalidMatchIdStr) throws Exception {
+        Long invalidMatchId = Long.valueOf(invalidMatchIdStr);
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, thumbnailUrl, invalidMatchId, "message");
+        PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
+        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
+
+        // when // then
+        assertBadRequestOfPartyCreateRequest(request, "/party", "경기 ID는 1 이상이어야 합니다!");
+    }
+
+    //  직관팟 생성 message 이슈
     @DisplayName("직관팟 생성 중 소개 문구는 필수이다.")
     @NullAndEmptySource
     @ParameterizedTest(name = "message = {0}")
     void createParty_EMPTY_MESSAGE(String emptyMessage) throws Exception {
         // given
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, emptyMessage);
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, emptyMessage);
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -329,7 +365,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void createParty_EXCEED_MESSAGE() throws Exception {
         // given
         String exceedMessage = "a".repeat(101);
-        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, exceedMessage);
+        PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, exceedMessage);
         PartyCreateResponse mockResponse = PartyCreateResponse.of(1L, true);
         given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(mockResponse);
 
@@ -359,10 +395,10 @@ class PartyControllerTest extends ControllerTestSupport {
     @NullAndEmptySource
     @ParameterizedTest(name = "url = {0}")
     void generatePresignedUrlForSaveImage_BLANK_IMAGE_NAME(String blankImageFileName) throws Exception {
-      // given
+        // given
         PresignedUrlForSaveImageRequest request = new PresignedUrlForSaveImageRequest(blankImageFileName);
 
-      // when // then
+        // when // then
         mockMvc.perform(post("/party/presigned-url")
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(APPLICATION_JSON)

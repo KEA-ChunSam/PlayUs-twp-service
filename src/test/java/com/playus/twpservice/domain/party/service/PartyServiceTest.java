@@ -62,7 +62,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // given
         Long userId = 1L;
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
-                1L, 10L, List.of("url", "url2"), "message");
+                1L, 10L, List.of("url", "url2"), 1L, "message");
 
         // when
         PartyCreateResponse result = partyService.createParty(userId, request);
@@ -109,7 +109,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // given
         Long userId = 1L;
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만",
-                List.of("10대", "20대"), 1L, 10L, List.of(), "message");
+                List.of("10대", "20대"), 1L, 10L, List.of(), 1L,  "message");
 
         // when
         partyService.createParty(userId, request);
@@ -127,7 +127,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // given
         Long userId = 1L;
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만",
-                List.of("10대", "20대"), 1L, 10L, null, "message");
+                List.of("10대", "20대"), 1L, 10L, null, 1L, "message");
 
         // when
         partyService.createParty(userId, request);
