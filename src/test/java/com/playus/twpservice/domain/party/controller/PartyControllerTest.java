@@ -49,7 +49,6 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.success").value("true"));
     }
 
-
     @DisplayName("직관팟 생성 중 제목은 필수이다.")
     @NullAndEmptySource
     @ParameterizedTest(name = "title = {0}")
@@ -74,7 +73,6 @@ class PartyControllerTest extends ControllerTestSupport {
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "제목의 길이를 1~225자 이내로 작성해 주세요!");
     }
-
 
     @DisplayName("직관팟 생성 중 신청 방식은 필수이다.")
     @NullAndEmptySource
@@ -101,7 +99,6 @@ class PartyControllerTest extends ControllerTestSupport {
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 신청 방식입니다!");
     }
-
 
     @DisplayName("직관팟 생성 중 참여 원하는 성별은 필수이다.")
     @NullAndEmptySource
@@ -148,7 +145,6 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.partyId").value("1"))
                 .andExpect(jsonPath("$.success").value("true"));
     }
-
 
     @DisplayName("직관팟 생성 중 참여자 나이는 필수이다.")
     @NullAndEmptySource
@@ -203,7 +199,6 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "참여자 나이는 최대 6개까지 가능합니다!");
     }
 
-
     @DisplayName("직관팟 최소 인원은 필수이다.")
     @Test
     void createParty_EMPTY_MINIMUM() throws Exception {
@@ -226,7 +221,6 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "최소 참여 인원은 1명 이상이여야 합니다!");
     }
 
-
     @DisplayName("직관팟 최대 인원은 필수이다.")
     @Test
     void createParty_EMPTY_MAXIMUM() throws Exception {
@@ -248,7 +242,6 @@ class PartyControllerTest extends ControllerTestSupport {
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!");
     }
-
 
     @DisplayName("직관팟 생성 중 사진 url은 비어 있거나, http/https/ftp로 시작해야 한다.")
     @MethodSource("validUrlGroupProvider")
@@ -318,7 +311,6 @@ class PartyControllerTest extends ControllerTestSupport {
         );
     }
 
-
     @DisplayName("직관팟 생성 중 소개 문구는 필수이다.")
     @NullAndEmptySource
     @ParameterizedTest(name = "message = {0}")
@@ -344,7 +336,6 @@ class PartyControllerTest extends ControllerTestSupport {
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!");
     }
-
 
     @DisplayName("이미지 저장을 위한 Presigned URL을 발급해줄 수 있다.")
     @Test
@@ -382,7 +373,6 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("이미지 파일명은 필수입니다!"));
     }
-
 
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
         mockMvc.perform(post(requestUri)
