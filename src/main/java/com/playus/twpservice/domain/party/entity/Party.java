@@ -39,6 +39,9 @@ public class Party extends BaseTimeEntity {
     @Column(nullable = false, name = "match_id")
     private Long matchId;
 
+    @Column(nullable = false, name = "chatroom_id")
+    private String chatRoomId;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String text;
 
@@ -65,4 +68,8 @@ public class Party extends BaseTimeEntity {
                 .build();
     }
 
+    public Party assignChatRoom(String chatRoomId) {
+        this.chatRoomId = chatRoomId;
+        return this;
+    }
 }
