@@ -22,8 +22,13 @@ public class Party extends BaseTimeEntity {
     @Column(nullable = false, length = 225)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String text;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PartyJoinMethod partyJoinMethod;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, name = "party_gender")
+    private PartyGender partyGender;
 
     @Column(nullable = false,name = "minimum_participants")
     private Long minimumParticipants;
@@ -31,25 +36,24 @@ public class Party extends BaseTimeEntity {
     @Column(nullable = false, name = "maximum_participants")
     private Long maximumParticipants;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "party_gender")
-    private PartyGender partyGender;
+    @Column(nullable = false, name = "match_id")
+    private Long matchId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PartyJoinMethod partyJoinMethod;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String text;
 
     @Builder
-    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod){
+    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long matchId){
         this.title = title;
         this.text = text;
         this.minimumParticipants = minimumParticipants;
         this.maximumParticipants = maximumParticipants;
         this.partyGender = partyGender;
         this.partyJoinMethod = partyJoinMethod;
+        this.matchId = matchId;
     }
 
-    public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod){
+    public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long matchId){
         return Party.builder()
                 .title(title)
                 .text(text)
@@ -57,6 +61,7 @@ public class Party extends BaseTimeEntity {
                 .maximumParticipants(maximumParticipants)
                 .partyGender(partyGender)
                 .partyJoinMethod(partyJoinMethod)
+                .matchId(matchId)
                 .build();
     }
 

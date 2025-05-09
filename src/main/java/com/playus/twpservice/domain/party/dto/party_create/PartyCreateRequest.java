@@ -74,7 +74,6 @@ public record PartyCreateRequest(
     }
 
     public Party toParty() {
-        return Party.create(title, message, minimumParticipants, maximumParticipants, PartyGender.toEnumValue(partyGender), PartyJoinMethod.toEnumValue(partyJoinMethod));
+        return Party.create(title, message, minimumParticipants, maximumParticipants, PartyGender.toEnumValue(partyGender), PartyJoinMethod.toEnumValue(partyJoinMethod), matchId);
     }
-
 }
