@@ -5,13 +5,13 @@ import lombok.Builder;
 @Builder
 public record PartyCreateResponse (
       Long partyId,
-      Boolean success
+      String chatRoomId
 ) {
 
-    public static PartyCreateResponse of(Long partyId, Boolean success) {
+    public static PartyCreateResponse of(Long partyId, String chatRoomId) {
         return PartyCreateResponse.builder()
                 .partyId(partyId)
-                .success(success)
+                .chatRoomId(chatRoomId)
                 .build();
     }
 }
