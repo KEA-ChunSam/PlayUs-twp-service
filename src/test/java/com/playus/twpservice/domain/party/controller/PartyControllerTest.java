@@ -76,10 +76,10 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "제목의 길이를 1~225자 이내로 작성해 주세요!");
     }
 
-    //  직관팟 생성 method 이슈
+    //  직관팟 생성 partyJoinMethod 이슈
     @DisplayName("직관팟 생성 중 신청 방식은 필수이다.")
     @NullAndEmptySource
-    @ParameterizedTest(name = "method = {0}")
+    @ParameterizedTest(name = "partyJoinMethod = {0}")
     void createParty_EMPTY_METHOD(String emptyMethod) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", emptyMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
@@ -92,7 +92,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
     @DisplayName("직관팟 생성 중 신청 방식은 정해진 양식대로 입력해야 한다.")
     @CsvSource(value = {"FIRST_COME", "RESERVATION", "ABCDEFG", "ㄱㄴㄷㄹㅁㅂㅅㅇ", "!@#$%^&", "123456789"})
-    @ParameterizedTest(name = "method = {0}")
+    @ParameterizedTest(name = "partyJoinMethod = {0}")
     void createParty_INVALID_METHOD(String invalidMethod) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", invalidMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
@@ -103,10 +103,10 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "잘못된 신청 방식입니다!");
     }
 
-    //  직관팟 생성 gender 이슈
+    //  직관팟 생성 partyGender 이슈
     @DisplayName("직관팟 생성 중 참여 원하는 성별은 필수이다.")
     @NullAndEmptySource
-    @ParameterizedTest(name = "gender = {0}")
+    @ParameterizedTest(name = "partyGender = {0}")
     void createParty_EMPTY_GENDER(String emptyGender) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", emptyGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
@@ -119,7 +119,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
     @DisplayName("직관팟 생성 중 성별은 정해진 양식대로 입력해야 한다.")
     @CsvSource(value = {"MALE", "FEMALE", "NO_MATTER", "ㄱㄴㄷㄹㅁㅂㅅㅇ", "!@#$%^&", "123456789"})
-    @ParameterizedTest(name = "gender = {0}")
+    @ParameterizedTest(name = "partyGender = {0}")
     void createParty_INVALID_GENDER(String invalidGender) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("제목", "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
@@ -132,7 +132,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
     @DisplayName("직관팟 생성 중 성별은 남자만, 여자만, 상관없음 중 하나만 입력해아 한다.")
     @CsvSource(value = {"남자만", "여자만", "상관없음"})
-    @ParameterizedTest(name = "gender = {0}")
+    @ParameterizedTest(name = "partyGender = {0}")
     void createParty_VALID_GENDER(String gender) throws Exception {
         // given
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", gender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, 1L, "message");
