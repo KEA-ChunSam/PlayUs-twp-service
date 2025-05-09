@@ -32,12 +32,13 @@ public interface PartyControllerSpecification {
                                     value = """
                     {
                       "title": "롯데 vs LG 직관 같이 가요!",
-                      "method": "선착순",
-                      "gender": "남자만",
+                      "partyJoinMethod": "선착순",
+                      "partyGender": "남자만",
                       "ageGroup": ["10대", "20대"],
                       "minimumParticipants": 3,
                       "maximumParticipants": 5,
                       "thumbnailUrl": "https://image.example.com/party.jpg",
+                      "matchId" : "1",
                       "message": "재밌게 응원할 분 구해요!"
                     }
                     """
@@ -55,7 +56,7 @@ public interface PartyControllerSpecification {
                                     value = """
                     {
                       "partyId": 1,
-                      "success": true
+                      "chatRoomId": "chatRoomId"
                     }
                     """
                             )

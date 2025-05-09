@@ -22,10 +22,10 @@ public record PartyCreateRequest(
         String title,
 
         @ValidEnum(enumClass = PartyJoinMethod.class, emptyValueMessage = "신청 방식이 비어 있습니다!", invalidValueMessage = "잘못된 신청 방식입니다!")
-        String method,
+        String partyJoinMethod,
 
         @ValidEnum(enumClass = PartyGender.class, emptyValueMessage = "참여 원하는 성별이 비어 있습니다!", invalidValueMessage = "잘못된 성별 형식입니다!")
-        String gender,
+        String partyGender,
 
         @ValidEnumList(enumClass = PartyAgeGroup.class, emptyValueMessage = "참여자 나이가 비어 있습니다!",
                        invalidValueMessage = "잘못된 참여자 나이입니다!", overValueMessage = "참여자 나이는 최대 6개까지 가능합니다!")
@@ -46,6 +46,10 @@ public record PartyCreateRequest(
                         String>
                 thumbnailUrl,
 
+        @NotNull(message = "경기 ID는 필수입니다!")
+        @Min(value = 1, message = "경기 ID는 1 이상이어야 합니다!")
+        Long matchId,
+
         @NotBlank(message = "직관팟 소개 문구가 비어 있습니다!")
         @Size(max = 100, message = "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!")
         String message
@@ -54,22 +58,22 @@ public record PartyCreateRequest(
 
     public static PartyCreateRequest of(String title, String method, String gender, List<String> ageGroup,
                                         Long minimumParticipants, Long maximumParticipants,
-                                        List<String> thumbnailUrl, String message) {
+                                        List<String> thumbnailUrl, Long matchId, String message) {
 
         return PartyCreateRequest.builder()
                 .title(title)
-                .method(method)
-                .gender(gender)
+                .partyJoinMethod(method)
+                .partyGender(gender)
                 .ageGroup(ageGroup)
                 .minimumParticipants(minimumParticipants)
                 .maximumParticipants(maximumParticipants)
                 .thumbnailUrl(thumbnailUrl)
+                .matchId(matchId)
                 .message(message)
                 .build();
     }
 
     public Party toParty() {
-        return Party.create(title, message, minimumParticipants, maximumParticipants, PartyGender.toEnumValue(gender), PartyJoinMethod.toEnumValue(method));
+        return Party.create(title, message, minimumParticipants, maximumParticipants, PartyGender.toEnumValue(partyGender), PartyJoinMethod.toEnumValue(partyJoinMethod), matchId);
     }
-
 }
