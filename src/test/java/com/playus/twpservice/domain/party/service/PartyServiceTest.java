@@ -1,6 +1,10 @@
 package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.IntegrationTestSupport;
+import com.playus.twpservice.domain.chat.entity.ChatPart;
+import com.playus.twpservice.domain.chat.entity.ChatRoom;
+import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
+import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -48,12 +52,21 @@ class PartyServiceTest extends IntegrationTestSupport {
     @Autowired
     private PartyThumbnailUrlRepository partyThumbnailUrlRepository;
 
+    @Autowired
+    private ChatRoomRepository chatRoomRepository;
+
+    @Autowired
+    private ChatPartRepository chatPartRepository;
+
     @AfterEach
     void tearDown() {
         partyThumbnailUrlRepository.deleteAllInBatch();
         partyAgeRepository.deleteAllInBatch();
         partyJoinRepository.deleteAllInBatch();
         partyRepository.deleteAllInBatch();
+
+        chatRoomRepository.deleteAll();
+        chatPartRepository.deleteAll();
     }
 
     @DisplayName("직관팟을 생성할 수 있다.")
@@ -71,6 +84,16 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(partyRepository.count()).isEqualTo(1);
         assertThat(partyJoinRepository.count()).isEqualTo(1);
         assertThat(partyThumbnailUrlRepository.count()).isEqualTo(2);
+        assertThat(chatRoomRepository.count()).isEqualTo(1);
+        assertThat(chatPartRepository.count()).isEqualTo(1);
+
+        ChatRoom savedChatRoom = chatRoomRepository.findAll().get(0);
+        assertThat(savedChatRoom.getId()).isEqualTo(result.chatRoomId());
+        assertThat(savedChatRoom.getRoomName()).isEqualTo("title");
+
+        ChatPart savedChatPart = chatPartRepository.findAll().get(0);
+        assertThat(savedChatPart.getUserId()).isEqualTo(userId);
+        assertThat(savedChatPart.getChatRoom().getId()).isEqualTo(savedChatRoom.getId());
 
         Party savedParty = partyRepository.findAll().get(0);
         assertThat(savedParty.getTitle()).isEqualTo("title");
@@ -78,6 +101,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(savedParty.getMaximumParticipants()).isEqualTo(10L);
         assertThat(savedParty.getPartyGender()).isEqualTo(PartyGender.MALE);
         assertThat(savedParty.getPartyJoinMethod()).isEqualTo(PartyJoinMethod.FIRST_COME);
+        assertThat(savedParty.getChatRoomId()).isEqualTo(savedChatRoom.getId());
 
         PartyJoin savedPartyJoin = partyJoinRepository.findAll().get(0);
         assertThat(savedPartyJoin.getUserId()).isEqualTo(userId);
@@ -95,12 +119,15 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(savedPartyAges)
                 .extracting("age")
                 .containsExactlyInAnyOrder(10, 20);
-        assertThat(result).extracting("success").isEqualTo(true);
 
         Long savedPartyId = savedParty.getId();
         assertThat(savedPartyJoin.getParty().getId()).isEqualTo(savedPartyId);
         assertThat(savedUrl).allMatch(url -> url.getParty().getId().equals(savedPartyId));
         assertThat(savedPartyAges).allMatch(age -> age.getParty().getId().equals(savedPartyId));
+
+        assertThat(result)
+                .extracting("partyId", "chatRoomId")
+                .containsExactly(savedPartyId, savedChatRoom.getId());
     }
 
     @DisplayName("썸네일 URL이 비어 있을 때에도 직관팟을 생성할 수 있다.")
