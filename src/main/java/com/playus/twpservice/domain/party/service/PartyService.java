@@ -42,7 +42,6 @@ public class PartyService {
     private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
     public PartyCreateResponse createParty(Long userId, PartyCreateRequest request) {
-
         ChatRoom chatRoom = initializeChatRoomAsWriter(userId, request);
 
         Party party = partyRepository.save(request.toParty().assignChatRoom(chatRoom.getId()));
@@ -57,14 +56,14 @@ public class PartyService {
         return PartyCreateResponse.of(party.getId(), chatRoom.getId());
     }
 
+    public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
+        return new PresignedUrlForSaveImageResponse(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName()));
+    }
+
     private ChatRoom initializeChatRoomAsWriter(Long userId, PartyCreateRequest request) {
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create(request.title()));
         chatPartRepository.save(ChatPart.create(userId, chatRoom));
         return chatRoom;
-    }
-
-    public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
-        return new PresignedUrlForSaveImageResponse(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName()));
     }
 
     private void saveThumbnailUrlIfPresent(PartyCreateRequest request, Party party) {
