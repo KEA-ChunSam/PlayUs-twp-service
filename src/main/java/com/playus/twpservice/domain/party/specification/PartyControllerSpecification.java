@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -63,7 +64,7 @@ public interface PartyControllerSpecification {
                     )
             )
     })
-    ResponseEntity<PartyCreateResponse> createParty(Long userId, PartyCreateRequest request);
+    ResponseEntity<PartyCreateResponse> createParty(Long userId, @Valid PartyCreateRequest request);
 
     @Tag(name = "Post", description = "Presigned URL 발급 API")
     @Operation(
@@ -100,5 +101,5 @@ public interface PartyControllerSpecification {
                     )
             )
     })
-    PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request);
+    PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(@Valid PresignedUrlForSaveImageRequest request);
 }
