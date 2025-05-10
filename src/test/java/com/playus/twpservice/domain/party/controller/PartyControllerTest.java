@@ -6,6 +6,9 @@ import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
+import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
+import com.playus.twpservice.domain.party.enums.PartyGender;
+import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -419,12 +422,12 @@ class PartyControllerTest extends ControllerTestSupport {
     void getPartiesByMatchId() throws Exception {
         // given
         Long matchId = 1L;
-        List<String> partyAges = List.of("10대", "20대");
+        List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
         LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", "승인제", partyAges, "남자만",
+        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -460,11 +463,11 @@ class PartyControllerTest extends ControllerTestSupport {
     void getPartiesByMatchId(LocalDateTime matchDate, String expectedFormattedDate) throws Exception {
         // given
         Long matchId = 1L;
-        List<String> partyAges = List.of("10대", "20대");
+        List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", "승인제", partyAges, "남자만",
+        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -503,12 +506,12 @@ class PartyControllerTest extends ControllerTestSupport {
     @ParameterizedTest
     void getPartiesByMatchId_EMPTY_MATCHID(String emptyMatchIdStr) throws Exception {
         // given
-        List<String> partyAges = List.of("10대", "20대");
+        List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
         LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", "승인제", partyAges, "남자만",
+        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -532,12 +535,12 @@ class PartyControllerTest extends ControllerTestSupport {
     @ParameterizedTest
     void getPartiesByMatchId_INVALID_MATCHID(String invalidMatchIdStr) throws Exception {
         // given
-        List<String> partyAges = List.of("10대", "20대");
+        List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
         LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", "승인제", partyAges, "남자만",
+        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 

@@ -1,6 +1,9 @@
 package com.playus.twpservice.domain.party.dto.partybymatch;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
+import com.playus.twpservice.domain.party.enums.PartyGender;
+import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -27,9 +30,9 @@ public record PartiesByMatchResponse(
 
     public static PartiesByMatchResponse of(
             String title,
-            String partyJoinMethod,
-            List<String> partyAges,
-            String availableGender,
+            PartyJoinMethod partyJoinMethod,
+            List<PartyAgeGroup> partyAges,
+            PartyGender availableGender,
             String authorName,
             String authorGender,
             LocalDateTime matchDate,
@@ -40,9 +43,9 @@ public record PartiesByMatchResponse(
     ) {
         return PartiesByMatchResponse.builder()
                 .title(title)
-                .partyJoinMethod(partyJoinMethod)
-                .partyAges(partyAges)
-                .availableGender(availableGender)
+                .partyJoinMethod(partyJoinMethod.getDescription())
+                .partyAges(partyAges.stream().map(PartyAgeGroup::getDescription).toList())
+                .availableGender(availableGender.getDescription())
                 .authorName(authorName)
                 .authorGender(authorGender)
                 .matchDate(matchDate)
