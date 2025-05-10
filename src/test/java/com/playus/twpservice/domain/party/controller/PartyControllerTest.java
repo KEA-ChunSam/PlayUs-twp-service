@@ -487,7 +487,14 @@ class PartyControllerTest extends ControllerTestSupport {
                 Arguments.of(LocalDateTime.of(2025, 3, 22, 0, 0), "3.22(토) 오전 12:00"),
                 Arguments.of(LocalDateTime.of(2025, 5, 1, 19, 30), "5.1(목) 오후 7:30"),
                 Arguments.of(LocalDateTime.of(2025, 12, 15, 10, 5), "12.15(월) 오전 10:05"),
-                Arguments.of(LocalDateTime.of(2025, 3, 23, 12, 0), "3.23(일) 오후 12:00")
+                Arguments.of(LocalDateTime.of(2025, 3, 23, 12, 0), "3.23(일) 오후 12:00"),
+                Arguments.of(LocalDateTime.of(2025, 3, 23, 1, 0), "3.23(일) 오전 1:00"),
+                Arguments.of(LocalDateTime.of(2025, 12, 31, 23, 59), "12.31(수) 오후 11:59"),
+                Arguments.of(LocalDateTime.of(2026, 1, 1, 0, 0), "1.1(목) 오전 12:00"),
+                Arguments.of(LocalDateTime.of(2025, 6, 15, 11, 59), "6.15(일) 오전 11:59"),
+                Arguments.of(LocalDateTime.of(2025, 6, 15, 12, 0), "6.15(일) 오후 12:00"),
+                Arguments.of(LocalDateTime.of(2025, 7, 20, 0, 0), "7.20(일) 오전 12:00"),
+                Arguments.of(LocalDateTime.of(2025, 7, 20, 23, 59), "7.20(일) 오후 11:59")
         );
     }
 
