@@ -32,7 +32,7 @@ public class PartyThumbnailUrlDocument {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public static PartyThumbnailUrlDocument create(PartyDocument party, String thumbnailUrl) {
+    public static PartyThumbnailUrlDocument createForOnlyTest(PartyDocument party, String thumbnailUrl) {
         return PartyThumbnailUrlDocument.builder()
                 .party(party)
                 .thumbnailUrl(thumbnailUrl)
