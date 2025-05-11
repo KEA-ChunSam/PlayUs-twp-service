@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.config.security;
+package com.playus.twpservice.global.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

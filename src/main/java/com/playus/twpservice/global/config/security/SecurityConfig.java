@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.config.security;
+package com.playus.twpservice.global.config.security;
 
 import com.playus.twpservice.global.jwt.JwtFilter;
 import com.playus.twpservice.global.jwt.JwtUtil;
