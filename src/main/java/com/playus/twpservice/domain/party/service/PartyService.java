@@ -13,7 +13,7 @@ import com.playus.twpservice.domain.party.entity.PartyAge;
 import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
-import com.playus.twpservice.domain.party.enums.Status;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
@@ -46,7 +46,7 @@ public class PartyService {
 
         Party party = partyRepository.save(request.toParty().assignChatRoom(chatRoom.getId()));
 
-        partyJoinRepository.save(PartyJoin.create(userId, party, Status.ACCEPT, null));
+        partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.ACCEPT, null));
 
         List<PartyAge> partyAgeList = toPartyAgeEntity(request, party);
         partyAgeRepository.saveAll(partyAgeList);

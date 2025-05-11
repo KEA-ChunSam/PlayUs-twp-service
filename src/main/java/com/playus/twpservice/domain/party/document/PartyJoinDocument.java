@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.document;
 
-import com.playus.twpservice.domain.party.enums.Status;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -30,7 +30,7 @@ public class PartyJoinDocument {
     private PartyDocument party;
 
     @NotNull
-    private Status status;
+    private PartyJoinRequestStatus partyJoinRequestStatus;
 
     @NotNull
     @Field(name = "is_writer")
@@ -42,21 +42,21 @@ public class PartyJoinDocument {
     private String requireMessage;
 
     @Builder
-    private PartyJoinDocument(Long id, Long userId, PartyDocument party, Status status, Boolean isWriter, String requireMessage) {
+    private PartyJoinDocument(Long id, Long userId, PartyDocument party, PartyJoinRequestStatus partyJoinRequestStatus, Boolean isWriter, String requireMessage) {
         this.id = id;
         this.userId = userId;
         this.party = party;
-        this.status = status;
+        this.partyJoinRequestStatus = partyJoinRequestStatus;
         this.isWriter = isWriter;
         this.requireMessage = requireMessage;
     }
 
-    public static PartyJoinDocument createForOnlyTest(Long id, Long userId, PartyDocument party, Status status, String requireMessage) {
+    public static PartyJoinDocument createForOnlyTest(Long id, Long userId, PartyDocument party, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
         return PartyJoinDocument.builder()
                 .id(id)
                 .userId(userId)
                 .party(party)
-                .status(status)
+                .partyJoinRequestStatus(partyJoinRequestStatus)
                 .isWriter(true)
                 .requireMessage(requireMessage)
                 .build();

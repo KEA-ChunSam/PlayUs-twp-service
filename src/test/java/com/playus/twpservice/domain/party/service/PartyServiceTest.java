@@ -15,7 +15,7 @@ import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
-import com.playus.twpservice.domain.party.enums.Status;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
@@ -105,7 +105,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         PartyJoin savedPartyJoin = partyJoinRepository.findAll().get(0);
         assertThat(savedPartyJoin.getUserId()).isEqualTo(userId);
-        assertThat(savedPartyJoin.getStatus()).isEqualTo(Status.ACCEPT);
+        assertThat(savedPartyJoin.getPartyJoinRequestStatus()).isEqualTo(PartyJoinRequestStatus.ACCEPT);
         assertThat(savedPartyJoin.getRequireMessage()).isNull();
 
         List<PartyThumbnailUrl> savedUrl = partyThumbnailUrlRepository.findAll();
