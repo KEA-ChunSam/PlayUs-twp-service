@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.repository.read;
+package com.playus.twpservice.domain.party.repository.read.custom;
 
 import com.playus.twpservice.domain.party.vo.PartySummary;
 
