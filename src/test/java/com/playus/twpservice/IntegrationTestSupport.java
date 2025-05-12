@@ -1,10 +1,12 @@
 package com.playus.twpservice;
 
 
+import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -27,6 +29,9 @@ public abstract class IntegrationTestSupport {
 
     private static final int REDIS_PORT = 6379;
     private static final int MONGO_PORT = 27017;
+
+    @MockitoBean
+    protected S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
     static {
         mySQL = new MySQLContainer<>(MYSQL_VERSION)

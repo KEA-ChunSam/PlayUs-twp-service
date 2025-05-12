@@ -20,12 +20,10 @@ import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
-import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -36,9 +34,6 @@ class PartyServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private PartyService partyService;
-
-    @MockitoBean
-    private S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
     @Autowired
     private PartyRepository partyRepository;
