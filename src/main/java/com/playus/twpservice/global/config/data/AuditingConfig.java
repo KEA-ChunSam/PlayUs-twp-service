@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.config;
+package com.playus.twpservice.global.config.data;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

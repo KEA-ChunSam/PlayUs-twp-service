@@ -44,9 +44,14 @@ cloud:
       bucket : ${BUCKET_NAME}
       endpoint : ${BUCKET_ENDPOINT}
 
+sentry:
+  dsn: ${SENTRY_REPOSITORY_DSN}
+  environment: ${SENTRY_ENVIRONMENT}
+  servername: ${SENTRY_SERVERNAME}
+  repository-uri: ${SENTRY_REPOSITORY_URI}
 
+logging:
+  config: classpath:logback-spring.xml
 
-
-
-
-
+slack:
+  webhook-url: ${SLACK_WEBHOOK_URL}

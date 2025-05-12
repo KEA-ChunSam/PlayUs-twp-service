@@ -1,4 +1,4 @@
-package com.playus.twpservice.global;
+package com.playus.twpservice.global.exception;
 
 import com.playus.twpservice.domain.party.controller.PartyController;
 import com.playus.twpservice.domain.party.exception.enums.PartyAgeGroupExceptionGroup;
@@ -17,7 +17,7 @@ import software.amazon.awssdk.core.exception.SdkException;
 @RestControllerAdvice(assignableTypes = {
         PartyController.class
 })
-public class GlobalControllerAdvice {
+public class ExceptionAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BindException.class)

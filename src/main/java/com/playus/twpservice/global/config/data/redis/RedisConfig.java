@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.config;
+package com.playus.twpservice.global.config.data.redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
