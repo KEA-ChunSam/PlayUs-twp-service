@@ -1,15 +1,15 @@
 package com.playus.twpservice.domain.party.document;
 
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
-import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
@@ -25,7 +25,7 @@ public class PartyJoinDocument {
     private Long userId;
 
     @NotNull
-    @DBRef(lazy = true)
+    @DocumentReference(lazy = true)
     @Field(name = "party_id")
     private PartyDocument party;
 
