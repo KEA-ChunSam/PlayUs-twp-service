@@ -1,4 +1,4 @@
-package com.playus.twpservice.global.swagger;
+package com.playus.twpservice.global.config.swagger;
 
 import java.util.List;
 

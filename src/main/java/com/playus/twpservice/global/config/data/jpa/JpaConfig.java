@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.config;
+package com.playus.twpservice.global.config.data.jpa;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Configuration;
