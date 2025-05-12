@@ -20,3 +20,8 @@ logging:
           redis:
             core: DEBUG
             connection: TRACE
+          mongodb:
+            core:
+              MongoTemplate : DEBUG
+    com:
+      mongodb : DEBUG
