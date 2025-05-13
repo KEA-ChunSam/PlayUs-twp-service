@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -26,40 +26,38 @@ public class PartyReadOnlyService {
 
     public List<PartiesByMatchResponse> getPartiesBy(Long matchId) {
 
-        // 1. 직관팟 데이터 가져오기 (title, method, ages, gender, currentParticipantsCount,
-        //                         maximumParticipantsCount, thumbnailurls)
-
         List<PartySummary> partySummaries = partyRepository.findPartySummariesByMatchId(matchId);
 
-        // 2. 각 party 대한 user 데이터 가져오기 (thumbnailUrls)
-        for(int j=0;j< partySummaries.size();j++) {
-            PartySummary partySummary = partySummaries.get(j);
-            PartyUserThumbnailUrlListResponse userThumbnailUrls = userFeignClient.getPartyUserThumbnailUrls(partySummary.getUserIdList());
-            partySummary.updateUserThumbnailUrls(userThumbnailUrls.thumbnailUrls());
-        }
+        updateUserThumbnailUrls(partySummaries);
+        updateWriterInfo(partySummaries);
+        updateMatchDate(partySummaries, matchId);
 
-        // 3. author 데이터 가져오기 (writerName, writerGender, writerThumbnailUrl)
-        List<Long> writerIdList = partySummaries.stream()
+        return partySummaries.stream()
+                .map(PartySummary::toResponse)
+                .toList();
+    }
+
+    private void updateUserThumbnailUrls(List<PartySummary> summaries) {
+        summaries.forEach(party -> {
+            List<Long> userIds = party.getUserIdList();
+            PartyUserThumbnailUrlListResponse userThumbnails = userFeignClient.getPartyUserThumbnailUrls(userIds);
+            party.updateUserThumbnailUrls(userThumbnails.thumbnailUrls());
+        });
+    }
+
+    private void updateWriterInfo(List<PartySummary> summaries) {
+        List<Long> writerIds = summaries.stream()
                 .map(PartySummary::getWriterId)
                 .toList();
 
-        List<PartyWriterInfoFeignResponse> writerInfoList = userFeignClient.getWriterInfo(writerIdList);
-        for(int i=0;i < partySummaries.size();i++) {
-            partySummaries.get(i).updateWriterInfo(writerInfoList.get(i));
-        }
+        List<PartyWriterInfoFeignResponse> writerInfoList = userFeignClient.getWriterInfo(writerIds);
 
-        // 4. match 데이터 가져오기 (matchDate)
+        IntStream.range(0, summaries.size()).forEach(i ->
+                summaries.get(i).updateWriterInfo(writerInfoList.get(i)));
+    }
+
+    private void updateMatchDate(List<PartySummary> summaries, Long matchId) {
         LocalDateTime matchDate = matchFeignClient.getMatchDate(matchId);
-        for(int i=0;i<partySummaries.size();i++) {
-            partySummaries.get(i).updateMatchDate(matchDate);
-        }
-
-        // 5. 1, 2, 3, 4 정보 기반으로 response 생성
-        List<PartiesByMatchResponse> results = new ArrayList<>();
-        for (PartySummary partySummary : partySummaries) {
-            results.add(partySummary.toResponse());
-        }
-
-        return results;
+        summaries.forEach(party -> party.updateMatchDate(matchDate));
     }
 }
