@@ -36,6 +36,9 @@ public class Party extends BaseTimeEntity {
     @Column(nullable = false, name = "maximum_participants")
     private Long maximumParticipants;
 
+    @Column(nullable = false, name = "writer_id")
+    private Long writerId;
+
     @Column(nullable = false, name = "match_id")
     private Long matchId;
 
@@ -46,17 +49,19 @@ public class Party extends BaseTimeEntity {
     private String text;
 
     @Builder
-    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long matchId){
+    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId){
         this.title = title;
         this.text = text;
         this.minimumParticipants = minimumParticipants;
         this.maximumParticipants = maximumParticipants;
         this.partyGender = partyGender;
         this.partyJoinMethod = partyJoinMethod;
+        this.writerId = writerId;
         this.matchId = matchId;
     }
 
-    public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long matchId){
+    public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants,
+                               PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId){
         return Party.builder()
                 .title(title)
                 .text(text)
@@ -64,6 +69,7 @@ public class Party extends BaseTimeEntity {
                 .maximumParticipants(maximumParticipants)
                 .partyGender(partyGender)
                 .partyJoinMethod(partyJoinMethod)
+                .writerId(writerId)
                 .matchId(matchId)
                 .build();
     }
