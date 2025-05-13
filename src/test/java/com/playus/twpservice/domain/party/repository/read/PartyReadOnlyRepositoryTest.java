@@ -53,7 +53,8 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L,
                 "http://thumbnail", PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id");
         PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L,
-                "http://thumbnail", PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, matchId, 3L, "chatRoom3Id");
+                "http://thumbnail", PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
+
         List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(p1, p2, p3));
 
         PartyAgeDocument pa1 = PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0), 10);
@@ -73,11 +74,11 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
 
         // then
         assertThat(result).hasSize(2)
-                .extracting("partyId", "title", "partyJoinMethod", "partyGender", "ages",
+                .extracting("partyId", "title", "writerId", "partyJoinMethod", "partyGender", "ages",
                         "currentParticipantsCount", "maximumParticipants", "thumbnailUrls")
                 .containsExactlyInAnyOrder(
-                        tuple(1L, "title1", PartyJoinMethod.FIRST_COME, PartyGender.MALE, List.of(10), 2L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2")),
-                        tuple(2L, "title2", PartyJoinMethod.RESERVATION, PartyGender.FEMALE, List.of(20), 0L, 10L, List.of())
+                        tuple(1L, "title1", 1L, PartyJoinMethod.FIRST_COME, PartyGender.MALE, List.of(10), 2L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2")),
+                        tuple(2L, "title2", 2L, PartyJoinMethod.RESERVATION, PartyGender.FEMALE, List.of(20), 0L, 10L, List.of())
                 );
     }
 }

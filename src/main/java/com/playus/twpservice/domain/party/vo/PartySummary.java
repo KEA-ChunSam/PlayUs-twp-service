@@ -14,6 +14,7 @@ import java.util.List;
 public class PartySummary {
     private Long partyId;
     private String title;
+    private Long writerId;
     private PartyJoinMethod partyJoinMethod;
     private PartyGender partyGender;
     private List<Integer> ages;
