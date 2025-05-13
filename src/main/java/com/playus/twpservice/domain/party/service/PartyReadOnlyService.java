@@ -49,16 +49,13 @@ public class PartyReadOnlyService {
         }
 
         // 4. match 데이터 가져오기 (matchDate)
-        List<Long> matchIdList = partySummaries.stream()
-                .map(PartySummary::getMatchId)
-                .toList();
-        List<LocalDateTime> matchDateList = matchFeignClient.getMatchDate(matchIdList);
+        LocalDateTime matchDate = matchFeignClient.getMatchDate(matchId);
         for(int i=0;i<partySummaries.size();i++) {
-            partySummaries.get(i).updateMatchDate(matchDateList.get(i));
+            partySummaries.get(i).updateMatchDate(matchDate);
         }
 
         // 5. 1, 2, 3, 4 정보 기반으로 response 생성
-        List<PartiesByMatchResponse> results = new ArrayList();
+        List<PartiesByMatchResponse> results = new ArrayList<>();
         for (PartySummary partySummary : partySummaries) {
             results.add(partySummary.toResponse());
         }
