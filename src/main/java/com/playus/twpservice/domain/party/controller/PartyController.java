@@ -40,6 +40,6 @@ public class PartyController implements PartyControllerSpecification {
     @GetMapping
     public List<PartiesByMatchResponse> getPartiesByMatchId(@AuthenticationPrincipal Long userId,
                                                             @Valid PartiesByMatchRequest request) {
-        return partyReadOnlyService.getPartiesBy(request.matchId(), userId);
+        return partyReadOnlyService.getPartiesBy(request.matchId());
     }
 }

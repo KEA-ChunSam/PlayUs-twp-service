@@ -433,7 +433,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
         List<PartiesByMatchResponse> result = List.of(response);
 
-        given(partyReadOnlyService.getPartiesBy(any(Long.class), any(Long.class)))
+        given(partyReadOnlyService.getPartiesBy(any(Long.class)))
                 .willReturn(result);
 
         // when // then
@@ -475,7 +475,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
         List<PartiesByMatchResponse> result = List.of(response);
 
-        given(partyReadOnlyService.getPartiesBy(any(Long.class), any(Long.class)))
+        given(partyReadOnlyService.getPartiesBy(any(Long.class)))
                 .willReturn(result);
 
 
@@ -522,7 +522,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
         List<PartiesByMatchResponse> result = List.of(response);
 
-        given(partyReadOnlyService.getPartiesBy(any(Long.class), any(Long.class)))
+        given(partyReadOnlyService.getPartiesBy(any(Long.class)))
                 .willReturn(result);
 
 
@@ -554,7 +554,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
         List<PartiesByMatchResponse> result = List.of(response);
 
-        given(partyReadOnlyService.getPartiesBy(any(Long.class), any(Long.class)))
+        given(partyReadOnlyService.getPartiesBy(any(Long.class)))
                 .willReturn(result);
 
         // when // then
