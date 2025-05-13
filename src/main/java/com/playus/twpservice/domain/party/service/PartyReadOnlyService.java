@@ -3,6 +3,7 @@ package com.playus.twpservice.domain.party.service;
 import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
+import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.vo.PartySummary;
@@ -23,7 +24,7 @@ public class PartyReadOnlyService {
     private final UserFeignClient userFeignClient;
     private final MatchFeignClient matchFeignClient;
 
-    public List<PartiesByMatchResponse> getPartiesBy(Long matchId, Long userId) {
+    public List<PartiesByMatchResponse> getPartiesBy(Long matchId) {
 
         // 1. 직관팟 데이터 가져오기 (title, method, ages, gender, currentParticipantsCount,
         //                         maximumParticipantsCount, thumbnailurls)
@@ -33,8 +34,8 @@ public class PartyReadOnlyService {
         // 2. 각 party 대한 user 데이터 가져오기 (thumbnailUrls)
         for(int j=0;j< partySummaries.size();j++) {
             PartySummary partySummary = partySummaries.get(j);
-            List<String> userThumbnailUrls = userFeignClient.getPartyUserThumbnailUrls(partySummary.getUserIdList());
-            partySummary.updateUserThumbnailUrls(userThumbnailUrls);
+            PartyUserThumbnailUrlListResponse userThumbnailUrls = userFeignClient.getPartyUserThumbnailUrls(partySummary.getUserIdList());
+            partySummary.updateUserThumbnailUrls(userThumbnailUrls.thumbnailUrls());
         }
 
         // 3. author 데이터 가져오기 (writerName, writerGender, writerThumbnailUrl)

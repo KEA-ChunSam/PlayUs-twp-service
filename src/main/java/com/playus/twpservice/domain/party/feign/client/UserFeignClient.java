@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.feign.client;
 
 import com.playus.twpservice.domain.party.feign.fallback.UserFeignFallback;
+import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -20,5 +21,5 @@ public interface UserFeignClient {
      List<PartyWriterInfoFeignResponse> getWriterInfo(@RequestBody List<Long> writerIdList);
 
 
-     List<String> getPartyUserThumbnailUrls(@RequestBody List<Long> userIdList);
+     PartyUserThumbnailUrlListResponse getPartyUserThumbnailUrls(@RequestBody List<Long> userIdList);
 }

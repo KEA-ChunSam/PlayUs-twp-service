@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record PartyUserThumbnailUrlsResponse(
+public record PartyUserThumbnailUrlListResponse(
      List<String> thumbnailUrls
 ) {
 }
