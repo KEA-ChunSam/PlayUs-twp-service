@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -45,6 +46,7 @@ public class PartyDocument extends BaseTimeEntity {
     private Long writerId;
 
     @NotNull
+    @Indexed
     @Field(name = "match_id")
     private Long matchId;
 
