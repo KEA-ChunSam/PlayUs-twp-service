@@ -74,11 +74,11 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
 
         // then
         assertThat(result).hasSize(2)
-                .extracting("partyId", "title", "writerId", "partyJoinMethod", "partyGender", "ages",
+                .extracting("partyId", "title", "writerId", "userIdList", "partyJoinMethod", "partyGender", "ages",
                         "currentParticipantsCount", "maximumParticipants", "thumbnailUrls")
                 .containsExactlyInAnyOrder(
-                        tuple(1L, "title1", 1L, PartyJoinMethod.FIRST_COME, PartyGender.MALE, List.of(10), 2L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2")),
-                        tuple(2L, "title2", 2L, PartyJoinMethod.RESERVATION, PartyGender.FEMALE, List.of(20), 0L, 10L, List.of())
+                        tuple(1L, "title1", 1L, List.of(4L, 5L), PartyJoinMethod.FIRST_COME, PartyGender.MALE, List.of(10), 2L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2")),
+                        tuple(2L, "title2", 2L, List.of(), PartyJoinMethod.RESERVATION, PartyGender.FEMALE, List.of(20), 0L, 10L, List.of())
                 );
     }
 }
