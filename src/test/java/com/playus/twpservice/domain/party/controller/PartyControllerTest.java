@@ -431,8 +431,10 @@ class PartyControllerTest extends ControllerTestSupport {
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
+        List<PartiesByMatchResponse> result = List.of(response);
+
         given(partyReadOnlyService.getPartiesBy(any(Long.class), any(Long.class)))
-                .willReturn(response);
+                .willReturn(result);
 
         // when // then
         mockMvc.perform(get("/party")
@@ -471,8 +473,11 @@ class PartyControllerTest extends ControllerTestSupport {
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
+        List<PartiesByMatchResponse> result = List.of(response);
+
         given(partyReadOnlyService.getPartiesBy(any(Long.class), any(Long.class)))
-                .willReturn(response);
+                .willReturn(result);
+
 
         // when // then
         mockMvc.perform(get("/party")
@@ -515,8 +520,11 @@ class PartyControllerTest extends ControllerTestSupport {
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
+        List<PartiesByMatchResponse> result = List.of(response);
+
         given(partyReadOnlyService.getPartiesBy(any(Long.class), any(Long.class)))
-                .willReturn(response);
+                .willReturn(result);
+
 
         // when // then
         mockMvc.perform(get("/party")
@@ -544,8 +552,10 @@ class PartyControllerTest extends ControllerTestSupport {
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
+        List<PartiesByMatchResponse> result = List.of(response);
+
         given(partyReadOnlyService.getPartiesBy(any(Long.class), any(Long.class)))
-                .willReturn(response);
+                .willReturn(result);
 
         // when // then
         mockMvc.perform(get("/party")

@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/party")
@@ -36,8 +38,8 @@ public class PartyController implements PartyControllerSpecification {
     }
 
     @GetMapping
-    public PartiesByMatchResponse getPartiesByMatchId(@AuthenticationPrincipal Long userId,
-                                                      @Valid PartiesByMatchRequest request) {
+    public List<PartiesByMatchResponse> getPartiesByMatchId(@AuthenticationPrincipal Long userId,
+                                                            @Valid PartiesByMatchRequest request) {
         return partyReadOnlyService.getPartiesBy(request.matchId(), userId);
     }
 }
