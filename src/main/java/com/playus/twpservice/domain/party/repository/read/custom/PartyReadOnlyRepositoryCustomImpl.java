@@ -35,6 +35,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("_id").as("partyId")
                 .and("title").as("title")
                 .and("writer_id").as("writerId")
+                .and("partyJoin.user_id").as("userIdList")
                 .and("partyJoinMethod").as("partyJoinMethod")
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
