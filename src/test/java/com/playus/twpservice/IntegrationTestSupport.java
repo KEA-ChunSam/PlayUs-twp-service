@@ -20,7 +20,7 @@ public abstract class IntegrationTestSupport {
 
     private static final String MYSQL_VERSION = "mysql:8.0.32";
     private static final String REDIS_VERSION = "redis:7.0.12";
-    private static final String MONGO_VERSION = "mongo:6.0.8";
+    private static final String MONGO_VERSION = "mongodb/mongodb-community-server:latest";
 
     private static final MySQLContainer<?> mySQL;
     private static final GenericContainer redis;
