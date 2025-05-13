@@ -12,6 +12,6 @@ import java.time.LocalDateTime;
 @CircuitBreaker(name = "circuit")
 public interface MatchFeignClient {
 
-    @GetMapping("/api/match")
+    @GetMapping("/match/api/date")
     LocalDateTime getMatchDate(@RequestParam Long matchId);
 }
