@@ -569,6 +569,24 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value("ID는 1 이상이여아 합니다!"));
     }
 
+    @DisplayName("특정 경기에 대한 직관팟이 없을 수 있다.")
+    @Test
+    void getPartiesByMatchId_EMPTY_PARTY() throws Exception {
+        // given
+        Long matchId = 1L;
+
+        given(partyReadOnlyService.getPartiesBy(any(Long.class)))
+                .willReturn(List.of());
+
+        // when // then
+        mockMvc.perform(get("/party")
+                        .param("matchId", String.valueOf(matchId))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
         mockMvc.perform(post(requestUri)
                         .content(objectMapper.writeValueAsString(request))

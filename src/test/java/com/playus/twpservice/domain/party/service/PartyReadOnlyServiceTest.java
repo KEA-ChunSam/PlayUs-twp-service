@@ -112,4 +112,17 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
                 );
     }
 
+    @DisplayName("특정 경기에 대한 직관팟이 없을 수 있다.")
+    @Test
+    void getPartiesBy_EMPTY_PARTY() {
+
+        // given
+        Long matchId = 1L;
+
+        // when
+        List<PartiesByMatchResponse> result = partyReadOnlyService.getPartiesBy(matchId);
+
+        // then
+        assertThat(result).isEmpty();
+    }
 }

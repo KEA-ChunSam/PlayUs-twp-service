@@ -81,4 +81,17 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
                         tuple(2L, "title2", 2L, List.of(), PartyJoinMethod.RESERVATION, PartyGender.FEMALE, List.of(20), 0L, 10L, List.of())
                 );
     }
+
+    @DisplayName("특정 경기에 대한 직관팟이 없을 수 있다.")
+    @Test
+    void findPartySummaries_EMPTY_PARTY() {
+        // given
+        Long matchId = 1L;
+
+        // when
+        List<PartySummary> result = partyReadOnlyRepository.findPartySummariesByMatchId(matchId);
+
+        // then
+        assertThat(result).isEmpty();
+    }
 }
