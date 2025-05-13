@@ -24,4 +24,16 @@ public class PartyAgeGroupExceptionGroup {
             super(message);
         }
     }
+
+    public static class InvalidAgeException extends RuntimeException {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        public InvalidAgeException(String message) {
+            super(message);
+        }
+    }
+
+
 }

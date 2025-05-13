@@ -5,6 +5,8 @@ import com.playus.twpservice.domain.party.exception.enums.PartyAgeGroupException
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.playus.twpservice.domain.party.exception.enums.PartyAgeGroupExceptionGroup.*;
+
 
 @Getter
 @NoArgsConstructor
@@ -30,6 +32,15 @@ public enum PartyAgeGroup implements Describable {
                 return group.getAge();
             }
         }
-        throw new PartyAgeGroupExceptionGroup.InvalidDescriptionException("Invalid description: " + description);
+        throw new InvalidDescriptionException("Invalid description: " + description);
+    }
+
+    public static PartyAgeGroup getAgeGroupByAge(int age) {
+        for (PartyAgeGroup group : PartyAgeGroup.values()) {
+            if (group.getAge() == age) {
+                return group;
+            }
+        }
+        throw new InvalidAgeException("Invalid age: " + age);
     }
 }
