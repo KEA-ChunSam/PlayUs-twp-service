@@ -16,6 +16,8 @@ spring:
       chat:
         uri: mongodb://localhost:27017/chat_db
 
+      auto-index-creation: true
+
     redis:
       host: localhost
       port: 6379
