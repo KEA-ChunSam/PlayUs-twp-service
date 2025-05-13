@@ -11,6 +11,7 @@ import java.util.List;
 
 @Builder
 public record PartiesByMatchResponse(
+        Long partyId,
         String title,
         String partyJoinMethod,
         List<String> partyAges,
@@ -29,6 +30,7 @@ public record PartiesByMatchResponse(
 
 
     public static PartiesByMatchResponse of(
+            Long partyId,
             String title,
             PartyJoinMethod partyJoinMethod,
             List<PartyAgeGroup> partyAges,
@@ -42,6 +44,7 @@ public record PartiesByMatchResponse(
             List<String> userThumbnailUrls
     ) {
         return PartiesByMatchResponse.builder()
+                .partyId(partyId)
                 .title(title)
                 .partyJoinMethod(partyJoinMethod.getDescription())
                 .partyAges(partyAges.stream().map(PartyAgeGroup::getDescription).toList())
