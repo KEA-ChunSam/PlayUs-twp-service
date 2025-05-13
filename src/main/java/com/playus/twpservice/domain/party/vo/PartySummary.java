@@ -42,7 +42,7 @@ public class PartySummary {
     public void updateWriterInfo(PartyWriterInfoFeignResponse partyWriterInfoFeignResponse) {
          this.writerName = partyWriterInfoFeignResponse.writerName();
          this.writerGender = partyWriterInfoFeignResponse.writerGender();
-         userThumbnailUrls.add(partyWriterInfoFeignResponse.writerThumbnailUrl());
+         this.userThumbnailUrls.add(0, partyWriterInfoFeignResponse.writerThumbnailUrl());
     }
 
     public void updateMatchDate(LocalDateTime matchDate) {
@@ -51,6 +51,7 @@ public class PartySummary {
 
     public PartiesByMatchResponse toResponse() {
         return PartiesByMatchResponse.of(
+                partyId,
                 title,
                 partyJoinMethod,
                 ages.stream().map(PartyAgeGroup::getAgeGroupByAge).toList(),
@@ -58,7 +59,7 @@ public class PartySummary {
                 writerName,
                 writerGender,
                 matchDate,
-                currentParticipantsCount + 1,
+                currentParticipantsCount + 1, // 방장 추가
                 maximumParticipants,
                 thumbnailUrls,
                 userThumbnailUrls
