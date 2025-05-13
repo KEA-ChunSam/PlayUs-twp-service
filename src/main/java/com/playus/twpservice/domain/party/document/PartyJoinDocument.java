@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -25,6 +26,7 @@ public class PartyJoinDocument {
     private Long userId;
 
     @NotNull
+    @Indexed
     @DocumentReference(lazy = true)
     @Field(name = "party_id")
     private PartyDocument party;
