@@ -10,16 +10,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-// user-service, /user/api 예상 중
-@FeignClient(name = "${feign.user.domain}",
-             url = "${feign.author-info.url}",
+@FeignClient(name = "userFeignClient", url = "${feign.user.url}",
              fallback = UserFeignFallback.class)
 @CircuitBreaker(name = "circuit")
 public interface UserFeignClient {
 
-     @PostMapping("/writers")
-     List<PartyWriterInfoFeignResponse> getWriterInfo(@RequestBody List<Long> writerIdList);
-
-
+     @PostMapping("/user/api/thumbnails")
      PartyUserThumbnailUrlListResponse getPartyUserThumbnailUrls(@RequestBody List<Long> userIdList);
+
+     @PostMapping("/user/api/writers")
+     List<PartyWriterInfoFeignResponse> getWriterInfo(@RequestBody List<Long> writerIdList);
 }
