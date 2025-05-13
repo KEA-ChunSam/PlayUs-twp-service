@@ -15,6 +15,7 @@ public class PartySummary {
     private Long partyId;
     private String title;
     private Long writerId;
+    private List<Long> userIdList;
     private PartyJoinMethod partyJoinMethod;
     private PartyGender partyGender;
     private List<Integer> ages;
