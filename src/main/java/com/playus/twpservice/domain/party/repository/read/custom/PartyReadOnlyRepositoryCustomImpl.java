@@ -35,6 +35,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("_id").as("partyId")
                 .and("title").as("title")
                 .and("writer_id").as("writerId")
+                .and("match_id").as("matchId")
                 .and("partyJoin.user_id").as("userIdList")
                 .and("partyJoinMethod").as("partyJoinMethod")
                 .and("party_gender").as("partyGender")
@@ -53,6 +54,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
 
         AggregationResults<PartySummary> results = readMongoTemplate.aggregate(aggregation, "party", PartySummary.class);
 
+        // currentParticipantsCount에 1 추가해줘야! (response 생성 시 처리해줫음)
         return results.getMappedResults();
     }
 }
