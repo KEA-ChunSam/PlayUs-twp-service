@@ -28,18 +28,14 @@ public class PartyJoin {
     @Column(nullable = false)
     private PartyJoinRequestStatus partyJoinRequestStatus;
 
-    @Column(nullable = false, name = "is_writer")
-    private Boolean isWriter;
-
     @Column(name = "require_message", length = 100)
     private String requireMessage;
 
     @Builder
-    private PartyJoin(Long userId, Party party, PartyJoinRequestStatus partyJoinRequestStatus, boolean isWriter, String requireMessage) {
+    private PartyJoin(Long userId, Party party, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
         this.userId = userId;
         this.party = party;
         this.partyJoinRequestStatus = partyJoinRequestStatus;
-        this.isWriter = isWriter;
         this.requireMessage = requireMessage;
     }
 
@@ -48,7 +44,6 @@ public class PartyJoin {
                 .userId(userId)
                 .party(party)
                 .partyJoinRequestStatus(partyJoinRequestStatus)
-                .isWriter(true)
                 .requireMessage(requireMessage)
                 .build();
     }

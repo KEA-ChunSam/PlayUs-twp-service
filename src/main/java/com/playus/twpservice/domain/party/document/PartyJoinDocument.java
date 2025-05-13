@@ -33,31 +33,26 @@ public class PartyJoinDocument {
     private PartyJoinRequestStatus partyJoinRequestStatus;
 
     @NotNull
-    @Field(name = "is_writer")
-    private Boolean isWriter;
-
-    @NotNull
     @Field(name = "require_message")
     @Size(min = 1, max = 100)
     private String requireMessage;
 
     @Builder
-    private PartyJoinDocument(Long id, Long userId, PartyDocument party, PartyJoinRequestStatus partyJoinRequestStatus, Boolean isWriter, String requireMessage) {
+    private PartyJoinDocument(Long id, Long userId, PartyDocument party, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
         this.id = id;
         this.userId = userId;
         this.party = party;
         this.partyJoinRequestStatus = partyJoinRequestStatus;
-        this.isWriter = isWriter;
         this.requireMessage = requireMessage;
     }
 
-    public static PartyJoinDocument createForOnlyTest(Long id, Long userId, PartyDocument party, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
+    public static PartyJoinDocument createForOnlyTest(Long id, Long userId, PartyDocument party,
+                                                      PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
         return PartyJoinDocument.builder()
                 .id(id)
                 .userId(userId)
                 .party(party)
                 .partyJoinRequestStatus(partyJoinRequestStatus)
-                .isWriter(true)
                 .requireMessage(requireMessage)
                 .build();
     }
