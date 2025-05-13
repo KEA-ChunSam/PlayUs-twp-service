@@ -443,20 +443,20 @@ class PartyControllerTest extends ControllerTestSupport {
                         .with(authentication(token)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("title"))
-                .andExpect(jsonPath("$.partyJoinMethod").value("승인제"))
-                .andExpect(jsonPath("$.partyAges[0]").value("10대"))
-                .andExpect(jsonPath("$.partyAges[1]").value("20대"))
-                .andExpect(jsonPath("$.availableGender").value("남자만"))
-                .andExpect(jsonPath("$.authorName").value("ZSJ"))
-                .andExpect(jsonPath("$.authorGender").value("남성"))
-                .andExpect(jsonPath("$.matchDate").value("3.22(토) 오후 2:00"))
-                .andExpect(jsonPath("$.currentParticipantsCount").value(10))
-                .andExpect(jsonPath("$.maximumParticipantsCount").value(14))
-                .andExpect(jsonPath("$.partyThumbnailUrls[0]").value("http://party-thumbnail"))
-                .andExpect(jsonPath("$.partyThumbnailUrls[1]").value("http://party-thumbnail2.com"))
-                .andExpect(jsonPath("$.userThumbnailUrls[0]").value("http://user-thumbnailUrl"))
-                .andExpect(jsonPath("$.userThumbnailUrls[1]").value("http://user2-thumbnailUrl"));
+                .andExpect(jsonPath("$[0].title").value("title"))
+                .andExpect(jsonPath("$[0].partyJoinMethod").value("승인제"))
+                .andExpect(jsonPath("$[0].partyAges[0]").value("10대"))
+                .andExpect(jsonPath("$[0].partyAges[1]").value("20대"))
+                .andExpect(jsonPath("$[0].availableGender").value("남자만"))
+                .andExpect(jsonPath("$[0].authorName").value("ZSJ"))
+                .andExpect(jsonPath("$[0].authorGender").value("남성"))
+                .andExpect(jsonPath("$[0].matchDate").value("3.22(토) 오후 2:00"))
+                .andExpect(jsonPath("$[0].currentParticipantsCount").value(10))
+                .andExpect(jsonPath("$[0].maximumParticipantsCount").value(14))
+                .andExpect(jsonPath("$[0].partyThumbnailUrls[0]").value("http://party-thumbnail"))
+                .andExpect(jsonPath("$[0].partyThumbnailUrls[1]").value("http://party-thumbnail2.com"))
+                .andExpect(jsonPath("$[0].userThumbnailUrls[0]").value("http://user-thumbnailUrl"))
+                .andExpect(jsonPath("$[0].userThumbnailUrls[1]").value("http://user2-thumbnailUrl"));
     }
 
     @DisplayName("직관팟을 가져올 때, 날짜를 의도한 형식대로 변환해 반환할 수 있다.")
@@ -486,7 +486,7 @@ class PartyControllerTest extends ControllerTestSupport {
                         .with(authentication(token)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.matchDate").value(expectedFormattedDate));
+                .andExpect(jsonPath("$[0].matchDate").value(expectedFormattedDate));
     }
 
     private static Stream<Arguments> matchDateWithFormattedResult() {
