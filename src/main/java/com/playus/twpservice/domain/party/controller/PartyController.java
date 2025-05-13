@@ -38,8 +38,7 @@ public class PartyController implements PartyControllerSpecification {
     }
 
     @GetMapping
-    public List<PartiesByMatchResponse> getPartiesByMatchId(@AuthenticationPrincipal Long userId,
-                                                            @Valid PartiesByMatchRequest request) {
+    public List<PartiesByMatchResponse> getPartiesByMatchId(@Valid PartiesByMatchRequest request) {
         return partyReadOnlyService.getPartiesBy(request.matchId());
     }
 }

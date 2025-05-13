@@ -427,7 +427,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartiesByMatchResponse response = PartiesByMatchResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -469,7 +469,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartiesByMatchResponse response = PartiesByMatchResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -516,7 +516,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartiesByMatchResponse response = PartiesByMatchResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -548,7 +548,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of("title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartiesByMatchResponse response = PartiesByMatchResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
