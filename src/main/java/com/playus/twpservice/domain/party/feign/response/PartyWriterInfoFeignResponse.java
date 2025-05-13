@@ -10,4 +10,22 @@ public record PartyWriterInfoFeignResponse(
         String writerThumbnailUrl
 ) {
 
+    public static PartyWriterInfoFeignResponse of (Long id, String writerName,
+                                                   String writerGender, String writerThumbnailUrl) {
+        return PartyWriterInfoFeignResponse.builder()
+                .id(id)
+                .writerName(writerName)
+                .writerGender(writerGender)
+                .writerThumbnailUrl(writerThumbnailUrl)
+                .build();
+    }
+
+    public static PartyWriterInfoFeignResponse withServiceUnavailable() {
+        return PartyWriterInfoFeignResponse.builder()
+                .id(null)
+                .writerName(null)
+                .writerGender(null)
+                .writerThumbnailUrl(null)
+                .build();
+    }
 }

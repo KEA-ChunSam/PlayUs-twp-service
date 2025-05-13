@@ -8,4 +8,16 @@ import java.util.List;
 public record PartyUserThumbnailUrlListResponse(
      List<String> thumbnailUrls
 ) {
+
+    public static PartyUserThumbnailUrlListResponse of(List<String> thumbnailUrls) {
+        return PartyUserThumbnailUrlListResponse.builder()
+                .thumbnailUrls(thumbnailUrls)
+                .build();
+    }
+
+    public static PartyUserThumbnailUrlListResponse withServiceUnavailable() {
+        return PartyUserThumbnailUrlListResponse.builder()
+                .thumbnailUrls(List.of())
+                .build();
+    }
 }
