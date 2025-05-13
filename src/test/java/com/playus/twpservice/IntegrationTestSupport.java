@@ -1,6 +1,8 @@
 package com.playus.twpservice;
 
 
+import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
+import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,6 +34,12 @@ public abstract class IntegrationTestSupport {
 
     @MockitoBean
     protected S3PresignedUrlGenerator s3PresignedUrlGenerator;
+
+    @MockitoBean
+    protected UserFeignClient userFeignClient;
+
+    @MockitoBean
+    protected MatchFeignClient matchFeignClient;
 
     static {
         mySQL = new MySQLContainer<>(MYSQL_VERSION)
