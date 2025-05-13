@@ -11,11 +11,9 @@ import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImage
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyAge;
-import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
-import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
@@ -77,7 +75,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyRepository.count()).isEqualTo(1);
-        assertThat(partyJoinRepository.count()).isEqualTo(1);
+        assertThat(partyJoinRepository.count()).isZero();
         assertThat(partyThumbnailUrlRepository.count()).isEqualTo(2);
         assertThat(chatRoomRepository.count()).isEqualTo(1);
         assertThat(chatPartRepository.count()).isEqualTo(1);
@@ -96,12 +94,8 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(savedParty.getMaximumParticipants()).isEqualTo(10L);
         assertThat(savedParty.getPartyGender()).isEqualTo(PartyGender.MALE);
         assertThat(savedParty.getPartyJoinMethod()).isEqualTo(PartyJoinMethod.FIRST_COME);
+        assertThat(savedParty.getWriterId()).isEqualTo(userId);
         assertThat(savedParty.getChatRoomId()).isEqualTo(savedChatRoom.getId());
-
-        PartyJoin savedPartyJoin = partyJoinRepository.findAll().get(0);
-        assertThat(savedPartyJoin.getUserId()).isEqualTo(userId);
-        assertThat(savedPartyJoin.getPartyJoinRequestStatus()).isEqualTo(PartyJoinRequestStatus.ACCEPT);
-        assertThat(savedPartyJoin.getRequireMessage()).isNull();
 
         List<PartyThumbnailUrl> savedUrl = partyThumbnailUrlRepository.findAll();
         assertThat(savedUrl).hasSize(2);
@@ -116,7 +110,6 @@ class PartyServiceTest extends IntegrationTestSupport {
                 .containsExactlyInAnyOrder(10, 20);
 
         Long savedPartyId = savedParty.getId();
-        assertThat(savedPartyJoin.getParty().getId()).isEqualTo(savedPartyId);
         assertThat(savedUrl).allMatch(url -> url.getParty().getId().equals(savedPartyId));
         assertThat(savedPartyAges).allMatch(age -> age.getParty().getId().equals(savedPartyId));
 
@@ -138,7 +131,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyRepository.count()).isEqualTo(1);
-        assertThat(partyJoinRepository.count()).isEqualTo(1);
+        assertThat(partyJoinRepository.count()).isZero();
         assertThat(partyAgeRepository.count()).isEqualTo(2);
         assertThat(partyThumbnailUrlRepository.count()).isZero();
     }
@@ -156,7 +149,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyRepository.count()).isEqualTo(1);
-        assertThat(partyJoinRepository.count()).isEqualTo(1);
+        assertThat(partyJoinRepository.count()).isZero();
         assertThat(partyAgeRepository.count()).isEqualTo(2);
         assertThat(partyThumbnailUrlRepository.count()).isZero();
     }
