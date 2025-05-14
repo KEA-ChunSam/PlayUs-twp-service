@@ -5,5 +5,5 @@ import com.playus.twpservice.domain.party.vo.PartyInfo;
 import java.util.List;
 
 public interface PartyReadOnlyRepositoryCustom {
-    List<PartyInfo> findPartySummariesByMatchId(Long matchId);
+    List<PartyInfo> findPartyInfoBy(Long matchId);
 }

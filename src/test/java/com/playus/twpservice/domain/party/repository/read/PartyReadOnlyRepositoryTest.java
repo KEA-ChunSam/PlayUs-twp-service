@@ -70,7 +70,7 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when
-        List<PartyInfo> result = partyReadOnlyRepository.findPartySummariesByMatchId(matchId);
+        List<PartyInfo> result = partyReadOnlyRepository.findPartyInfoBy(matchId);
 
         // then
         assertThat(result).hasSize(2)
@@ -89,7 +89,7 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         Long matchId = 1L;
 
         // when
-        List<PartyInfo> result = partyReadOnlyRepository.findPartySummariesByMatchId(matchId);
+        List<PartyInfo> result = partyReadOnlyRepository.findPartyInfoBy(matchId);
 
         // then
         assertThat(result).isEmpty();

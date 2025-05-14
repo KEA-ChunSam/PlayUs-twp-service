@@ -23,7 +23,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
      * @return
      */
     @Override
-    public List<PartyInfo> findPartySummariesByMatchId(Long matchId) {
+    public List<PartyInfo> findPartyInfoBy(Long matchId) {
 
         MatchOperation matchOperation = match(new Criteria("match_id").is(matchId));
 
