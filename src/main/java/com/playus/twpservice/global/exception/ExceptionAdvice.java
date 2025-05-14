@@ -62,7 +62,7 @@ public class ExceptionAdvice {
     })
     public ErrorResponse handleFailOpenFeignException(NoFallbackAvailableException exception) {
         String errorMessage = exception.getMessage();
-        log.error(errorMessage);
-        return ErrorResponse.internalServerError(errorMessage);
+        log.error("Unexpected Error: {}", errorMessage);
+        return ErrorResponse.internalServerError("서버 에러가 발생했습니다! 관리자에게 문의해 주세요!");
     }
 }
