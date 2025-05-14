@@ -9,6 +9,8 @@ import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchRespons
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
+import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,6 +47,12 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
     @Autowired
     PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
+
+    @MockitoBean
+    protected UserFeignClient userFeignClient;
+
+    @MockitoBean
+    protected MatchFeignClient matchFeignClient;
 
 
     @AfterEach
