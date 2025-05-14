@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.ControllerTestSupport;
+import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
@@ -585,6 +586,63 @@ class PartyControllerTest extends ControllerTestSupport {
                         .with(authentication(token)))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @DisplayName("특정 직관팟에 대한 상세한 정보를 가져올 수 있다.")
+    @Test
+    void getPartyDetail() throws Exception {
+        // given
+        Long partyId = 1L;
+        List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
+        LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
+        List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
+        List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
+
+        PartyDetailResponse response = PartyDetailResponse.of(1L, "title", PartyJoinMethod.RESERVATION,
+                "explanation", partyAges, PartyGender.MALE, "ZSJ", "남성", matchDate,
+                10L, 14L, partyThumbnailUrls, userThumbnailUrls);
+
+        given(partyReadOnlyService.getPartyDetail(partyId))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(get("/party/" + partyId)
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("title"))
+                .andExpect(jsonPath("$.partyJoinMethod").value("승인제"))
+                .andExpect(jsonPath("$.partyAges[0]").value("10대"))
+                .andExpect(jsonPath("$.partyAges[1]").value("20대"))
+                .andExpect(jsonPath("$.text").value("explanation"))
+                .andExpect(jsonPath("$.availableGender").value("남자만"))
+                .andExpect(jsonPath("$.authorName").value("ZSJ"))
+                .andExpect(jsonPath("$.authorGender").value("남성"))
+                .andExpect(jsonPath("$.matchDate").value("3.22(토) 오후 2:00"))
+                .andExpect(jsonPath("$.currentParticipantsCount").value(10))
+                .andExpect(jsonPath("$.maximumParticipantsCount").value(14))
+                .andExpect(jsonPath("$.partyThumbnailUrls[0]").value("http://party-thumbnail"))
+                .andExpect(jsonPath("$.partyThumbnailUrls[1]").value("http://party-thumbnail2.com"))
+                .andExpect(jsonPath("$.userThumbnailUrls[0]").value("http://user-thumbnailUrl"))
+                .andExpect(jsonPath("$.userThumbnailUrls[1]").value("http://user2-thumbnailUrl"));
+    }
+
+    @DisplayName("특정 직관팟에 대해 조회할 때, ID는 1 이상이여야 한다.")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidStrId = {0}")
+    void getPartyDetail_EMPTY_PARTYID(String invalidIdStr) throws Exception {
+        // given
+
+        // when // then
+        mockMvc.perform(get("/party/" + invalidIdStr)
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
     }
 
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
