@@ -34,9 +34,8 @@ public class PartyJoinDocument {
     @NotNull
     private PartyJoinRequestStatus partyJoinRequestStatus;
 
-    @NotNull
     @Field(name = "require_message")
-    @Size(min = 1, max = 100)
+    @Size(max = 100)
     private String requireMessage;
 
     @Builder
