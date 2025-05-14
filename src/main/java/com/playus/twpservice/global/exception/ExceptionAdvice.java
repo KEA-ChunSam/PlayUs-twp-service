@@ -1,6 +1,7 @@
 package com.playus.twpservice.global.exception;
 
 import com.playus.twpservice.domain.party.controller.PartyController;
+import com.playus.twpservice.domain.party.exception.PartyDocumentException;
 import com.playus.twpservice.domain.party.exception.enums.PartyAgeGroupExceptionGroup;
 import com.playus.twpservice.domain.party.exception.enums.PartyGenderExceptionGroup;
 import com.playus.twpservice.domain.party.exception.enums.PartyJoinMethodExceptionGroup;
@@ -39,6 +40,17 @@ public class ExceptionAdvice {
         log.warn("Validation Error: {}", errorMessage);
         return ErrorResponse.badRequestError(errorMessage);
     }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler({
+            PartyDocumentException.NotFoundException.class
+    })
+    public ErrorResponse handleNotFoundException(Exception e) {
+        String errorMessage = e.getMessage();
+        log.error("Not Found Error: {}", errorMessage);
+        return ErrorResponse.notFoundError(errorMessage);
+    }
+
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(SdkException.class)
