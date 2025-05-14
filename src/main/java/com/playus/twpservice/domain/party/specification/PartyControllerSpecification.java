@@ -2,7 +2,7 @@ package com.playus.twpservice.domain.party.specification;
 
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchRequest;
+import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoListByMatchRequest;
 import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
@@ -175,5 +175,5 @@ public interface PartyControllerSpecification {
                     )
             )
     })
-    List<PartyInfoResponse> getPartiesByMatchId(@Valid PartiesByMatchRequest request);
+    List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoListByMatchRequest request);
 }
