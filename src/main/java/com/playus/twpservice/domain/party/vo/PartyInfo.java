@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PartySummary {
+public class PartyInfo {
     private Long partyId;
     private String title;
     private Long writerId;

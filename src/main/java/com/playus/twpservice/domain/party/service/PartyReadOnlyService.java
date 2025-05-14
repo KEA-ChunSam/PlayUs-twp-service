@@ -7,7 +7,7 @@ import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
-import com.playus.twpservice.domain.party.vo.PartySummary;
+import com.playus.twpservice.domain.party.vo.PartyInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,14 +27,14 @@ public class PartyReadOnlyService {
 
     public List<PartiesByMatchResponse> getPartiesBy(Long matchId) {
 
-        List<PartySummary> partySummaries = partyRepository.findPartySummariesByMatchId(matchId);
+        List<PartyInfo> partySummaries = partyRepository.findPartySummariesByMatchId(matchId);
 
         updateUserThumbnailUrls(partySummaries);
         updateWriterInfo(partySummaries);
         updateMatchDate(partySummaries, matchId);
 
         return partySummaries.stream()
-                .map(PartySummary::toResponse)
+                .map(PartyInfo::toResponse)
                 .toList();
     }
 
@@ -42,7 +42,7 @@ public class PartyReadOnlyService {
         return null;
     }
 
-    private void updateUserThumbnailUrls(List<PartySummary> summaries) {
+    private void updateUserThumbnailUrls(List<PartyInfo> summaries) {
         summaries.forEach(party -> {
             List<Long> userIds = party.getUserIdList();
             PartyUserThumbnailUrlListResponse userThumbnails = userFeignClient.getPartyUserThumbnailUrls(userIds);
@@ -50,9 +50,9 @@ public class PartyReadOnlyService {
         });
     }
 
-    private void updateWriterInfo(List<PartySummary> summaries) {
+    private void updateWriterInfo(List<PartyInfo> summaries) {
         List<Long> writerIds = summaries.stream()
-                .map(PartySummary::getWriterId)
+                .map(PartyInfo::getWriterId)
                 .toList();
 
         List<PartyWriterInfoFeignResponse> writerInfoList = userFeignClient.getWriterInfo(writerIds);
@@ -61,7 +61,7 @@ public class PartyReadOnlyService {
                 summaries.get(i).updateWriterInfo(writerInfoList.get(i)));
     }
 
-    private void updateMatchDate(List<PartySummary> summaries, Long matchId) {
+    private void updateMatchDate(List<PartyInfo> summaries, Long matchId) {
         LocalDateTime matchDate = matchFeignClient.getMatchDate(matchId);
         summaries.forEach(party -> party.updateMatchDate(matchDate));
     }

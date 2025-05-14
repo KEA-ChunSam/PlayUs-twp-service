@@ -8,7 +8,7 @@ import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
-import com.playus.twpservice.domain.party.vo.PartySummary;
+import com.playus.twpservice.domain.party.vo.PartyInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -70,7 +70,7 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when
-        List<PartySummary> result = partyReadOnlyRepository.findPartySummariesByMatchId(matchId);
+        List<PartyInfo> result = partyReadOnlyRepository.findPartySummariesByMatchId(matchId);
 
         // then
         assertThat(result).hasSize(2)
@@ -89,7 +89,7 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         Long matchId = 1L;
 
         // when
-        List<PartySummary> result = partyReadOnlyRepository.findPartySummariesByMatchId(matchId);
+        List<PartyInfo> result = partyReadOnlyRepository.findPartySummariesByMatchId(matchId);
 
         // then
         assertThat(result).isEmpty();

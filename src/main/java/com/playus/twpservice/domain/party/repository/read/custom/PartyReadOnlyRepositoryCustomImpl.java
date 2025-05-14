@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.repository.read.custom;
 
-import com.playus.twpservice.domain.party.vo.PartySummary;
+import com.playus.twpservice.domain.party.vo.PartyInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
@@ -23,7 +23,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
      * @return
      */
     @Override
-    public List<PartySummary> findPartySummariesByMatchId(Long matchId) {
+    public List<PartyInfo> findPartySummariesByMatchId(Long matchId) {
 
         MatchOperation matchOperation = match(new Criteria("match_id").is(matchId));
 
@@ -52,7 +52,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 projectionOperation
         );
 
-        AggregationResults<PartySummary> results = readMongoTemplate.aggregate(aggregation, "party", PartySummary.class);
+        AggregationResults<PartyInfo> results = readMongoTemplate.aggregate(aggregation, "party", PartyInfo.class);
 
         // currentParticipantsCount에 1 추가해줘야! (response 생성 시 처리해줫음)
         return results.getMappedResults();
