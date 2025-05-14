@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.vo;
 
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
+import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
@@ -50,8 +50,8 @@ public class PartyInfo {
         this.matchDate = matchDate;
     }
 
-    public PartiesByMatchResponse toResponse() {
-        return PartiesByMatchResponse.of(
+    public PartyInfoResponse toResponse() {
+        return PartyInfoResponse.of(
                 partyId,
                 title,
                 partyJoinMethod,

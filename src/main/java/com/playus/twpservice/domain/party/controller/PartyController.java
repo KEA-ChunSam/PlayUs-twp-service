@@ -3,7 +3,7 @@ package com.playus.twpservice.domain.party.controller;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchRequest;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
+import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -40,7 +40,7 @@ public class PartyController implements PartyControllerSpecification {
     }
 
     @GetMapping
-    public List<PartiesByMatchResponse> getPartiesByMatchId(@Valid PartiesByMatchRequest request) {
+    public List<PartyInfoResponse> getPartiesByMatchId(@Valid PartiesByMatchRequest request) {
         return partyReadOnlyService.getPartiesBy(request.matchId());
     }
 

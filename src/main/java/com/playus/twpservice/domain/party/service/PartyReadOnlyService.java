@@ -1,7 +1,7 @@
 package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
+import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
@@ -25,7 +25,7 @@ public class PartyReadOnlyService {
     private final UserFeignClient userFeignClient;
     private final MatchFeignClient matchFeignClient;
 
-    public List<PartiesByMatchResponse> getPartiesBy(Long matchId) {
+    public List<PartyInfoResponse> getPartiesBy(Long matchId) {
 
         List<PartyInfo> partySummaries = partyRepository.findPartySummariesByMatchId(matchId);
 

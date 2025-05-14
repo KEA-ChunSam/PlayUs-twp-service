@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record PartiesByMatchResponse(
+public record PartyInfoResponse(
         Long partyId,
         String title,
         String partyJoinMethod,
@@ -29,7 +29,7 @@ public record PartiesByMatchResponse(
 ) {
 
 
-    public static PartiesByMatchResponse of(
+    public static PartyInfoResponse of(
             Long partyId,
             String title,
             PartyJoinMethod partyJoinMethod,
@@ -43,7 +43,7 @@ public record PartiesByMatchResponse(
             List<String> partyThumbnailUrls,
             List<String> userThumbnailUrls
     ) {
-        return PartiesByMatchResponse.builder()
+        return PartyInfoResponse.builder()
                 .partyId(partyId)
                 .title(title)
                 .partyJoinMethod(partyJoinMethod.getDescription())

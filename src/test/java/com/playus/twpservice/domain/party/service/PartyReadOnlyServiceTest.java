@@ -5,7 +5,7 @@ import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
 import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
+import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
@@ -104,7 +104,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when
-        List<PartiesByMatchResponse> result = partyReadOnlyService.getPartiesBy(matchId);
+        List<PartyInfoResponse> result = partyReadOnlyService.getPartiesBy(matchId);
 
         // then
         assertThat(result).hasSize(2)
@@ -129,7 +129,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         Long matchId = 1L;
 
         // when
-        List<PartiesByMatchResponse> result = partyReadOnlyService.getPartiesBy(matchId);
+        List<PartyInfoResponse> result = partyReadOnlyService.getPartiesBy(matchId);
 
         // then
         assertThat(result).isEmpty();

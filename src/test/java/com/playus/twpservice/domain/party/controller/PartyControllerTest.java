@@ -2,7 +2,7 @@ package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.ControllerTestSupport;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
+import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -428,11 +428,11 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartyInfoResponse response = PartyInfoResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
-        List<PartiesByMatchResponse> result = List.of(response);
+        List<PartyInfoResponse> result = List.of(response);
 
         given(partyReadOnlyService.getPartiesBy(any(Long.class)))
                 .willReturn(result);
@@ -470,11 +470,11 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartyInfoResponse response = PartyInfoResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
-        List<PartiesByMatchResponse> result = List.of(response);
+        List<PartyInfoResponse> result = List.of(response);
 
         given(partyReadOnlyService.getPartiesBy(any(Long.class)))
                 .willReturn(result);
@@ -517,11 +517,11 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartyInfoResponse response = PartyInfoResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
-        List<PartiesByMatchResponse> result = List.of(response);
+        List<PartyInfoResponse> result = List.of(response);
 
         given(partyReadOnlyService.getPartiesBy(any(Long.class)))
                 .willReturn(result);
@@ -549,11 +549,11 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartiesByMatchResponse response = PartiesByMatchResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartyInfoResponse response = PartyInfoResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
-        List<PartiesByMatchResponse> result = List.of(response);
+        List<PartyInfoResponse> result = List.of(response);
 
         given(partyReadOnlyService.getPartiesBy(any(Long.class)))
                 .willReturn(result);
