@@ -1,13 +1,14 @@
 package com.playus.twpservice.domain.party.document;
 
-import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
@@ -19,7 +20,8 @@ public class PartyAgeDocument {
     private Long id;
 
     @NotNull
-    @DBRef(lazy = true)
+    @Indexed
+    @DocumentReference(lazy = true)
     @Field(name = "party_id")
     private PartyDocument party;
 

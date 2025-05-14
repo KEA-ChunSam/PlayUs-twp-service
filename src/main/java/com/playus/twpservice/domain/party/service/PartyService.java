@@ -10,10 +10,8 @@ import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImage
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyAge;
-import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
-import com.playus.twpservice.domain.party.enums.Status;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
@@ -42,12 +40,9 @@ public class PartyService {
     private final S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
     public PartyCreateResponse createParty(Long userId, PartyCreateRequest request) {
-
         ChatRoom chatRoom = initializeChatRoomAsWriter(userId, request);
 
-        Party party = partyRepository.save(request.toParty().assignChatRoom(chatRoom.getId()));
-
-        partyJoinRepository.save(PartyJoin.create(userId, party, Status.ACCEPT, null));
+        Party party = partyRepository.save(request.toPartyWith(userId).assignChatRoom(chatRoom.getId()));
 
         List<PartyAge> partyAgeList = toPartyAgeEntity(request, party);
         partyAgeRepository.saveAll(partyAgeList);
@@ -57,14 +52,14 @@ public class PartyService {
         return PartyCreateResponse.of(party.getId(), chatRoom.getId());
     }
 
+    public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
+        return new PresignedUrlForSaveImageResponse(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName()));
+    }
+
     private ChatRoom initializeChatRoomAsWriter(Long userId, PartyCreateRequest request) {
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create(request.title()));
         chatPartRepository.save(ChatPart.create(userId, chatRoom));
         return chatRoom;
-    }
-
-    public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
-        return new PresignedUrlForSaveImageResponse(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName()));
     }
 
     private void saveThumbnailUrlIfPresent(PartyCreateRequest request, Party party) {

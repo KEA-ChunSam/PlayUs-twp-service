@@ -11,21 +11,17 @@ import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImage
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyAge;
-import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
-import com.playus.twpservice.domain.party.enums.Status;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
-import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -36,9 +32,6 @@ class PartyServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private PartyService partyService;
-
-    @MockitoBean
-    private S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
     @Autowired
     private PartyRepository partyRepository;
@@ -82,7 +75,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyRepository.count()).isEqualTo(1);
-        assertThat(partyJoinRepository.count()).isEqualTo(1);
+        assertThat(partyJoinRepository.count()).isZero();
         assertThat(partyThumbnailUrlRepository.count()).isEqualTo(2);
         assertThat(chatRoomRepository.count()).isEqualTo(1);
         assertThat(chatPartRepository.count()).isEqualTo(1);
@@ -101,12 +94,8 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(savedParty.getMaximumParticipants()).isEqualTo(10L);
         assertThat(savedParty.getPartyGender()).isEqualTo(PartyGender.MALE);
         assertThat(savedParty.getPartyJoinMethod()).isEqualTo(PartyJoinMethod.FIRST_COME);
+        assertThat(savedParty.getWriterId()).isEqualTo(userId);
         assertThat(savedParty.getChatRoomId()).isEqualTo(savedChatRoom.getId());
-
-        PartyJoin savedPartyJoin = partyJoinRepository.findAll().get(0);
-        assertThat(savedPartyJoin.getUserId()).isEqualTo(userId);
-        assertThat(savedPartyJoin.getStatus()).isEqualTo(Status.ACCEPT);
-        assertThat(savedPartyJoin.getRequireMessage()).isNull();
 
         List<PartyThumbnailUrl> savedUrl = partyThumbnailUrlRepository.findAll();
         assertThat(savedUrl).hasSize(2);
@@ -121,7 +110,6 @@ class PartyServiceTest extends IntegrationTestSupport {
                 .containsExactlyInAnyOrder(10, 20);
 
         Long savedPartyId = savedParty.getId();
-        assertThat(savedPartyJoin.getParty().getId()).isEqualTo(savedPartyId);
         assertThat(savedUrl).allMatch(url -> url.getParty().getId().equals(savedPartyId));
         assertThat(savedPartyAges).allMatch(age -> age.getParty().getId().equals(savedPartyId));
 
@@ -143,7 +131,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyRepository.count()).isEqualTo(1);
-        assertThat(partyJoinRepository.count()).isEqualTo(1);
+        assertThat(partyJoinRepository.count()).isZero();
         assertThat(partyAgeRepository.count()).isEqualTo(2);
         assertThat(partyThumbnailUrlRepository.count()).isZero();
     }
@@ -161,7 +149,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyRepository.count()).isEqualTo(1);
-        assertThat(partyJoinRepository.count()).isEqualTo(1);
+        assertThat(partyJoinRepository.count()).isZero();
         assertThat(partyAgeRepository.count()).isEqualTo(2);
         assertThat(partyThumbnailUrlRepository.count()).isZero();
     }

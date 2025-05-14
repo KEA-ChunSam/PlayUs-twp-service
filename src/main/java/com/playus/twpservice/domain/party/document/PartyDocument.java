@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -41,6 +42,11 @@ public class PartyDocument extends BaseTimeEntity {
     private Long maximumParticipants;
 
     @NotNull
+    @Field(name = "writer_id")
+    private Long writerId;
+
+    @NotNull
+    @Indexed
     @Field(name = "match_id")
     private Long matchId;
 
@@ -56,11 +62,9 @@ public class PartyDocument extends BaseTimeEntity {
     @Size(min = 1, max = 255)
     private String thumbnailUrl;
 
-
-
     @Builder
     private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants,
-                          String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long matchId, String chatRoomId) {
+                          String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, String chatRoomId) {
         this.id = id;
         this.title = title;
         this.text = text;
@@ -71,11 +75,12 @@ public class PartyDocument extends BaseTimeEntity {
         this.partyJoinMethod = partyJoinMethod;
         this.matchId = matchId;
         this.chatRoomId = chatRoomId;
+        this.writerId = writerId;
     }
 
     public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants,
                                                   Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod,
-                                                  Long matchId, String chatRoomId) {
+                                                  Long writerId, Long matchId, String chatRoomId) {
         return PartyDocument.builder()
                 .id(id)
                 .title(title)
@@ -85,6 +90,7 @@ public class PartyDocument extends BaseTimeEntity {
                 .thumbnailUrl(thumbnailUrl)
                 .partyGender(partyGender)
                 .partyJoinMethod(partyJoinMethod)
+                .writerId(writerId)
                 .matchId(matchId)
                 .chatRoomId(chatRoomId)
                 .build();

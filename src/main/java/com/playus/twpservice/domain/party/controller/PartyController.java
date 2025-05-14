@@ -1,9 +1,12 @@
 package com.playus.twpservice.domain.party.controller;
 
+import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchRequest;
+import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
+import com.playus.twpservice.domain.party.service.PartyReadOnlyService;
 import com.playus.twpservice.domain.party.service.PartyService;
 import com.playus.twpservice.domain.party.specification.PartyControllerSpecification;
 import jakarta.validation.Valid;
@@ -13,12 +16,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+
 @RestController
 @RequestMapping("/party")
 @RequiredArgsConstructor
 public class PartyController implements PartyControllerSpecification {
 
     private final PartyService partyService;
+    private final PartyReadOnlyService partyReadOnlyService;
 
     @PostMapping
     public ResponseEntity<PartyCreateResponse> createParty(@AuthenticationPrincipal Long userId, @Valid @RequestBody PartyCreateRequest request) {
@@ -28,5 +35,10 @@ public class PartyController implements PartyControllerSpecification {
     @PostMapping("/presigned-url")
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(@Valid @RequestBody PresignedUrlForSaveImageRequest request) {
         return partyService.generatePresignedUrlForSaveImage(request);
+    }
+
+    @GetMapping
+    public List<PartiesByMatchResponse> getPartiesByMatchId(@Valid PartiesByMatchRequest request) {
+        return partyReadOnlyService.getPartiesBy(request.matchId());
     }
 }

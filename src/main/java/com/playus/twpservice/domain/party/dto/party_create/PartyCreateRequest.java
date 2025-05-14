@@ -73,7 +73,7 @@ public record PartyCreateRequest(
                 .build();
     }
 
-    public Party toParty() {
-        return Party.create(title, message, minimumParticipants, maximumParticipants, PartyGender.toEnumValue(partyGender), PartyJoinMethod.toEnumValue(partyJoinMethod), matchId);
+    public Party toPartyWith(Long userId) {
+        return Party.create(title, message, minimumParticipants, maximumParticipants, PartyGender.toEnumValue(partyGender), PartyJoinMethod.toEnumValue(partyJoinMethod), userId, matchId);
     }
 }

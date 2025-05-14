@@ -6,8 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Getter
@@ -19,7 +20,8 @@ public class PartyThumbnailUrlDocument {
     private Long id;
 
     @NotNull
-    @DBRef(lazy = true)
+    @Indexed
+    @DocumentReference(lazy = true)
     @Field(name = "party_id")
     private PartyDocument party;
 
@@ -27,13 +29,15 @@ public class PartyThumbnailUrlDocument {
     private String thumbnailUrl;
 
     @Builder
-    private PartyThumbnailUrlDocument(PartyDocument party, String thumbnailUrl) {
+    private PartyThumbnailUrlDocument(Long id, PartyDocument party, String thumbnailUrl) {
+        this.id = id;
         this.party = party;
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public static PartyThumbnailUrlDocument create(PartyDocument party, String thumbnailUrl) {
+    public static PartyThumbnailUrlDocument createForOnlyTest(Long id, PartyDocument party, String thumbnailUrl) {
         return PartyThumbnailUrlDocument.builder()
+                .id(id)
                 .party(party)
                 .thumbnailUrl(thumbnailUrl)
                 .build();

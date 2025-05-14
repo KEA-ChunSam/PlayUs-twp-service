@@ -2,6 +2,7 @@ package com.playus.twpservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.playus.twpservice.domain.party.controller.PartyController;
+import com.playus.twpservice.domain.party.service.PartyReadOnlyService;
 import com.playus.twpservice.domain.party.service.PartyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,6 +35,9 @@ public abstract class ControllerTestSupport {
 
     @MockitoBean
     protected PartyService partyService;
+
+    @MockitoBean
+    protected PartyReadOnlyService partyReadOnlyService;
 
     @TestConfiguration
     static class TestSecurityConfig {

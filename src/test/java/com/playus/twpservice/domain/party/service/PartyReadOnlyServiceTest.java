@@ -1,25 +1,40 @@
-package com.playus.twpservice.domain.party.repository.read;
+package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.IntegrationTestSupport;
 import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
 import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
+import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
-import com.playus.twpservice.domain.party.vo.PartySummary;
+import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
+import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
+import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
+import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
+import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
+import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
+import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
+import com.playus.twpservice.domain.party.repository.read.PartyThumbnailUrlReadOnlyRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.BDDMockito.*;
 
-class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
+class PartyReadOnlyServiceTest extends IntegrationTestSupport {
+
+    @Autowired
+    PartyReadOnlyService partyReadOnlyService;
 
     @Autowired
     PartyReadOnlyRepository partyReadOnlyRepository;
@@ -33,6 +48,12 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
     @Autowired
     PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
 
+    @MockitoBean
+    protected UserFeignClient userFeignClient;
+
+    @MockitoBean
+    protected MatchFeignClient matchFeignClient;
+
 
     @AfterEach
     void tearDown() {
@@ -42,11 +63,24 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         partyJoinReadOnlyRepository.deleteAll();
     }
 
-    @DisplayName("직관팟 정보를 가져올 수 있다.")
+    @DisplayName("특정 경기에 대한 직관팟을 불러올 수 있다.")
     @Test
-    void findPartySummaries() {
+    void getPartiesBy() {
         // given
         Long matchId = 1L;
+
+        given(userFeignClient.getPartyUserThumbnailUrls(List.of())).willReturn(PartyUserThumbnailUrlListResponse.of(new ArrayList<>()));
+        given(userFeignClient.getPartyUserThumbnailUrls(List.of(4L, 5L))).willReturn(
+                PartyUserThumbnailUrlListResponse.of(new ArrayList<>(List.of("http://user1", "http://user2")))
+        );
+
+        given(userFeignClient.getWriterInfo(List.of(1L, 2L))).willReturn(List.of(
+                PartyWriterInfoFeignResponse.of(1L, "writer1", "남성", "http://writer1-thumbnail"),
+                PartyWriterInfoFeignResponse.of(2L, "writer2", "여성", "http://writer2-thumbnail")
+        ));
+
+        LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0);
+        given(matchFeignClient.getMatchDate(matchId)).willReturn(matchDate);
 
         PartyDocument p1 = PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L,
                 "http://thumbnail", PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId");
@@ -70,26 +104,32 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when
-        List<PartySummary> result = partyReadOnlyRepository.findPartySummariesByMatchId(matchId);
+        List<PartiesByMatchResponse> result = partyReadOnlyService.getPartiesBy(matchId);
 
         // then
         assertThat(result).hasSize(2)
-                .extracting("partyId", "title", "writerId", "userIdList", "partyJoinMethod", "partyGender", "ages",
-                        "currentParticipantsCount", "maximumParticipants", "thumbnailUrls")
+
+                .extracting("partyId", "title", "partyJoinMethod", "partyAges", "availableGender", "authorName", "authorGender",
+                        "matchDate", "currentParticipantsCount", "maximumParticipantsCount", "partyThumbnailUrls", "userThumbnailUrls")
+
                 .containsExactlyInAnyOrder(
-                        tuple(1L, "title1", 1L, List.of(4L, 5L), PartyJoinMethod.FIRST_COME, PartyGender.MALE, List.of(10), 2L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2")),
-                        tuple(2L, "title2", 2L, List.of(), PartyJoinMethod.RESERVATION, PartyGender.FEMALE, List.of(20), 0L, 10L, List.of())
+                        tuple(1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성",
+                                matchDate, 3L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2"), List.of("http://writer1-thumbnail", "http://user1", "http://user2")),
+
+                        tuple(2L, "title2", PartyJoinMethod.RESERVATION.getDescription(), List.of("20대"), PartyGender.FEMALE.getDescription(), "writer2", "여성",
+                                matchDate, 1L, 10L, List.of(), List.of("http://writer2-thumbnail"))
                 );
     }
 
     @DisplayName("특정 경기에 대한 직관팟이 없을 수 있다.")
     @Test
-    void findPartySummaries_EMPTY_PARTY() {
+    void getPartiesBy_EMPTY_PARTY() {
+
         // given
         Long matchId = 1L;
 
         // when
-        List<PartySummary> result = partyReadOnlyRepository.findPartySummariesByMatchId(matchId);
+        List<PartiesByMatchResponse> result = partyReadOnlyService.getPartiesBy(matchId);
 
         // then
         assertThat(result).isEmpty();

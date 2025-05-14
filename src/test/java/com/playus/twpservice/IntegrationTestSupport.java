@@ -1,10 +1,12 @@
 package com.playus.twpservice;
 
 
+import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -14,11 +16,11 @@ import java.time.Duration;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public abstract class IntegrationTestSupport {
+public abstract class IntegrationTestSupport extends OpenFeignClientTestSupport {
 
     private static final String MYSQL_VERSION = "mysql:8.0.32";
     private static final String REDIS_VERSION = "redis:7.0.12";
-    private static final String MONGO_VERSION = "mongo:6.0.8";
+    private static final String MONGO_VERSION = "mongodb/mongodb-community-server:latest";
 
     private static final MySQLContainer<?> mySQL;
     private static final GenericContainer redis;
@@ -27,6 +29,9 @@ public abstract class IntegrationTestSupport {
 
     private static final int REDIS_PORT = 6379;
     private static final int MONGO_PORT = 27017;
+
+    @MockitoBean
+    protected S3PresignedUrlGenerator s3PresignedUrlGenerator;
 
     static {
         mySQL = new MySQLContainer<>(MYSQL_VERSION)
@@ -69,5 +74,6 @@ public abstract class IntegrationTestSupport {
                 () -> String.format("mongodb://%s:%d/chat_db", chatMongo.getHost(), chatMongo.getMappedPort(MONGO_PORT)));
         registry.add("spring.data.mongodb.chat.port", () -> String.valueOf(chatMongo.getMappedPort(MONGO_PORT)));
 
+        registry.add("spring.data.mongodb.auto-index-creation", () -> "true");
     }
 }

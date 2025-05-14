@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.entity;
 
-import com.playus.twpservice.domain.party.enums.Status;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,29 +26,24 @@ public class PartyJoin {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
-
-    @Column(nullable = false, name = "is_writer")
-    private Boolean isWriter;
+    private PartyJoinRequestStatus partyJoinRequestStatus;
 
     @Column(name = "require_message", length = 100)
     private String requireMessage;
 
     @Builder
-    private PartyJoin(Long userId, Party party, Status status, boolean isWriter, String requireMessage) {
+    private PartyJoin(Long userId, Party party, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
         this.userId = userId;
         this.party = party;
-        this.status = status;
-        this.isWriter = isWriter;
+        this.partyJoinRequestStatus = partyJoinRequestStatus;
         this.requireMessage = requireMessage;
     }
 
-    public static PartyJoin create (Long userId, Party party, Status status,String requireMessage) {
+    public static PartyJoin create (Long userId, Party party, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
         return PartyJoin.builder()
                 .userId(userId)
                 .party(party)
-                .status(status)
-                .isWriter(true)
+                .partyJoinRequestStatus(partyJoinRequestStatus)
                 .requireMessage(requireMessage)
                 .build();
     }
