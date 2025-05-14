@@ -18,6 +18,7 @@ import java.util.List;
 public class PartyInfo {
     private Long partyId;
     private String title;
+    private String text;
     private Long writerId;
     private Long matchId;
     private List<Long> userIdList;
