@@ -33,7 +33,7 @@ public class S3Config {
                                 AwsBasicCredentials.create(accessKey, secretKey)
                         )
                 )
-                .region(Region.US_EAST_1)
+                .region(Region.of("kr-central-2"))
                 .build();
     }
 }
