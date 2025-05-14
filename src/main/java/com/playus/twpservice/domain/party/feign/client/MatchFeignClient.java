@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 
-@FeignClient(name = "matchFeignClient", url = "${feign.match.url}", fallback = MatchFeignFallback.class)
+@FeignClient(name = "matchFeignClient", url = "${feign.match.url}", path = "/match/api", fallback = MatchFeignFallback.class)
 @CircuitBreaker(name = "circuit")
 public interface MatchFeignClient {
 
-    @GetMapping("/match/api/date")
+    @GetMapping("/date")
     LocalDateTime getMatchDate(@RequestParam Long matchId);
 }
