@@ -96,3 +96,8 @@ dependencyManagement {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+test {
+	systemProperty 'user.language', 'ko'
+	systemProperty 'user.country', 'KR'
+}
