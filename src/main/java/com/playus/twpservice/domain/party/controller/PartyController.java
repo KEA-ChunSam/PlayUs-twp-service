@@ -2,8 +2,8 @@ package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoListByMatchRequest;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;

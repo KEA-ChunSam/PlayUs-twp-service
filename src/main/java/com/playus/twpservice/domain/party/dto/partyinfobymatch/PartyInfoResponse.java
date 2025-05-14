@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.dto.partybymatch;
+package com.playus.twpservice.domain.party.dto.partyinfobymatch;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
