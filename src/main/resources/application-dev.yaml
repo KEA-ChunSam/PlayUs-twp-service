@@ -35,6 +35,13 @@ spring:
           time_zone: Asia/Seoul
         show_sql: true
 
+feign:
+  user:
+    url: ${FEIGN_USER_URL}
+
+  match:
+    url: ${FEIGN_MATCH_URL}
+
 cloud:
   aws:
     credentials:
@@ -72,3 +79,15 @@ resilience4j:
     instances:
       circuit:
         base-config: default
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health           # 애플리케이션 상태 확인
+          - prometheus       # 메트릭 데이터 노출
+
+  endpoint:
+    health:
+      show-details: never
