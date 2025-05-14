@@ -10,7 +10,7 @@ import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRespon
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
-import com.playus.twpservice.domain.party.exception.PartyDocumentException;
+import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;

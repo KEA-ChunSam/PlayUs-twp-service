@@ -1,7 +1,7 @@
 package com.playus.twpservice.global.exception;
 
 import com.playus.twpservice.domain.party.controller.PartyController;
-import com.playus.twpservice.domain.party.exception.PartyDocumentException;
+import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.exception.enums.PartyAgeGroupException;
 import com.playus.twpservice.domain.party.exception.enums.PartyGenderException;
 import com.playus.twpservice.domain.party.exception.enums.PartyJoinMethodException;

@@ -2,7 +2,7 @@ package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
-import com.playus.twpservice.domain.party.exception.PartyDocumentException;
+import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;

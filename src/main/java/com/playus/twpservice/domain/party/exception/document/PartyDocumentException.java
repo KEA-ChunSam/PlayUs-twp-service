@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.exception;
+package com.playus.twpservice.domain.party.exception.document;
 
 import java.io.Serial;
 
