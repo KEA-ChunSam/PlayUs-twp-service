@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.party.service;
 
+import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
@@ -37,6 +38,10 @@ public class PartyReadOnlyService {
                 .toList();
     }
 
+    public PartyDetailResponse getPartyDetail(Long partyId) {
+        return null;
+    }
+
     private void updateUserThumbnailUrls(List<PartySummary> summaries) {
         summaries.forEach(party -> {
             List<Long> userIds = party.getUserIdList();
@@ -60,4 +65,6 @@ public class PartyReadOnlyService {
         LocalDateTime matchDate = matchFeignClient.getMatchDate(matchId);
         summaries.forEach(party -> party.updateMatchDate(matchDate));
     }
+
+
 }
