@@ -2,6 +2,7 @@ package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
+import com.playus.twpservice.domain.party.exception.PartyDocumentException;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
@@ -39,7 +40,14 @@ public class PartyReadOnlyService {
     }
 
     public PartyDetailResponse getPartyDetail(Long partyId) {
-        return null;
+        PartyInfo partyDetail = partyRepository.findPartyDetailBy(partyId)
+                .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        updateUserThumbnailUrls(List.of(partyDetail));
+        updateWriterInfo(List.of(partyDetail));
+        updateMatchDate(List.of(partyDetail), partyDetail.getMatchId());
+
+        return partyDetail.toPartyDetailResponse();
     }
 
     private void updateUserThumbnailUrls(List<PartyInfo> summaries) {

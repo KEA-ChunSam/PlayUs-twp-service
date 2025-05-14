@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.vo;
 
 import com.playus.twpservice.domain.party.dto.partybymatch.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
@@ -55,6 +56,24 @@ public class PartyInfo {
                 partyId,
                 title,
                 partyJoinMethod,
+                ages.stream().map(PartyAgeGroup::getAgeGroupByAge).toList(),
+                partyGender,
+                writerName,
+                writerGender,
+                matchDate,
+                currentParticipantsCount + 1, // 방장 추가
+                maximumParticipants,
+                thumbnailUrls,
+                userThumbnailUrls
+        );
+    }
+
+    public PartyDetailResponse toPartyDetailResponse() {
+        return PartyDetailResponse.of(
+                partyId,
+                title,
+                partyJoinMethod,
+                text,
                 ages.stream().map(PartyAgeGroup::getAgeGroupByAge).toList(),
                 partyGender,
                 writerName,
