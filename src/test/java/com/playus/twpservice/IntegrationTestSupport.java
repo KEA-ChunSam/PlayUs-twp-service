@@ -74,5 +74,6 @@ public abstract class IntegrationTestSupport extends OpenFeignClientTestSupport 
                 () -> String.format("mongodb://%s:%d/chat_db", chatMongo.getHost(), chatMongo.getMappedPort(MONGO_PORT)));
         registry.add("spring.data.mongodb.chat.port", () -> String.valueOf(chatMongo.getMappedPort(MONGO_PORT)));
 
+        registry.add("spring.data.mongodb.auto-index-creation", () -> "true");
     }
 }
