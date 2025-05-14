@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.enums;
 
-import com.playus.twpservice.domain.party.exception.enums.PartyJoinMethodExceptionGroup;
+import com.playus.twpservice.domain.party.exception.enums.PartyJoinMethodException;
 import com.playus.twpservice.domain.common.Describable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +21,6 @@ public enum PartyJoinMethod implements Describable {
         return Arrays.stream(PartyJoinMethod.values())
                 .filter(method -> method.getDescription().equals(description))
                 .findFirst()
-                .orElseThrow(() -> new PartyJoinMethodExceptionGroup.InvalidDescriptionException("Invalid PartyJoinMethod description: " + description));
+                .orElseThrow(() -> new PartyJoinMethodException.InvalidDescriptionException("Invalid PartyJoinMethod description: " + description));
     }
 }

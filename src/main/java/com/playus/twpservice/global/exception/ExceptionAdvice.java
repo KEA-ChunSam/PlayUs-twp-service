@@ -2,9 +2,9 @@ package com.playus.twpservice.global.exception;
 
 import com.playus.twpservice.domain.party.controller.PartyController;
 import com.playus.twpservice.domain.party.exception.PartyDocumentException;
-import com.playus.twpservice.domain.party.exception.enums.PartyAgeGroupExceptionGroup;
-import com.playus.twpservice.domain.party.exception.enums.PartyGenderExceptionGroup;
-import com.playus.twpservice.domain.party.exception.enums.PartyJoinMethodExceptionGroup;
+import com.playus.twpservice.domain.party.exception.enums.PartyAgeGroupException;
+import com.playus.twpservice.domain.party.exception.enums.PartyGenderException;
+import com.playus.twpservice.domain.party.exception.enums.PartyJoinMethodException;
 import com.playus.twpservice.global.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.NoFallbackAvailableException;
@@ -31,9 +31,9 @@ public class ExceptionAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({
-            PartyGenderExceptionGroup.InvalidDescriptionException.class,
-            PartyJoinMethodExceptionGroup.InvalidDescriptionException.class,
-            PartyAgeGroupExceptionGroup.InvalidDescriptionException.class
+            PartyGenderException.InvalidDescriptionException.class,
+            PartyJoinMethodException.InvalidDescriptionException.class,
+            PartyAgeGroupException.InvalidDescriptionException.class
     })
     public ErrorResponse handleInvalidDescriptionException(Exception e) {
         String errorMessage = e.getMessage();

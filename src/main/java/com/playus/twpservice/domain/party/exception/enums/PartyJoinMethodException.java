@@ -1,18 +1,14 @@
 package com.playus.twpservice.domain.party.exception.enums;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.io.Serial;
 
 /**
- * 남성, 여성 등 직관팟 성별에 관한 exception 모음입니다
+ * 파티 참여 방법 (선착순, 승인제) 과 관련된 예외 그룹화
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PartyGenderExceptionGroup {
+public abstract class PartyJoinMethodException {
 
     /**
-     * 잘못된 성별 문자열이 들어올 때 발생합니다
+     * 유효하지 않은 참여 설명이 제공되었을 때 발생
      */
     public static class InvalidDescriptionException extends RuntimeException {
 
