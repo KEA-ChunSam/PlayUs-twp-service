@@ -1,8 +1,6 @@
 package com.playus.twpservice;
 
 
-import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
-import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -18,7 +16,7 @@ import java.time.Duration;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public abstract class IntegrationTestSupport {
+public abstract class IntegrationTestSupport extends OpenFeignClientTestSupport {
 
     private static final String MYSQL_VERSION = "mysql:8.0.32";
     private static final String REDIS_VERSION = "redis:7.0.12";
@@ -34,12 +32,6 @@ public abstract class IntegrationTestSupport {
 
     @MockitoBean
     protected S3PresignedUrlGenerator s3PresignedUrlGenerator;
-
-    @MockitoBean
-    protected UserFeignClient userFeignClient;
-
-    @MockitoBean
-    protected MatchFeignClient matchFeignClient;
 
     static {
         mySQL = new MySQLContainer<>(MYSQL_VERSION)
