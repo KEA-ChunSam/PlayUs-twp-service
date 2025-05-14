@@ -25,7 +25,7 @@ public class PartyReadOnlyService {
     private final UserFeignClient userFeignClient;
     private final MatchFeignClient matchFeignClient;
 
-    public List<PartyInfoResponse> getPartiesBy(Long matchId) {
+    public List<PartyInfoResponse> getPartyInfoListByMatchId(Long matchId) {
 
         List<PartyInfo> partySummaryList = partyRepository.findPartyInfoBy(matchId);
 

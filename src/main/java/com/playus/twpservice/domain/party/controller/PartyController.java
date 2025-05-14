@@ -41,7 +41,7 @@ public class PartyController implements PartyControllerSpecification {
 
     @GetMapping
     public List<PartyInfoResponse> getPartiesByMatchId(@Valid PartiesByMatchRequest request) {
-        return partyReadOnlyService.getPartiesBy(request.matchId());
+        return partyReadOnlyService.getPartyInfoListByMatchId(request.matchId());
     }
 
     @GetMapping("/{partyId}")

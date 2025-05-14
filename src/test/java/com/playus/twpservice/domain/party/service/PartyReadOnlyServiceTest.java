@@ -65,7 +65,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
     @DisplayName("특정 경기에 대한 직관팟을 불러올 수 있다.")
     @Test
-    void getPartiesBy() {
+    void getPartyInfoListByMatchId() {
         // given
         Long matchId = 1L;
 
@@ -104,7 +104,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when
-        List<PartyInfoResponse> result = partyReadOnlyService.getPartiesBy(matchId);
+        List<PartyInfoResponse> result = partyReadOnlyService.getPartyInfoListByMatchId(matchId);
 
         // then
         assertThat(result).hasSize(2)
@@ -123,13 +123,13 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
     @DisplayName("특정 경기에 대한 직관팟이 없을 수 있다.")
     @Test
-    void getPartiesBy_EMPTY_PARTY() {
+    void getPartyInfoList_EMPTY_PARTYByMatchId() {
 
         // given
         Long matchId = 1L;
 
         // when
-        List<PartyInfoResponse> result = partyReadOnlyService.getPartiesBy(matchId);
+        List<PartyInfoResponse> result = partyReadOnlyService.getPartyInfoListByMatchId(matchId);
 
         // then
         assertThat(result).isEmpty();
