@@ -1,7 +1,7 @@
 package com.playus.twpservice.domain.party.specification;
 
-import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
-import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
+import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;

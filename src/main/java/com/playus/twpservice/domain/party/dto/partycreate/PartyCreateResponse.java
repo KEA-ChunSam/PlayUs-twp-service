@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.dto.party_create;
+package com.playus.twpservice.domain.party.dto.partycreate;
 
 import lombok.Builder;
 
