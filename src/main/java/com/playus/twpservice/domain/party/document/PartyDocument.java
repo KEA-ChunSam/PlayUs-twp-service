@@ -62,25 +62,6 @@ public class PartyDocument extends BaseTimeEntity {
     @Size(min = 1, max = 255)
     private String thumbnailUrl;
 
-    public PartyDocument(Long id, String title, PartyJoinMethod partyJoinMethod, PartyGender partyGender, Long minimumParticipants, Long maximumParticipants, Long writerId, Long matchId, String chatRoomId, String text, String thumbnailUrl) {
-        this.id = id;
-        this.title = title;
-        this.partyJoinMethod = partyJoinMethod;
-        this.partyGender = partyGender;
-        this.minimumParticipants = minimumParticipants;
-        this.maximumParticipants = maximumParticipants;
-        this.writerId = writerId;
-        this.matchId = matchId;
-        this.chatRoomId = chatRoomId;
-        this.text = text;
-        this.thumbnailUrl = thumbnailUrl;
-    }
-
-    public PartyDocument(String title, PartyJoinMethod partyJoinMethod) {
-        this.title = title;
-        this.partyJoinMethod = partyJoinMethod;
-    }
-
     @Builder
     private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants,
                           String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, String chatRoomId) {
