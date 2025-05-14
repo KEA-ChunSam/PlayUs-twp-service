@@ -19,6 +19,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -440,7 +441,7 @@ class PartyControllerTest extends ControllerTestSupport {
         mockMvc.perform(get("/party")
                         .param("matchId", String.valueOf(matchId))
                         .contentType(APPLICATION_JSON)
-                        .with(authentication(token)))
+                        .with(authentication(token)).locale(Locale.KOREA))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("title"))
@@ -483,7 +484,7 @@ class PartyControllerTest extends ControllerTestSupport {
         mockMvc.perform(get("/party")
                         .param("matchId", String.valueOf(matchId))
                         .contentType(APPLICATION_JSON)
-                        .with(authentication(token)))
+                        .with(authentication(token)).locale(Locale.KOREA))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].matchDate").value(expectedFormattedDate));
