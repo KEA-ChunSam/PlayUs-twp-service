@@ -1,6 +1,4 @@
 spring:
-  jwt:
-    secret: "secretkeysecretkeysecretkeysecretkeysecretkeysecretkeysecretkey"
   jpa:
     hibernate:
         ddl-auto: create
@@ -11,6 +9,13 @@ spring:
           time_zone: Asia/Seoul
         show_sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
+
+  web:
+    locale: ko_KR
+    locale-resolver: fixed
+
+  jwt:
+    secret: "secretkeysecretkeysecretkeysecretkeysecretkeysecretkeysecretkey"
 
 logging:
   level:
