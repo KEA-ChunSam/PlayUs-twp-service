@@ -10,7 +10,6 @@ import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
-import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
@@ -426,12 +425,13 @@ class PartyControllerTest extends ControllerTestSupport {
     void getPartiesByMatchId() throws Exception {
         // given
         Long matchId = 1L;
+        Long writerId = 1L;
         List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
         LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartyInfoResponse response = PartyInfoResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartyInfoResponse response = PartyInfoResponse.of(1L, writerId, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -447,6 +447,8 @@ class PartyControllerTest extends ControllerTestSupport {
                         .with(authentication(token)))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].partyId").value(1L))
+                .andExpect(jsonPath("$[0].writerId").value(writerId))
                 .andExpect(jsonPath("$[0].title").value("title"))
                 .andExpect(jsonPath("$[0].partyJoinMethod").value("승인제"))
                 .andExpect(jsonPath("$[0].partyAges[0]").value("10대"))
@@ -473,7 +475,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartyInfoResponse response = PartyInfoResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartyInfoResponse response = PartyInfoResponse.of(1L, 1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -520,7 +522,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartyInfoResponse response = PartyInfoResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartyInfoResponse response = PartyInfoResponse.of(1L, 1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -552,7 +554,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartyInfoResponse response = PartyInfoResponse.of(1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
+        PartyInfoResponse response = PartyInfoResponse.of(1L, 1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
                 "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -596,12 +598,13 @@ class PartyControllerTest extends ControllerTestSupport {
     void getPartyDetail() throws Exception {
         // given
         Long partyId = 1L;
+        Long writerId = 1L;
         List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
         LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
-        PartyDetailResponse response = PartyDetailResponse.of(1L, "title", PartyJoinMethod.RESERVATION,
+        PartyDetailResponse response = PartyDetailResponse.of(1L, writerId, "title", PartyJoinMethod.RESERVATION,
                 "explanation", partyAges, PartyGender.MALE, "ZSJ", "남성", matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
@@ -615,6 +618,8 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("title"))
+                .andExpect(jsonPath("$.partyId").value(partyId))
+                .andExpect(jsonPath("$.writerId").value(writerId))
                 .andExpect(jsonPath("$.partyJoinMethod").value("승인제"))
                 .andExpect(jsonPath("$.partyAges[0]").value("10대"))
                 .andExpect(jsonPath("$.partyAges[1]").value("20대"))
