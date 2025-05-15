@@ -6,6 +6,9 @@ import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMa
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.service.PartyReadOnlyService;
@@ -34,11 +37,6 @@ public class PartyController implements PartyControllerSpecification {
         return ResponseEntity.status(HttpStatus.CREATED).body(partyService.createParty(userId, request));
     }
 
-    @PostMapping("/presigned-url")
-    public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(@Valid @RequestBody PresignedUrlForSaveImageRequest request) {
-        return partyService.generatePresignedUrlForSaveImage(request);
-    }
-
     @GetMapping
     public List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoListByMatchRequest request) {
         return partyReadOnlyService.getPartyInfoListByMatchId(request.matchId());
@@ -47,5 +45,16 @@ public class PartyController implements PartyControllerSpecification {
     @GetMapping("/{partyId}")
     public PartyDetailResponse getPartyDetail(@Valid PartyDetailRequest request) {
         return partyReadOnlyService.getPartyDetail(request.partyId());
+    }
+
+    @PutMapping("/{partyId}")
+    public PartyUpdateResponse updateParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest,
+                                           @Valid @RequestBody PartyUpdateRequest request) {
+        return partyService.updateParty(userId, request.toParty(idRequest.partyId()));
+    }
+
+    @PostMapping("/presigned-url")
+    public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(@Valid @RequestBody PresignedUrlForSaveImageRequest request) {
+        return partyService.generatePresignedUrlForSaveImage(request);
     }
 }
