@@ -49,7 +49,8 @@ public class Party extends BaseTimeEntity {
     private String text;
 
     @Builder
-    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId){
+    private Party(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId){
+        this.id = id;
         this.title = title;
         this.text = text;
         this.minimumParticipants = minimumParticipants;
@@ -58,6 +59,11 @@ public class Party extends BaseTimeEntity {
         this.partyJoinMethod = partyJoinMethod;
         this.writerId = writerId;
         this.matchId = matchId;
+    }
+
+    public Party assignChatRoom(String chatRoomId) {
+        this.chatRoomId = chatRoomId;
+        return this;
     }
 
     public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants,
@@ -74,8 +80,16 @@ public class Party extends BaseTimeEntity {
                 .build();
     }
 
-    public Party assignChatRoom(String chatRoomId) {
-        this.chatRoomId = chatRoomId;
-        return this;
+    public static Party createForUpdateParty(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants,
+                                             PartyGender partyGender, PartyJoinMethod partyJoinMethod){
+        return Party.builder()
+                .id(id)
+                .title(title)
+                .text(text)
+                .minimumParticipants(minimumParticipants)
+                .maximumParticipants(maximumParticipants)
+                .partyGender(partyGender)
+                .partyJoinMethod(partyJoinMethod)
+                .build();
     }
 }
