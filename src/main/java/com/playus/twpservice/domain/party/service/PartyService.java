@@ -6,6 +6,7 @@ import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
@@ -52,9 +53,14 @@ public class PartyService {
         return PartyCreateResponse.of(party.getId(), chatRoom.getId());
     }
 
+    public PartyUpdateResponse updateParty(Long userId, Party savedParty) {
+        return null;
+    }
+
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
         return new PresignedUrlForSaveImageResponse(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName()));
     }
+
 
     private ChatRoom initializeChatRoomAsWriter(Long userId, PartyCreateRequest request) {
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create(request.title()));
@@ -84,4 +90,6 @@ public class PartyService {
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
     }
+
+
 }
