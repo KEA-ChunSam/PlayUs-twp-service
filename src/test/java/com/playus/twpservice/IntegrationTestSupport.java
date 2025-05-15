@@ -2,6 +2,7 @@ package com.playus.twpservice;
 
 
 import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
+import com.playus.twpservice.global.s3.S3Service;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -32,6 +33,9 @@ public abstract class IntegrationTestSupport extends OpenFeignClientTestSupport 
 
     @MockitoBean
     protected S3PresignedUrlGenerator s3PresignedUrlGenerator;
+
+    @MockitoBean
+    protected S3Service s3Service;
 
     static {
         mySQL = new MySQLContainer<>(MYSQL_VERSION)
