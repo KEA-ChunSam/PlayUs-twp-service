@@ -21,6 +21,9 @@ public record PartyUpdateRequest  (
         @Size(max = 225, message = "제목의 길이를 1~225자 이내로 작성해 주세요!")
         String title,
 
+        @Min(value = 1, message = "작성자 ID는 1 이상이어야 합니다!")
+        Long writerId,
+
         @ValidEnum(enumClass = PartyJoinMethod.class, emptyValueMessage = "신청 방식이 비어 있습니다!", invalidValueMessage = "잘못된 신청 방식입니다!")
         String partyJoinMethod,
 
@@ -52,12 +55,13 @@ public record PartyUpdateRequest  (
 
 ) implements MinimumMaximumValidatable {
 
-    public static PartyUpdateRequest of(String title, String method, String gender, List<String> ageGroup,
+    public static PartyUpdateRequest of(String title, Long writerId, String method, String gender, List<String> ageGroup,
                                         Long minimumParticipants, Long maximumParticipants,
                                         List<String> thumbnailUrl, String message) {
 
         return PartyUpdateRequest.builder()
                 .title(title)
+                .writerId(writerId)
                 .partyJoinMethod(method)
                 .partyGender(gender)
                 .ageGroup(ageGroup)
@@ -69,8 +73,7 @@ public record PartyUpdateRequest  (
     }
 
     public Party toParty(Long partyId) {
-        return Party.createForUpdateParty(partyId, title, message, minimumParticipants,
+        return Party.createForUpdateParty(partyId, writerId, title, message, minimumParticipants,
                 maximumParticipants, PartyGender.toEnumValue(partyGender), PartyJoinMethod.toEnumValue(partyJoinMethod));
     }
-
 }

@@ -658,7 +658,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty() throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -678,7 +679,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_EMPTY_PARTYID(String invalidPartyIdStr) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -692,7 +694,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_EMPTY_TITLE(String emptyTitle) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of(null, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of(null, writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -706,12 +709,27 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_EXCEED_TITLE() throws Exception {
         String exceedTitle = "a".repeat(226);
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of(exceedTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of(exceedTitle, writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "제목의 길이를 1~225자 이내로 작성해 주세요!");
+    }
+
+    @DisplayName("직관팟을 수정할 때, 직관팟 작성자의 ID는 1 이상이여야 한다..")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidWriterIdStr = {0}")
+    void updateParty_INVALID_WRITERID(String invalidWriterIdStr) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", Long.parseLong(invalidWriterIdStr), "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "작성자 ID는 1 이상이어야 합니다!");
     }
 
     //  직관팟 수정 partyJoinMethod 이슈
@@ -721,7 +739,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_EMPTY_METHOD(String emptyMethod) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", emptyMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, emptyMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -735,7 +754,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_INVALID_METHOD(String invalidMethod) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", invalidMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, invalidMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -750,7 +770,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_EMPTY_GENDER(String emptyGender) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", emptyGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", emptyGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -764,7 +785,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_INVALID_GENDER(String invalidGender) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -778,7 +800,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_VALID_GENDER(String gender) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", gender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", writerId, "선착순", gender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -800,7 +823,8 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -815,7 +839,8 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -829,8 +854,9 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // given
         Long partyId = 1L;
+        Long writerId = 1L;
         List<String> tooManyAgeList = List.of("10대", "20대", "30대", "40대", "50대", "60대 이상", "70대", "80대", "90대");
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", tooManyAgeList, 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", "남자만", tooManyAgeList, 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -843,7 +869,8 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void updateParty_EMPTY_MINIMUM() throws Exception {
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), null, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", "남자만", List.of("10대", "20대"), null, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -855,7 +882,8 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void updateParty_INVALID_MINIMUM() throws Exception {
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 0L, 10L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", "남자만", List.of("10대", "20대"), 0L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -868,7 +896,8 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void updateParty_EMPTY_MAXIMUM() throws Exception {
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, null, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, null, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -880,7 +909,8 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void updateParty_MINIMUM_MAXIMUM() throws Exception {
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 10L, 9L, thumbnailUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", "남자만", List.of("10대", "20대"), 10L, 9L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -895,7 +925,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, validUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, validUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -914,10 +945,11 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_NULL_IMAGE_URL() throws Exception {
         // given
         Long partyId = 1L;
+        Long writerId = 1L;
         List<String> tooManyUrlList = List.of("http://image.com", "https://image.com", "ftp://image.com", "http://image.com",
                 "https://image.com", "ftp://image.com", "ftp://image.com", "http://image.com",
                 "https://image.com", "ftp://image.com", "http://image.com");
-        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", writerId, "선착순", "남자만", List.of("10대", "20대"),
                 1L, 10L, tooManyUrlList, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
@@ -932,7 +964,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_INVALID_IMAGE_URL(List<String> invalidUrl) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, "message");
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -947,7 +980,8 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_EMPTY_MESSAGE(String emptyMessage) throws Exception {
         // given
         Long partyId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, emptyMessage);
+        Long writerId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, emptyMessage);
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
@@ -960,8 +994,9 @@ class PartyControllerTest extends ControllerTestSupport {
     void updateParty_EXCEED_MESSAGE() throws Exception {
         // given
         Long partyId = 1L;
+        Long writerId = 1L;
         String exceedMessage = "a".repeat(101);
-        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, exceedMessage);
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, exceedMessage);
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
