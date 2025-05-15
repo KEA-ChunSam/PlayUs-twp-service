@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.vo;
 
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
@@ -15,9 +16,10 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PartySummary {
+public class PartyInfo {
     private Long partyId;
     private String title;
+    private String text;
     private Long writerId;
     private Long matchId;
     private List<Long> userIdList;
@@ -49,11 +51,29 @@ public class PartySummary {
         this.matchDate = matchDate;
     }
 
-    public PartiesByMatchResponse toResponse() {
-        return PartiesByMatchResponse.of(
+    public PartyInfoResponse toResponse() {
+        return PartyInfoResponse.of(
                 partyId,
                 title,
                 partyJoinMethod,
+                ages.stream().map(PartyAgeGroup::getAgeGroupByAge).toList(),
+                partyGender,
+                writerName,
+                writerGender,
+                matchDate,
+                currentParticipantsCount + 1, // 방장 추가
+                maximumParticipants,
+                thumbnailUrls,
+                userThumbnailUrls
+        );
+    }
+
+    public PartyDetailResponse toPartyDetailResponse() {
+        return PartyDetailResponse.of(
+                partyId,
+                title,
+                partyJoinMethod,
+                text,
                 ages.stream().map(PartyAgeGroup::getAgeGroupByAge).toList(),
                 partyGender,
                 writerName,

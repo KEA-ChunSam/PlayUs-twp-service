@@ -1,13 +1,16 @@
 package com.playus.twpservice.domain.party.specification;
 
-import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
-import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchRequest;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
+import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
+import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
+import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -36,18 +39,18 @@ public interface PartyControllerSpecification {
                             examples = @ExampleObject(
                                     name = "직관팟 생성 요청 예시",
                                     value = """
-                    {
-                      "title": "롯데 vs LG 직관 같이 가요!",
-                      "partyJoinMethod": "선착순",
-                      "partyGender": "남자만",
-                      "ageGroup": ["10대", "20대"],
-                      "minimumParticipants": 3,
-                      "maximumParticipants": 5,
-                      "thumbnailUrl": "https://image.example.com/party.jpg",
-                      "matchId" : "1",
-                      "message": "재밌게 응원할 분 구해요!"
-                    }
-                    """
+                                            {
+                                              "title": "롯데 vs LG 직관 같이 가요!",
+                                              "partyJoinMethod": "선착순",
+                                              "partyGender": "남자만",
+                                              "ageGroup": ["10대", "20대"],
+                                              "minimumParticipants": 3,
+                                              "maximumParticipants": 5,
+                                              "thumbnailUrl": "https://image.example.com/party.jpg",
+                                              "matchId" : "1",
+                                              "message": "재밌게 응원할 분 구해요!"
+                                            }
+                                            """
                             )
                     )
             )
@@ -60,11 +63,11 @@ public interface PartyControllerSpecification {
                             examples = @ExampleObject(
                                     name = "직관팟 생성 응답 예시",
                                     value = """
-                    {
-                      "partyId": 1,
-                      "chatRoomId": "chatRoomId"
-                    }
-                    """
+                                            {
+                                              "partyId": 1,
+                                              "chatRoomId": "chatRoomId"
+                                            }
+                                            """
                             )
                     )
             )
@@ -82,10 +85,10 @@ public interface PartyControllerSpecification {
                             examples = @ExampleObject(
                                     name = "Presigned URL 발급 요청 예시",
                                     value = """
-                    {
-                      "imageFileName": "party_thumbnail.jpg"
-                    }
-                    """
+                                            {
+                                              "imageFileName": "party_thumbnail.jpg"
+                                            }
+                                            """
                             )
                     )
             )
@@ -98,10 +101,10 @@ public interface PartyControllerSpecification {
                             examples = @ExampleObject(
                                     name = "Presigned URL 발급 응답 예시",
                                     value = """
-                    {
-                      "presignedUrl": "http://presigned-url.com"
-                    }
-                    """
+                                            {
+                                              "presignedUrl": "http://presigned-url.com"
+                                            }
+                                            """
                             )
                     )
             )
@@ -129,51 +132,104 @@ public interface PartyControllerSpecification {
                             examples = @ExampleObject(
                                     name = "직관팟 조회 응답 예시",
                                     value = """
-                                            [
-                                               {
-                                                 "partyId": 1,
-                                                 "title": "title",
-                                                 "partyJoinMethod": "승인제",
-                                                 "partyAges": ["10대", "20대"],
-                                                 "availableGender": "남자만",
-                                                 "authorName": "ZSJ",
-                                                 "authorGender": "남성",
-                                                 "matchDate": "3.22(토) 오후 2:00",
-                                                 "currentParticipantsCount": 10,
-                                                 "maximumParticipantsCount": 14,
-                                                 "partyThumbnailUrls": [
-                                                   "http://party-thumbnail",
-                                                   "http://party-thumbnail2"
-                                                 ],
-                                                 "userThumbnailUrls": [
-                                                   "http://user-thumbnailUrl",
-                                                   "http://user2-thumbnailUrl"
-                                                 ]
-                                               }, 
-                                               
-                                                  {
-                                                     "partyId": 2,
-                                                     "title": "title2",
-                                                     "partyJoinMethod": "선착순",
-                                                     "partyAges": ["30대"],
-                                                     "availableGender": "여자만",
-                                                     "authorName": "ZSJ",
-                                                     "authorGender": "남성",
-                                                     "matchDate": "3.22(토) 오후 2:00",
-                                                     "currentParticipantsCount": 1,
-                                                     "maximumParticipantsCount": 5,
-                                                     "partyThumbnailUrls": [
-                                                     
-                                                     ],
-                                                     "userThumbnailUrls": [
-   
-                                                     ]
-                                                  }
-                                             ]
-                    """
+                                                                    [
+                                                                       {
+                                                                         "partyId": 1,
+                                                                         "title": "title",
+                                                                         "partyJoinMethod": "승인제",
+                                                                         "partyAges": ["10대", "20대"],
+                                                                         "availableGender": "남자만",
+                                                                         "authorName": "ZSJ",
+                                                                         "authorGender": "남성",
+                                                                         "matchDate": "3.22(토) 오후 2:00",
+                                                                         "currentParticipantsCount": 10,
+                                                                         "maximumParticipantsCount": 14,
+                                                                         "partyThumbnailUrls": [
+                                                                           "http://party-thumbnail",
+                                                                           "http://party-thumbnail2"
+                                                                         ],
+                                                                         "userThumbnailUrls": [
+                                                                           "http://user-thumbnailUrl",
+                                                                           "http://user2-thumbnailUrl"
+                                                                         ]
+                                                                       }, 
+                                            
+                                                                          {
+                                                                             "partyId": 2,
+                                                                             "title": "title2",
+                                                                             "partyJoinMethod": "선착순",
+                                                                             "partyAges": ["30대"],
+                                                                             "availableGender": "여자만",
+                                                                             "authorName": "ZSJ",
+                                                                             "authorGender": "남성",
+                                                                             "matchDate": "3.22(토) 오후 2:00",
+                                                                             "currentParticipantsCount": 1,
+                                                                             "maximumParticipantsCount": 5,
+                                                                             "partyThumbnailUrls": [
+                                            
+                                                                             ],
+                                                                             "userThumbnailUrls": [
+                                            
+                                                                             ]
+                                                                          }
+                                                                     ]
+                                            """
                             )
                     )
             )
     })
-    List<PartiesByMatchResponse> getPartiesByMatchId(@Valid PartiesByMatchRequest request);
+    List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoListByMatchRequest request);
+
+    @Tag(name = "Get", description = "직관팟 상세정보 조회 API")
+    @Operation(
+            summary = "직관팟 상세정보 조회 API",
+            description = "특정 직관팟에 대한 자세한 정보를 조회합니다.",
+            parameters = {
+                    @Parameter(
+                            name = "partyId",
+                            in = ParameterIn.PATH,
+                            description = "직관팟 ID",
+                            required = true,
+                            example = "1"
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "조회 성공",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 상세정보 조회 응답 예시",
+                                    value = """
+                                            {
+                                              "partyId": 1,
+                                              "title": "title",
+                                              "partyJoinMethod": "승인제",
+                                              "text": "explanation",
+                                              "partyAges": [
+                                                "10대",
+                                                "20대"
+                                              ],
+                                              "availableGender": "남자만",
+                                              "authorName": "ZSJ",
+                                              "authorGender": "남성",
+                                              "matchDate": "3.22(토) 오후 2:00",
+                                              "currentParticipantsCount": 10,
+                                              "maximumParticipantsCount": 14,
+                                              "partyThumbnailUrls": [
+                                                "http://party-thumbnail",
+                                                "http://party-thumbnail2.com"
+                                              ],
+                                              "userThumbnailUrls": [
+                                                "http://user-thumbnailUrl",
+                                                "http://user2-thumbnailUrl"
+                                              ]
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    PartyDetailResponse getPartyDetail(@Valid PartyDetailRequest request);
 }

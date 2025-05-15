@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.validation;
 
-import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
+import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

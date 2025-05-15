@@ -1,9 +1,11 @@
 package com.playus.twpservice.domain.party.controller;
 
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchRequest;
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
-import com.playus.twpservice.domain.party.dto.party_create.PartyCreateRequest;
-import com.playus.twpservice.domain.party.dto.party_create.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
+import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
+import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.service.PartyReadOnlyService;
@@ -38,7 +40,12 @@ public class PartyController implements PartyControllerSpecification {
     }
 
     @GetMapping
-    public List<PartiesByMatchResponse> getPartiesByMatchId(@Valid PartiesByMatchRequest request) {
-        return partyReadOnlyService.getPartiesBy(request.matchId());
+    public List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoListByMatchRequest request) {
+        return partyReadOnlyService.getPartyInfoListByMatchId(request.matchId());
+    }
+
+    @GetMapping("/{partyId}")
+    public PartyDetailResponse getPartyDetail(@Valid PartyDetailRequest request) {
+        return partyReadOnlyService.getPartyDetail(request.partyId());
     }
 }

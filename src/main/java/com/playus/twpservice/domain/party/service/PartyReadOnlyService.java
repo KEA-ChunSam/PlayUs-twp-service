@@ -1,12 +1,14 @@
 package com.playus.twpservice.domain.party.service;
 
-import com.playus.twpservice.domain.party.dto.partybymatch.PartiesByMatchResponse;
+import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
+import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
-import com.playus.twpservice.domain.party.vo.PartySummary;
+import com.playus.twpservice.domain.party.vo.PartyInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,20 +26,31 @@ public class PartyReadOnlyService {
     private final UserFeignClient userFeignClient;
     private final MatchFeignClient matchFeignClient;
 
-    public List<PartiesByMatchResponse> getPartiesBy(Long matchId) {
+    public List<PartyInfoResponse> getPartyInfoListByMatchId(Long matchId) {
 
-        List<PartySummary> partySummaries = partyRepository.findPartySummariesByMatchId(matchId);
+        List<PartyInfo> partySummaryList = partyRepository.findPartyInfoBy(matchId);
 
-        updateUserThumbnailUrls(partySummaries);
-        updateWriterInfo(partySummaries);
-        updateMatchDate(partySummaries, matchId);
+        updateUserThumbnailUrls(partySummaryList);
+        updateWriterInfo(partySummaryList);
+        updateMatchDate(partySummaryList, matchId);
 
-        return partySummaries.stream()
-                .map(PartySummary::toResponse)
+        return partySummaryList.stream()
+                .map(PartyInfo::toResponse)
                 .toList();
     }
 
-    private void updateUserThumbnailUrls(List<PartySummary> summaries) {
+    public PartyDetailResponse getPartyDetail(Long partyId) {
+        PartyInfo partyDetail = partyRepository.findPartyDetailBy(partyId)
+                .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        updateUserThumbnailUrls(List.of(partyDetail));
+        updateWriterInfo(List.of(partyDetail));
+        updateMatchDate(List.of(partyDetail), partyDetail.getMatchId());
+
+        return partyDetail.toPartyDetailResponse();
+    }
+
+    private void updateUserThumbnailUrls(List<PartyInfo> summaries) {
         summaries.forEach(party -> {
             List<Long> userIds = party.getUserIdList();
             PartyUserThumbnailUrlListResponse userThumbnails = userFeignClient.getPartyUserThumbnailUrls(userIds);
@@ -45,9 +58,9 @@ public class PartyReadOnlyService {
         });
     }
 
-    private void updateWriterInfo(List<PartySummary> summaries) {
+    private void updateWriterInfo(List<PartyInfo> summaries) {
         List<Long> writerIds = summaries.stream()
-                .map(PartySummary::getWriterId)
+                .map(PartyInfo::getWriterId)
                 .toList();
 
         List<PartyWriterInfoFeignResponse> writerInfoList = userFeignClient.getWriterInfo(writerIds);
@@ -56,8 +69,10 @@ public class PartyReadOnlyService {
                 summaries.get(i).updateWriterInfo(writerInfoList.get(i)));
     }
 
-    private void updateMatchDate(List<PartySummary> summaries, Long matchId) {
+    private void updateMatchDate(List<PartyInfo> summaries, Long matchId) {
         LocalDateTime matchDate = matchFeignClient.getMatchDate(matchId);
         summaries.forEach(party -> party.updateMatchDate(matchDate));
     }
+
+
 }

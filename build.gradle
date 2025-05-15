@@ -51,6 +51,7 @@ dependencies {
 	// Monitoring
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
 
 	// Object Storage
 	implementation 'software.amazon.awssdk:s3:2.20.45'
