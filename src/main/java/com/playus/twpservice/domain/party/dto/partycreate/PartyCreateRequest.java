@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.party.dto.partycreate;
 
+import com.playus.twpservice.domain.common.MinimumMaximumValidatable;
 import com.playus.twpservice.global.validation.ValidEnum;
 import com.playus.twpservice.global.validation.ValidEnumList;
 import com.playus.twpservice.domain.party.entity.Party;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @Builder
 @ValidMinimumMaximumParticipants(message = "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!")
-public record PartyCreateRequest(
+public record PartyCreateRequest (
 
         @NotBlank(message = "직관팟 제목이 비어 있습니다!")
         @Size(max = 225, message = "제목의 길이를 1~225자 이내로 작성해 주세요!")
@@ -54,7 +55,7 @@ public record PartyCreateRequest(
         @Size(max = 100, message = "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!")
         String message
 
-) {
+) implements MinimumMaximumValidatable {
 
     public static PartyCreateRequest of(String title, String method, String gender, List<String> ageGroup,
                                         Long minimumParticipants, Long maximumParticipants,
