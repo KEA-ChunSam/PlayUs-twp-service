@@ -3,24 +3,23 @@ spring:
     name: twp-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/playus
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   data:
     mongodb:
       read:
-        uri: mongodb://localhost:27017/read_db
-
+        uri: ${SPRING_DATA_MONGODB_READ_URI}
       chat:
-        uri: mongodb://localhost:27017/chat_db
+        uri: ${SPRING_DATA_MONGODB_CHAT_URI}
 
       auto-index-creation: true
 
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
   jpa:
     show-sql: true
@@ -46,17 +45,17 @@ cloud:
       bucket : ${BUCKET_NAME}
       endpoint : ${BUCKET_ENDPOINT}
 
-sentry:
-  dsn: ${SENTRY_REPOSITORY_DSN}
-  environment: ${SENTRY_ENVIRONMENT}
-  servername: ${SENTRY_SERVERNAME}
-  repository-uri: ${SENTRY_REPOSITORY_URI}
-
-logging:
-  config: classpath:logback-spring.xml
-
-slack:
-  webhook-url: ${SLACK_WEBHOOK_URL}
+#sentry:
+#  dsn: ${SENTRY_REPOSITORY_DSN}
+#  environment: ${SENTRY_ENVIRONMENT}
+#  servername: ${SENTRY_SERVERNAME}
+#  repository-uri: ${SENTRY_REPOSITORY_URI}
+#
+#logging:
+#  config: classpath:logback-spring.xml
+#
+#slack:
+#  webhook-url: ${SLACK_WEBHOOK_URL}
 
 resilience4j:
   circuitbreaker:
