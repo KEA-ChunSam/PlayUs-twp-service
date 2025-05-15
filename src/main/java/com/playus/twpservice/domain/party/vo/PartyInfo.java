@@ -54,6 +54,7 @@ public class PartyInfo {
     public PartyInfoResponse toResponse() {
         return PartyInfoResponse.of(
                 partyId,
+                writerId,
                 title,
                 partyJoinMethod,
                 ages.stream().map(PartyAgeGroup::getAgeGroupByAge).toList(),
@@ -71,6 +72,7 @@ public class PartyInfo {
     public PartyDetailResponse toPartyDetailResponse() {
         return PartyDetailResponse.of(
                 partyId,
+                writerId,
                 title,
                 partyJoinMethod,
                 text,
