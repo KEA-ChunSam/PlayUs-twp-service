@@ -5,8 +5,11 @@ import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRespon
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
+import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
@@ -26,8 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -645,8 +647,336 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
     }
 
+    @DisplayName("직관팟을 수정할 수 있다.")
+    @Test
+    void updateParty() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        mockMvc.perform(put("/party/" + partyId)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.partyId").value("1"));
+    }
+
+    @DisplayName("직관팟을 수정할 때, 직관팟의 ID는 1 이상이여야 한다..")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void updateParty_EMPTY_PARTYID(String invalidPartyIdStr) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + invalidPartyIdStr, "직관팟 ID는 1 이상이어야 합니다!");
+    }
+
+    @DisplayName("직관팟 수정 중 제목은 필수이다.")
+    @NullAndEmptySource
+    @ParameterizedTest(name = "title = {0}")
+    void updateParty_EMPTY_TITLE(String emptyTitle) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of(null, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "직관팟 제목이 비어 있습니다!");
+    }
+
+    @DisplayName("직관팟 수정 중 제목은 225자를 넘길 수 없다.")
+    @Test
+    void updateParty_EXCEED_TITLE() throws Exception {
+        String exceedTitle = "a".repeat(226);
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of(exceedTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "제목의 길이를 1~225자 이내로 작성해 주세요!");
+    }
+
+    //  직관팟 수정 partyJoinMethod 이슈
+    @DisplayName("직관팟 수정 중 신청 방식은 필수이다.")
+    @NullAndEmptySource
+    @ParameterizedTest(name = "partyJoinMethod = {0}")
+    void updateParty_EMPTY_METHOD(String emptyMethod) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", emptyMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "신청 방식이 비어 있습니다!");
+    }
+
+    @DisplayName("직관팟 수정 중 신청 방식은 정해진 양식대로 입력해야 한다.")
+    @CsvSource(value = {"FIRST_COME", "RESERVATION", "ABCDEFG", "ㄱㄴㄷㄹㅁㅂㅅㅇ", "!@#$%^&", "123456789"})
+    @ParameterizedTest(name = "partyJoinMethod = {0}")
+    void updateParty_INVALID_METHOD(String invalidMethod) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", invalidMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "잘못된 신청 방식입니다!");
+    }
+
+    //  직관팟 수정 partyGender 이슈
+    @DisplayName("직관팟 수정 중 참여 원하는 성별은 필수이다.")
+    @NullAndEmptySource
+    @ParameterizedTest(name = "partyGender = {0}")
+    void updateParty_EMPTY_GENDER(String emptyGender) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", emptyGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "참여 원하는 성별이 비어 있습니다!");
+    }
+
+    @DisplayName("직관팟 수정 중 성별은 정해진 양식대로 입력해야 한다.")
+    @CsvSource(value = {"MALE", "FEMALE", "NO_MATTER", "ㄱㄴㄷㄹㅁㅂㅅㅇ", "!@#$%^&", "123456789"})
+    @ParameterizedTest(name = "partyGender = {0}")
+    void updateParty_INVALID_GENDER(String invalidGender) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "잘못된 성별 형식입니다!");
+    }
+
+    @DisplayName("직관팟 수정 중 성별은 남자만, 여자만, 상관없음 중 하나만 입력해아 한다.")
+    @CsvSource(value = {"남자만", "여자만", "상관없음"})
+    @ParameterizedTest(name = "partyGender = {0}")
+    void updateParty_VALID_GENDER(String gender) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", gender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        mockMvc.perform(put("/party/" + partyId)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.partyId").value("1"));
+    }
+
+    //  직관팟 수정 ageGroup 이슈
+    @DisplayName("직관팟 수정 중 참여자 나이는 필수이다.")
+    @NullAndEmptySource
+    @ParameterizedTest(name = "age = {0}")
+    void updateParty_EMPTY_AGE(List<String> emptyAgeList) throws Exception {
+
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "참여자 나이가 비어 있습니다!");
+    }
+
+    @DisplayName("직관팟 수정 중 참여자 나이는 정해진 양식대로 입력해야 한다.")
+    @MethodSource("invalidAgeGroupProvider")
+    @ParameterizedTest(name = "age = {0}")
+    void updateParty_INVALID_AGE(List<String> emptyAgeList) throws Exception {
+
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "잘못된 참여자 나이입니다!");
+    }
+
+    @DisplayName("직관팟 수정 중 참여자 나이는 정해진 수를 넘을 수 없다.")
+    @Test
+    void updateParty_TOO_MANY_AGE() throws Exception {
+
+        // given
+        Long partyId = 1L;
+        List<String> tooManyAgeList = List.of("10대", "20대", "30대", "40대", "50대", "60대 이상", "70대", "80대", "90대");
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", tooManyAgeList, 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "참여자 나이는 최대 6개까지 가능합니다!");
+    }
+
+    //  직관팟 수정 minimumParticipants 이슈
+    @DisplayName("직관팟 최소 인원은 필수이다.")
+    @Test
+    void updateParty_EMPTY_MINIMUM() throws Exception {
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), null, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최소 참여 인원이 비어 있습니다!");
+    }
+
+    @DisplayName("직관팟 최소 인원은 1 이상이여야 한다.")
+    @Test
+    void updateParty_INVALID_MINIMUM() throws Exception {
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 0L, 10L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최소 참여 인원은 1명 이상이여야 합니다!");
+    }
+
+    //  직관팟 수정 maximumParticipants 이슈
+    @DisplayName("직관팟 최대 인원은 필수이다.")
+    @Test
+    void updateParty_EMPTY_MAXIMUM() throws Exception {
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, null, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최대 참여 인원이 비어 있습니다!");
+    }
+
+    @DisplayName("직관팟 최소 인원은 최대 인원보다 클 수 없다.")
+    @Test
+    void updateParty_MINIMUM_MAXIMUM() throws Exception {
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 10L, 9L, thumbnailUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!");
+    }
+
+    //  직관팟 수정 thumbnailUrl 이슈
+    @DisplayName("직관팟 수정 중 사진 url은 비어 있거나, http/https/ftp로 시작해야 한다.")
+    @MethodSource("validUrlGroupProvider")
+    @ParameterizedTest(name = "url = {0}")
+    void updateParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, validUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        mockMvc.perform(put("/party/" + partyId)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.partyId").value("1"));
+    }
+
+    @DisplayName("직관팟 수정 중 사진 url은 최대 10개까지만 담을 수 있다.")
+    @Test
+    void updateParty_NULL_IMAGE_URL() throws Exception {
+        // given
+        Long partyId = 1L;
+        List<String> tooManyUrlList = List.of("http://image.com", "https://image.com", "ftp://image.com", "http://image.com",
+                "https://image.com", "ftp://image.com", "ftp://image.com", "http://image.com",
+                "https://image.com", "ftp://image.com", "http://image.com");
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, tooManyUrlList, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "썸네일은 최대 10개까지만 가능합니다!");
+    }
+
+    @DisplayName("직관팟 수정 중 사진 url은 올바른 format이여야 한다.")
+    @MethodSource("invalidUrlGroupProvider")
+    @ParameterizedTest(name = "url = {0}")
+    void updateParty_INVALID_IMAGE_URL(List<String> invalidUrl) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, "message");
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "올바른 URL 형식이 아닙니다!");
+    }
+
+    //  직관팟 수정 message 이슈
+    @DisplayName("직관팟 수정 중 소개 문구는 필수이다.")
+    @NullAndEmptySource
+    @ParameterizedTest(name = "message = {0}")
+    void updateParty_EMPTY_MESSAGE(String emptyMessage) throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, emptyMessage);
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "직관팟 소개 문구가 비어 있습니다!");
+    }
+
+    @DisplayName("직관팟 수정 중 소개 문구는 100자 이내여야 한다.")
+    @Test
+    void updateParty_EXCEED_MESSAGE() throws Exception {
+        // given
+        Long partyId = 1L;
+        String exceedMessage = "a".repeat(101);
+        PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, exceedMessage);
+        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
+        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+
+        // when // then
+        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!");
+    }
+
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
         mockMvc.perform(post(requestUri)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value(expectedResult));
+    }
+
+    private void assertBadRequestOfPartyUpdateRequest(PartyUpdateRequest request, String requestUri, String expectedResult) throws Exception {
+        mockMvc.perform(put(requestUri)
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
