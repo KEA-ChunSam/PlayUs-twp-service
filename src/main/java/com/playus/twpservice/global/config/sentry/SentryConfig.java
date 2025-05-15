@@ -8,7 +8,7 @@ import io.sentry.Sentry;
 import jakarta.annotation.PostConstruct;
 
 @Configuration
-@Profile({"!test"})
+@Profile({"prod", "dev"})
 public class SentryConfig {
 
 	@Value("${sentry.dsn}")
