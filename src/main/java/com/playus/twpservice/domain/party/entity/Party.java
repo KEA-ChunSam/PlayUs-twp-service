@@ -80,10 +80,11 @@ public class Party extends BaseTimeEntity {
                 .build();
     }
 
-    public static Party createForUpdateParty(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants,
+    public static Party createForUpdateParty(Long id, Long writerId, String title, String text, Long minimumParticipants, Long maximumParticipants,
                                              PartyGender partyGender, PartyJoinMethod partyJoinMethod){
         return Party.builder()
                 .id(id)
+                .writerId(writerId)
                 .title(title)
                 .text(text)
                 .minimumParticipants(minimumParticipants)
