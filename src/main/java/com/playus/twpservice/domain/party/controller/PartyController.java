@@ -50,7 +50,7 @@ public class PartyController implements PartyControllerSpecification {
     @PutMapping("/{partyId}")
     public PartyUpdateResponse updateParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest,
                                            @Valid @RequestBody PartyUpdateRequest request) {
-        return partyService.updateParty(userId, request.toParty(idRequest.partyId()));
+        return partyService.updateParty(userId, idRequest, request);
     }
 
     @PostMapping("/presigned-url")

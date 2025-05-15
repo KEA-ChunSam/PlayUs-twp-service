@@ -5,6 +5,7 @@ import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRespon
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -654,7 +655,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         mockMvc.perform(put("/party/" + partyId)
@@ -674,7 +675,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + invalidPartyIdStr, "직관팟 ID는 1 이상이어야 합니다!");
@@ -688,7 +689,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of(null, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
 
         // when // then
@@ -702,7 +703,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of(exceedTitle, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "제목의 길이를 1~225자 이내로 작성해 주세요!");
@@ -717,7 +718,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", emptyMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "신청 방식이 비어 있습니다!");
@@ -731,7 +732,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", invalidMethod, "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "잘못된 신청 방식입니다!");
@@ -746,7 +747,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", emptyGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "참여 원하는 성별이 비어 있습니다!");
@@ -760,7 +761,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", invalidGender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "잘못된 성별 형식입니다!");
@@ -774,7 +775,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", gender, List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         mockMvc.perform(put("/party/" + partyId)
@@ -796,7 +797,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "참여자 나이가 비어 있습니다!");
@@ -811,7 +812,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", emptyAgeList, 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "잘못된 참여자 나이입니다!");
@@ -826,7 +827,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> tooManyAgeList = List.of("10대", "20대", "30대", "40대", "50대", "60대 이상", "70대", "80대", "90대");
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", tooManyAgeList, 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "참여자 나이는 최대 6개까지 가능합니다!");
@@ -839,7 +840,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), null, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최소 참여 인원이 비어 있습니다!");
@@ -851,7 +852,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 0L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최소 참여 인원은 1명 이상이여야 합니다!");
@@ -864,7 +865,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, null, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최대 참여 인원이 비어 있습니다!");
@@ -876,7 +877,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 10L, 9L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!");
@@ -891,7 +892,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, validUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         mockMvc.perform(put("/party/" + partyId)
@@ -914,7 +915,7 @@ class PartyControllerTest extends ControllerTestSupport {
         PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
                 1L, 10L, tooManyUrlList, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "썸네일은 최대 10개까지만 가능합니다!");
@@ -928,7 +929,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "올바른 URL 형식이 아닙니다!");
@@ -943,7 +944,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, emptyMessage);
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "직관팟 소개 문구가 비어 있습니다!");
@@ -957,7 +958,7 @@ class PartyControllerTest extends ControllerTestSupport {
         String exceedMessage = "a".repeat(101);
         PartyUpdateRequest request = PartyUpdateRequest.of("제목", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, exceedMessage);
         PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(Party.class))).willReturn(response);
+        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!");
