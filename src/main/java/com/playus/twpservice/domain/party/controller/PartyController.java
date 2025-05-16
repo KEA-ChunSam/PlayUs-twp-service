@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.party.controller;
 
+import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
@@ -51,6 +52,11 @@ public class PartyController implements PartyControllerSpecification {
     public PartyUpdateResponse updateParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest,
                                            @Valid @RequestBody PartyUpdateRequest request) {
         return partyService.updateParty(userId, idRequest, request);
+    }
+
+    @PatchMapping("/{partyId}")
+    public PartyDeleteResponse deleteParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest) {
+        return partyService.deleteParty(userId, idRequest.partyId());
     }
 
     @PostMapping("/presigned-url")
