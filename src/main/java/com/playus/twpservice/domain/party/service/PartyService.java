@@ -74,9 +74,16 @@ public class PartyService {
         return PartyUpdateResponse.of(partyId);
     }
 
+    public PartyDeleteResponse deleteParty(Long userId, Long partyId, Long writerId) {
+//        PartyAssert.isLoginUserWriter(userId);
+        return null;
+    }
+
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
         return new PresignedUrlForSaveImageResponse(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName()));
     }
+
+
 
     private void updatePartyAgeGroup(PartyUpdateRequest updateRequest, Long partyId, Party savedParty) {
         partyAgeRepository.deleteByPartyId(partyId);
@@ -123,9 +130,5 @@ public class PartyService {
         return request.ageGroup().stream()
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
-    }
-
-    public PartyDeleteResponse deleteParty(Long userId, Long partyId) {
-        return null;
     }
 }
