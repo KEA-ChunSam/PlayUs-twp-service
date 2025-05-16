@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.ControllerTestSupport;
+import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteRequest;
 import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
@@ -1010,12 +1011,15 @@ class PartyControllerTest extends ControllerTestSupport {
     void deleteParty() throws Exception {
         // given
         Long deletedPartyId = 1L;
+        Long writerId = 1L;
+        PartyDeleteRequest request = PartyDeleteRequest.of(writerId);
         PartyDeleteResponse expectedResponse = PartyDeleteResponse.of(deletedPartyId);
-        given(partyService.deleteParty(any(Long.class), any(Long.class))).willReturn(expectedResponse);
+        given(partyService.deleteParty(any(Long.class), any(Long.class), any(Long.class))).willReturn(expectedResponse);
 
         // when // then
         mockMvc.perform(patch("/party/" + deletedPartyId)
                         .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
                         .with(authentication(token)))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -1027,10 +1031,13 @@ class PartyControllerTest extends ControllerTestSupport {
     @ParameterizedTest(name = "invalidWriterIdStr = {0}")
     void deleteParty_INVALID_WRITERID(String invalidWriterIdStr) throws Exception {
         // given
+        Long writerId = 1L;
+        PartyDeleteRequest request = PartyDeleteRequest.of(writerId);
 
         // when // then
         mockMvc.perform(patch("/party/" + invalidWriterIdStr)
                         .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
                         .with(authentication(token)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
