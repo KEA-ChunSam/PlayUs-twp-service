@@ -7,13 +7,19 @@ import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyAge;
+import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
@@ -26,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.*;
 
 class PartyServiceTest extends IntegrationTestSupport {
@@ -124,7 +131,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // given
         Long userId = 1L;
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만",
-                List.of("10대", "20대"), 1L, 10L, List.of(), 1L,  "message");
+                List.of("10대", "20대"), 1L, 10L, List.of(), 1L, "message");
 
         // when
         partyService.createParty(userId, request);
@@ -167,6 +174,95 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(result.presignedUrl()).isEqualTo(responseUrl);
+    }
+
+    @DisplayName("직관팟을 수정할 수 있다.")
+    @Test
+    void updateParty() {
+        // given
+        Long userId = 1L;
+        Long writerId = 1L;
+        Long matchId = 1L;
+
+        Party party = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
+
+        Long partyId = party.getId();
+        PartyIdRequest idRequest = PartyIdRequest.of(partyId);
+
+        PartyUpdateRequest updateRequest = PartyUpdateRequest.of("title2", writerId, "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, List.of("newUrl"), "message");
+
+        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"), PartyThumbnailUrl.create(party, "url2")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+
+        // when
+        PartyUpdateResponse response = partyService.updateParty(userId, idRequest, updateRequest);
+
+        // then
+        assertThat(response.partyId()).isEqualTo(partyId);
+
+        Party result = partyRepository.findAll().get(0);
+        assertThat(result).extracting("id", "title", "partyJoinMethod", "partyGender", "minimumParticipants",
+                        "maximumParticipants", "writerId", "matchId", "chatRoomId", "text")
+                .containsExactly(partyId, "title2", PartyJoinMethod.FIRST_COME, PartyGender.MALE, 1L,
+                        10L, writerId, matchId, "TEST-CHATROOM", "message");
+
+        List<PartyAge> ageResult = partyAgeRepository.findAll();
+        assertThat(ageResult).hasSize(2)
+                .extracting("age").containsExactly(10, 20);
+
+        List<PartyThumbnailUrl> thumbnailResult = partyThumbnailUrlRepository.findAll();
+        assertThat(thumbnailResult).hasSize(1)
+                .extracting("thumbnailUrl")
+                .containsExactly("newUrl");
+    }
+
+    @DisplayName("직관팟 작성자가 아니면 직관팟을 수정할 수 없다.")
+    @Test
+    void updateParty_checkWriterOrNot() {
+        Long userId = 1L;
+        Long writerId = 2L;
+        Long matchId = 1L;
+        Party party = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
+
+        PartyIdRequest idRequest = PartyIdRequest.of(party.getId());
+        PartyUpdateRequest updateRequest = PartyUpdateRequest.of("title2", writerId, "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, List.of("url"), "message");
+
+        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"), PartyThumbnailUrl.create(party, "url2")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.updateParty(userId, idRequest, updateRequest))
+                .isInstanceOf(PartyException.NotPartyWriterException.class)
+                .hasMessage("직관팟 작성자가 아니면 수정할 수 없습니다!");
+    }
+
+    @DisplayName("존재하지 않는 직관팟을 수정할 수 없다.")
+    @Test
+    void updateParty_NOT_EXIST_PARTY() {
+        Long userId = 1L;
+        Long writerId = 1L;
+        Long matchId = 1L;
+        PartyUpdateRequest updateRequest = PartyUpdateRequest.of("title2", writerId, "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, List.of("url"), "message");
+
+        Party party = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
+
+        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"), PartyThumbnailUrl.create(party, "url2")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+
+        // when // then
+        Long invalidPartyId = partyRepository.findAll().get(0).getId() + 1;
+        assertThatThrownBy(() -> partyService.updateParty(userId, PartyIdRequest.of(invalidPartyId), updateRequest))
+                .isInstanceOf(PartyException.NotFoundException.class)
+                .hasMessage("잘못된 직관팟 번호입니다!");
     }
 
 }

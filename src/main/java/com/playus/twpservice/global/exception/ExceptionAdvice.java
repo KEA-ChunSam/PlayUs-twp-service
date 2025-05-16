@@ -2,6 +2,7 @@ package com.playus.twpservice.global.exception;
 
 import com.playus.twpservice.domain.party.controller.PartyController;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
+import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.exception.enums.PartyAgeGroupException;
 import com.playus.twpservice.domain.party.exception.enums.PartyGenderException;
 import com.playus.twpservice.domain.party.exception.enums.PartyJoinMethodException;
@@ -43,6 +44,7 @@ public class ExceptionAdvice {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({
+            PartyException.NotFoundException.class,
             PartyDocumentException.NotFoundException.class
     })
     public ErrorResponse handleNotFoundException(Exception e) {

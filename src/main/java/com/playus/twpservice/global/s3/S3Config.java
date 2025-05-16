@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
@@ -23,6 +24,20 @@ public class S3Config {
 
     @Value("${cloud.aws.s3.endpoint}")
     private String endpoint;
+
+    @Bean
+    public S3Client s3Client() {
+        return S3Client.builder()
+                .endpointOverride(URI.create(endpoint))
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(
+                                AwsBasicCredentials.create(accessKey, secretKey)
+                        )
+                )
+                .forcePathStyle(true)
+                .region(Region.of("kr-central-2"))
+                .build();
+    }
 
     @Bean
     public S3Presigner s3Presigner() {

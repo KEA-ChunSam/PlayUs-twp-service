@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.entity;
 
 import com.playus.twpservice.domain.common.BaseTimeEntity;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import jakarta.persistence.*;
@@ -49,7 +50,8 @@ public class Party extends BaseTimeEntity {
     private String text;
 
     @Builder
-    private Party(String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId){
+    private Party(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId){
+        this.id = id;
         this.title = title;
         this.text = text;
         this.minimumParticipants = minimumParticipants;
@@ -58,6 +60,21 @@ public class Party extends BaseTimeEntity {
         this.partyJoinMethod = partyJoinMethod;
         this.writerId = writerId;
         this.matchId = matchId;
+    }
+
+    // setter
+    public void updateParty(PartyUpdateRequest updateRequest) {
+        this.title = updateRequest.title();
+        this.text = updateRequest.message();
+        this.minimumParticipants = updateRequest.minimumParticipants();
+        this.maximumParticipants = updateRequest.maximumParticipants();
+        this.partyGender = PartyGender.toEnumValue(updateRequest.partyGender());
+        this.partyJoinMethod = PartyJoinMethod.toEnumValue(updateRequest.partyJoinMethod());
+    }
+
+    public Party assignChatRoom(String chatRoomId) {
+        this.chatRoomId = chatRoomId;
+        return this;
     }
 
     public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants,
@@ -72,10 +89,5 @@ public class Party extends BaseTimeEntity {
                 .writerId(writerId)
                 .matchId(matchId)
                 .build();
-    }
-
-    public Party assignChatRoom(String chatRoomId) {
-        this.chatRoomId = chatRoomId;
-        return this;
     }
 }

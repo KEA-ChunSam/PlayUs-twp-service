@@ -110,14 +110,14 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         // then
         assertThat(result).hasSize(2)
 
-                .extracting("partyId", "title", "partyJoinMethod", "partyAges", "availableGender", "authorName", "authorGender",
+                .extracting("partyId", "writerId", "title", "partyJoinMethod", "partyAges", "availableGender", "authorName", "authorGender",
                         "matchDate", "currentParticipantsCount", "maximumParticipantsCount", "partyThumbnailUrls", "userThumbnailUrls")
 
                 .containsExactlyInAnyOrder(
-                        tuple(1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성",
+                        tuple(1L, 1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성",
                                 matchDate, 3L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2"), List.of("http://writer1-thumbnail", "http://user1", "http://user2")),
 
-                        tuple(2L, "title2", PartyJoinMethod.RESERVATION.getDescription(), List.of("20대"), PartyGender.FEMALE.getDescription(), "writer2", "여성",
+                        tuple(2L, 2L, "title2", PartyJoinMethod.RESERVATION.getDescription(), List.of("20대"), PartyGender.FEMALE.getDescription(), "writer2", "여성",
                                 matchDate, 1L, 10L, List.of(), List.of("http://writer2-thumbnail"))
                 );
     }
@@ -183,11 +183,11 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         // then
         assertThat(result)
 
-                .extracting("partyId", "title", "partyJoinMethod", "text", "partyAges", "availableGender", "authorName", "authorGender",
+                .extracting("partyId", "writerId", "title", "partyJoinMethod", "text", "partyAges", "availableGender", "authorName", "authorGender",
                         "matchDate", "currentParticipantsCount", "maximumParticipantsCount", "partyThumbnailUrls", "userThumbnailUrls")
 
                 .containsExactly(
-                        1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), "text1", List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성",
+                        1L, 1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), "text1", List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성",
                                 matchDate, 3L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2"), List.of("http://writer1-thumbnail", "http://user1", "http://user2")
 
                 );

@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public record PartyDetailResponse(
         Long partyId,
+        Long writerId,
         String title,
         String partyJoinMethod,
         String text,
@@ -32,6 +33,7 @@ public record PartyDetailResponse(
 
         public static PartyDetailResponse of(
                 Long partyId,
+                Long writerId,
                 String title,
                 PartyJoinMethod partyJoinMethod,
                 String text,
@@ -47,6 +49,7 @@ public record PartyDetailResponse(
         ) {
                 return PartyDetailResponse.builder()
                         .partyId(partyId)
+                        .writerId(writerId)
                         .title(title)
                         .partyJoinMethod(partyJoinMethod.getDescription())
                         .text(text)

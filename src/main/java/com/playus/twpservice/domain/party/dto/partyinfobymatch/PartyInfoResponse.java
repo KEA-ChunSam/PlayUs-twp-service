@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public record PartyInfoResponse(
         Long partyId,
+        Long writerId,
         String title,
         String partyJoinMethod,
         List<String> partyAges,
@@ -31,6 +32,7 @@ public record PartyInfoResponse(
 
     public static PartyInfoResponse of(
             Long partyId,
+            Long writerId,
             String title,
             PartyJoinMethod partyJoinMethod,
             List<PartyAgeGroup> partyAges,
@@ -45,6 +47,7 @@ public record PartyInfoResponse(
     ) {
         return PartyInfoResponse.builder()
                 .partyId(partyId)
+                .writerId(writerId)
                 .title(title)
                 .partyJoinMethod(partyJoinMethod.getDescription())
                 .partyAges(partyAges.stream().map(PartyAgeGroup::getDescription).toList())

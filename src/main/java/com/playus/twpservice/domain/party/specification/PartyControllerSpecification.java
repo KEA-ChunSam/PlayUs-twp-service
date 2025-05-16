@@ -6,6 +6,9 @@ import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailReques
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +49,7 @@ public interface PartyControllerSpecification {
                                               "ageGroup": ["10대", "20대"],
                                               "minimumParticipants": 3,
                                               "maximumParticipants": 5,
-                                              "thumbnailUrl": "https://image.example.com/party.jpg",
+                                              "thumbnailUrl": ["https://image.example.com/party.jpg"],
                                               "matchId" : "1",
                                               "message": "재밌게 응원할 분 구해요!"
                                             }
@@ -232,4 +235,60 @@ public interface PartyControllerSpecification {
             )
     })
     PartyDetailResponse getPartyDetail(@Valid PartyDetailRequest request);
+
+
+    @Tag(name = "Put", description = "직관팟 수정 API")
+    @Operation(
+            summary = "직관팟 수정",
+            description = "직관팟 작성자인 로그인한 유저가 직관팟을 수정합니다.",
+            parameters = {
+                    @Parameter(
+                            name = "partyId",
+                            in = ParameterIn.PATH,
+                            description = "직관팟 ID",
+                            required = true,
+                            example = "1"
+                    )
+            },
+            requestBody = @RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 수정 요청 예시",
+                                    value = """
+                                            {
+                                              "title": "롯데 vs LG 직관 같이 가요!",
+                                              "writerId" : 1,
+                                              "partyJoinMethod": "선착순",
+                                              "partyGender": "남자만",
+                                              "ageGroup": ["10대", "20대"],
+                                              "minimumParticipants": 3,
+                                              "maximumParticipants": 5,
+                                              "thumbnailUrl": ["https://image.example.com/party.jpg"],
+                                              "message": "재밌게 응원할 분 구해요!"
+                                            }
+                                            """
+                            )
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "수정 성공",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 수정 응답 예시",
+                                    value = """
+                                            {
+                                              "partyId": 1
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    PartyUpdateResponse updateParty(Long userId, @Valid PartyIdRequest idRequest,
+                                           @Valid @RequestBody PartyUpdateRequest request);
 }
