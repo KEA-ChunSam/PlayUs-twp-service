@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.entity;
 
 import com.playus.twpservice.domain.common.BaseTimeEntity;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import jakarta.persistence.*;
@@ -61,6 +62,16 @@ public class Party extends BaseTimeEntity {
         this.matchId = matchId;
     }
 
+    // setter
+    public void updateParty(PartyUpdateRequest updateRequest) {
+        this.title = updateRequest.title();
+        this.text = updateRequest.message();
+        this.minimumParticipants = updateRequest.minimumParticipants();
+        this.maximumParticipants = updateRequest.maximumParticipants();
+        this.partyGender = PartyGender.toEnumValue(updateRequest.partyGender());
+        this.partyJoinMethod = PartyJoinMethod.toEnumValue(updateRequest.partyJoinMethod());
+    }
+
     public Party assignChatRoom(String chatRoomId) {
         this.chatRoomId = chatRoomId;
         return this;
@@ -77,20 +88,6 @@ public class Party extends BaseTimeEntity {
                 .partyJoinMethod(partyJoinMethod)
                 .writerId(writerId)
                 .matchId(matchId)
-                .build();
-    }
-
-    public static Party createForUpdateParty(Long id, Long writerId, String title, String text, Long minimumParticipants, Long maximumParticipants,
-                                             PartyGender partyGender, PartyJoinMethod partyJoinMethod){
-        return Party.builder()
-                .id(id)
-                .writerId(writerId)
-                .title(title)
-                .text(text)
-                .minimumParticipants(minimumParticipants)
-                .maximumParticipants(maximumParticipants)
-                .partyGender(partyGender)
-                .partyJoinMethod(partyJoinMethod)
                 .build();
     }
 }
