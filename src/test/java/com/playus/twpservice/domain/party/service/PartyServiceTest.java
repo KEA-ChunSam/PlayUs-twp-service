@@ -179,7 +179,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // given
         String responseUrl = "http://presigned-url.com";
         PresignedUrlForSaveImageRequest request = new PresignedUrlForSaveImageRequest("image.jpg");
-        given(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName())).willReturn(responseUrl);
+        given(s3Service.generatePresignedUrl(request.imageFileName())).willReturn(responseUrl);
 
         // when
         PresignedUrlForSaveImageResponse result = partyService.generatePresignedUrlForSaveImage(request);
