@@ -71,9 +71,4 @@ public record PartyUpdateRequest  (
                 .message(message)
                 .build();
     }
-
-    public Party toParty(Long partyId) {
-        return Party.createForUpdateParty(partyId, writerId, title, message, minimumParticipants,
-                maximumParticipants, PartyGender.toEnumValue(partyGender), PartyJoinMethod.toEnumValue(partyJoinMethod));
-    }
 }
