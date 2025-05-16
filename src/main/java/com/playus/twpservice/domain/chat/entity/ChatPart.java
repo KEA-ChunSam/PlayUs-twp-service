@@ -6,13 +6,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Document(collection = "chatPart")
+@Document(collection = "chat_part")
 public class ChatPart {
 
     @Id
@@ -22,21 +23,26 @@ public class ChatPart {
     @Field(name = "user_id")
     private Long userId;
 
-    @DBRef(lazy = true)
     @NotNull
     @Field(name = "chatroom_id")
-    private ChatRoom chatRoom;
+    private String chatRoomId;
+
+    @Field(name = "is_deleted")
+    private Boolean isDeleted = false;
+
+    @Field(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Builder
-    private ChatPart(Long userId, ChatRoom chatRoom) {
+    private ChatPart(Long userId, String chatRoomId) {
         this.userId = userId;
-        this.chatRoom = chatRoom;
+        this.chatRoomId = chatRoomId;
     }
 
-    public static ChatPart create(Long userId, ChatRoom chatRoom) {
+    public static ChatPart create(Long userId, String chatRoom) {
         return ChatPart.builder()
                 .userId(userId)
-                .chatRoom(chatRoom)
+                .chatRoomId(chatRoom)
                 .build();
     }
 }

@@ -1,6 +1,5 @@
 package com.playus.twpservice.domain.chat.entity;
 
-import com.playus.twpservice.domain.common.BaseTimeEntity;
 import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,22 +8,22 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Document(collection = "chat_messages")
-public class ChatMessage extends BaseTimeEntity {
+@Document(collection = "chat_message")
+public class ChatMessage {
 
     @Id
     private String id;
 
-    @DBRef(lazy = true)
     @NotNull
     @Field(name = "chatpart_id")
-    private ChatPart chatPart;
+    private String chatPartId;
 
     @NotBlank
     @Size(min = 1, max = 500)
@@ -34,16 +33,22 @@ public class ChatMessage extends BaseTimeEntity {
     @Field(name = "is_read")
     private Boolean isRead;
 
+    @Field(name = "is_deleted")
+    private Boolean isDeleted = false;
+
+    @Field(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @Builder
-    private ChatMessage(ChatPart chatPart, String message, Boolean isRead) {
-        this.chatPart = chatPart;
+    private ChatMessage(String chatPartId, String message, Boolean isRead) {
+        this.chatPartId = chatPartId;
         this.message = message;
         this.isRead = isRead;
     }
 
-    public static ChatMessage create(ChatPart chatPart, String message, Boolean isRead) {
+    public static ChatMessage create(String chatPartId, String message, Boolean isRead) {
         return ChatMessage.builder()
-                .chatPart(chatPart)
+                .chatPartId(chatPartId)
                 .message(message)
                 .isRead(isRead)
                 .build();
