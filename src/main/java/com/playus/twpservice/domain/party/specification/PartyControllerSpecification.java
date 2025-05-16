@@ -259,7 +259,7 @@ public interface PartyControllerSpecification {
                                     value = """
                                             {
                                               "title": "롯데 vs LG 직관 같이 가요!",
-                                              "writerId" : 1L,
+                                              "writerId" : 1,
                                               "partyJoinMethod": "선착순",
                                               "partyGender": "남자만",
                                               "ageGroup": ["10대", "20대"],
@@ -282,7 +282,7 @@ public interface PartyControllerSpecification {
                                     name = "직관팟 수정 응답 예시",
                                     value = """
                                             {
-                                              "partyId": 1,
+                                              "partyId": 1
                                             }
                                             """
                             )
