@@ -695,7 +695,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         Long partyId = 1L;
         Long writerId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of(null, writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
+        PartyUpdateRequest request = PartyUpdateRequest.of(emptyTitle, writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, thumbnailUrl, "message");
         PartyUpdateResponse response = PartyUpdateResponse.of(partyId);
         given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
 
