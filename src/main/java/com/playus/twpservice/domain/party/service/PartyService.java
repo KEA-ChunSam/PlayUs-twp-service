@@ -4,8 +4,11 @@ import com.playus.twpservice.domain.chat.entity.ChatPart;
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
 import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
+import com.playus.twpservice.domain.party.assertion.PartyAssert;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
@@ -14,7 +17,6 @@ import com.playus.twpservice.domain.party.entity.PartyAge;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
-import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
 import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
@@ -25,13 +27,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 
+import static com.playus.twpservice.domain.party.exception.entity.PartyException.*;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class PartyService {
 
     private final PartyRepository partyRepository;
-    private final PartyJoinRepository partyJoinRepository;
     private final PartyAgeRepository partyAgeRepository;
     private final PartyThumbnailUrlRepository partyThumbnailUrlRepository;
 
@@ -53,14 +56,44 @@ public class PartyService {
         return PartyCreateResponse.of(party.getId(), chatRoom.getId());
     }
 
-    public PartyUpdateResponse updateParty(Long userId, Party savedParty) {
-        return null;
+    public PartyUpdateResponse updateParty(Long userId, PartyIdRequest idRequest, PartyUpdateRequest updateRequest) {
+        Long partyId = idRequest.partyId();
+        Long writerId = updateRequest.writerId();
+
+        PartyAssert.isLoginUserWriter(userId, writerId);
+
+        Party savedParty = partyRepository.findById(partyId)
+                .orElseThrow(() -> new NotFoundException("잘못된 직관팟 번호입니다!"));
+
+        savedParty.updateParty(updateRequest);
+
+        updatePartyThumbnails(updateRequest, partyId, savedParty);
+        updatePartyAgeGroup(updateRequest, partyId, savedParty);
+
+        return PartyUpdateResponse.of(partyId);
     }
 
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
         return new PresignedUrlForSaveImageResponse(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName()));
     }
 
+    private void updatePartyAgeGroup(PartyUpdateRequest updateRequest, Long partyId, Party savedParty) {
+        partyAgeRepository.deleteByPartyId(partyId);
+        partyAgeRepository.saveAll(
+                updateRequest.ageGroup().stream()
+                        .map(age -> PartyAge.create(savedParty, PartyAgeGroup.getAgeByDescription(age)))
+                        .toList()
+        );
+    }
+
+    private void updatePartyThumbnails(PartyUpdateRequest updateRequest, Long partyId, Party savedParty) {
+        partyThumbnailUrlRepository.deleteByPartyId(partyId);
+        partyThumbnailUrlRepository.saveAll(
+                updateRequest.thumbnailUrl().stream()
+                        .map(thumbnailUrl -> PartyThumbnailUrl.create(savedParty, thumbnailUrl))
+                        .toList()
+        );
+    }
 
     private ChatRoom initializeChatRoomAsWriter(Long userId, PartyCreateRequest request) {
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create(request.title()));
@@ -90,6 +123,4 @@ public class PartyService {
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
     }
-
-
 }
