@@ -1,11 +1,13 @@
 package com.playus.twpservice.global.s3;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class S3Service {
@@ -24,5 +26,7 @@ public class S3Service {
                 .build();
 
         s3Client.deleteObject(deleteObjectRequest);
+
+        log.info("S3에서 이미지 삭제 완료: {}", imageFileName);
     }
 }
