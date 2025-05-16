@@ -93,3 +93,5 @@ management:
     health:
       show-details: never
 
+server:
+  port: 8081
