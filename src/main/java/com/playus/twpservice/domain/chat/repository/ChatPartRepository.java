@@ -1,7 +1,19 @@
 package com.playus.twpservice.domain.chat.repository;
 
 import com.playus.twpservice.domain.chat.entity.ChatPart;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.playus.twpservice.domain.common.BaseMongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.repository.Update;
 
-public interface ChatPartRepository extends MongoRepository<ChatPart, String> {
+import java.util.List;
+
+public interface ChatPartRepository extends BaseMongoRepository<ChatPart, String> {
+
+
+    @Query("{ 'chatroom_id': ?0, is_deleted: false }")
+    @Update("{ '$set' : { 'deleted_at' : new Date(), 'is_deleted': true } }")
+    void deleteByChatRoomId(String chatRoomId);
+
+    @Query("{ chatroom_id: ?0, is_deleted :  false}")
+    List<ChatPart> findByChatRoomId(String chatRoomId);
 }
