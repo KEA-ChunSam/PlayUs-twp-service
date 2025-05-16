@@ -42,4 +42,9 @@ public class PartyThumbnailUrl {
                 .thumbnailUrl(thumbnailUrl)
                 .build();
     }
+
+    public PartyThumbnailUrl setDeletedAtForOnlyTest(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+        return this;
+    }
 }
