@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Document(collection = "party_age")
@@ -27,6 +29,8 @@ public class PartyAgeDocument {
 
     @NotNull
     private Integer age;
+
+    private LocalDateTime deletedAt;
 
     @Builder
     private PartyAgeDocument(Long id, PartyDocument party, Integer age) {
