@@ -5,10 +5,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE party_age SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 @Table(name = "party_age")
 public class PartyAge {
 
@@ -22,6 +28,8 @@ public class PartyAge {
 
     @Column(nullable = false)
     private Integer age;
+
+    private LocalDateTime deletedAt;
 
     @Builder
     private PartyAge(Party party, Integer age) {
