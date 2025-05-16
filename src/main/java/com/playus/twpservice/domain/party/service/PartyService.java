@@ -7,6 +7,7 @@ import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.assertion.PartyAssert;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
@@ -20,6 +21,7 @@ import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
 import com.playus.twpservice.global.s3.S3PresignedUrlGenerator;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,5 +124,9 @@ public class PartyService {
         return request.ageGroup().stream()
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
+    }
+
+    public PartyDeleteResponse deleteParty(Long userId, Long partyId) {
+        return null;
     }
 }
