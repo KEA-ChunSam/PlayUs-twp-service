@@ -11,8 +11,16 @@ import java.util.Optional;
 @NoRepositoryBean
 public interface BaseMongoRepository<T, ID> extends MongoRepository<T, ID> {
 
+//    delete 대신 deleteById() 쓰기
+//    @Override
+//  void delete(T entity);
+
+    @Override
+    @Update("{ '$set' : { 'is_deleted': true }, '$currentDate': { 'deleted_at': true } }")
+    void deleteAll();
+
     @Query("{ 'id': ?0 }")
-    @Update("{ '$set' : { 'deleted_at' : new Date(), 'is_deleted': true } }")
+    @Update("{ '$set' : { 'is_deleted': true }, '$currentDate': { 'deleted_at': true } }")
     void deleteById(ID id);
 
     @Query("{ 'id': ?0, 'deleted_at': null }")
@@ -36,6 +44,6 @@ public interface BaseMongoRepository<T, ID> extends MongoRepository<T, ID> {
     boolean existsById(ID id);
 
     @Query("{ 'id': ?0 }")
-    @Update("{ '$set' : { 'deleted_at' : null } }")
+    @Update("{ '$set' : { 'deleted_at' : null, 'is_deleted': false } }")
     void restoreById(ID id);
 }
