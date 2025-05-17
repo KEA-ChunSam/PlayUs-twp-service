@@ -2,7 +2,6 @@ package com.playus.twpservice.domain.party.specification;
 
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
-import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteRequest;
 import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
@@ -25,7 +24,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 

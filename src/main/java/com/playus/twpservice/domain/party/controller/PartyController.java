@@ -1,6 +1,5 @@
 package com.playus.twpservice.domain.party.controller;
 
-import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteRequest;
 import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
