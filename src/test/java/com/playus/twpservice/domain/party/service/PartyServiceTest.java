@@ -75,6 +75,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         partyAgeRepository.deleteAll();
         partyJoinRepository.deleteAll();
         partyRepository.deleteAll();
+        partyReadOnlyRepository.deleteAll();
 
         chatRoomRepository.deleteAll();
         chatMessageRepository.deleteAll();
