@@ -5,10 +5,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE party_thumbnail_url SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class PartyThumbnailUrl {
 
     @Id
@@ -22,6 +28,8 @@ public class PartyThumbnailUrl {
     @Column(nullable = false)
     private String thumbnailUrl;
 
+    private LocalDateTime deletedAt;
+
     @Builder
     private PartyThumbnailUrl(Party party, String thumbnailUrl) {
         this.party = party;
@@ -33,5 +41,10 @@ public class PartyThumbnailUrl {
                 .party(party)
                 .thumbnailUrl(thumbnailUrl)
                 .build();
+    }
+
+    public PartyThumbnailUrl setDeletedAtForOnlyTest(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+        return this;
     }
 }

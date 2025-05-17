@@ -6,10 +6,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE party_join SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 @Table(name = "party_join")
 public class PartyJoin {
 
@@ -30,6 +36,8 @@ public class PartyJoin {
 
     @Column(name = "require_message", length = 100)
     private String requireMessage;
+
+    private LocalDateTime deletedAt;
 
     @Builder
     private PartyJoin(Long userId, Party party, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {

@@ -14,6 +14,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Document(value = "party")
@@ -57,20 +59,16 @@ public class PartyDocument extends BaseTimeEntity {
     @NotNull
     private String text;
 
-    @NotNull
-    @Field(name = "thumbnail_url")
-    @Size(min = 1, max = 255)
-    private String thumbnailUrl;
+    private LocalDateTime deletedAt;
 
     @Builder
     private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants,
-                          String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, String chatRoomId) {
+                          PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, String chatRoomId) {
         this.id = id;
         this.title = title;
         this.text = text;
         this.minimumParticipants = minimumParticipants;
         this.maximumParticipants = maximumParticipants;
-        this.thumbnailUrl = thumbnailUrl;
         this.partyGender = partyGender;
         this.partyJoinMethod = partyJoinMethod;
         this.matchId = matchId;
@@ -79,7 +77,7 @@ public class PartyDocument extends BaseTimeEntity {
     }
 
     public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants,
-                                                  Long maximumParticipants, String thumbnailUrl, PartyGender partyGender, PartyJoinMethod partyJoinMethod,
+                                                  Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod,
                                                   Long writerId, Long matchId, String chatRoomId) {
         return PartyDocument.builder()
                 .id(id)
@@ -87,7 +85,6 @@ public class PartyDocument extends BaseTimeEntity {
                 .text(text)
                 .minimumParticipants(minimumParticipants)
                 .maximumParticipants(maximumParticipants)
-                .thumbnailUrl(thumbnailUrl)
                 .partyGender(partyGender)
                 .partyJoinMethod(partyJoinMethod)
                 .writerId(writerId)

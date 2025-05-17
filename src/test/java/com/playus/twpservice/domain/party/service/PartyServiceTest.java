@@ -1,13 +1,17 @@
 package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.IntegrationTestSupport;
+import com.playus.twpservice.domain.chat.entity.ChatMessage;
 import com.playus.twpservice.domain.chat.entity.ChatPart;
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
+import com.playus.twpservice.domain.chat.repository.ChatMessageRepository;
 import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
+import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
+import com.playus.twpservice.domain.common.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -20,6 +24,7 @@ import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
+import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
@@ -53,19 +58,27 @@ class PartyServiceTest extends IntegrationTestSupport {
     private PartyThumbnailUrlRepository partyThumbnailUrlRepository;
 
     @Autowired
+    private PartyReadOnlyRepository partyReadOnlyRepository;
+
+    @Autowired
     private ChatRoomRepository chatRoomRepository;
 
     @Autowired
     private ChatPartRepository chatPartRepository;
 
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
+
     @AfterEach
     void tearDown() {
-        partyThumbnailUrlRepository.deleteAllInBatch();
-        partyAgeRepository.deleteAllInBatch();
-        partyJoinRepository.deleteAllInBatch();
-        partyRepository.deleteAllInBatch();
+        partyThumbnailUrlRepository.deleteAll();
+        partyAgeRepository.deleteAll();
+        partyJoinRepository.deleteAll();
+        partyRepository.deleteAll();
+        partyReadOnlyRepository.deleteAll();
 
         chatRoomRepository.deleteAll();
+        chatMessageRepository.deleteAll();
         chatPartRepository.deleteAll();
     }
 
@@ -93,7 +106,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         ChatPart savedChatPart = chatPartRepository.findAll().get(0);
         assertThat(savedChatPart.getUserId()).isEqualTo(userId);
-        assertThat(savedChatPart.getChatRoom().getId()).isEqualTo(savedChatRoom.getId());
+        assertThat(savedChatPart.getChatRoomId()).isEqualTo(savedChatRoom.getId());
 
         Party savedParty = partyRepository.findAll().get(0);
         assertThat(savedParty.getTitle()).isEqualTo("title");
@@ -167,7 +180,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // given
         String responseUrl = "http://presigned-url.com";
         PresignedUrlForSaveImageRequest request = new PresignedUrlForSaveImageRequest("image.jpg");
-        given(s3PresignedUrlGenerator.generatePresignedUrl(request.imageFileName())).willReturn(responseUrl);
+        given(s3Service.generatePresignedUrl(request.imageFileName())).willReturn(responseUrl);
 
         // when
         PresignedUrlForSaveImageResponse result = partyService.generatePresignedUrlForSaveImage(request);
@@ -261,6 +274,115 @@ class PartyServiceTest extends IntegrationTestSupport {
         // when // then
         Long invalidPartyId = partyRepository.findAll().get(0).getId() + 1;
         assertThatThrownBy(() -> partyService.updateParty(userId, PartyIdRequest.of(invalidPartyId), updateRequest))
+                .isInstanceOf(PartyException.NotFoundException.class)
+                .hasMessage("잘못된 직관팟 번호입니다!");
+    }
+
+    @DisplayName("직관팟을 삭제할 수 있다.")
+    @Test
+    void deleteParty() {
+        // given
+        Long userId = 1L;
+        Long writerId = 1L;
+        Long matchId = 1L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        List<ChatPart> chatParts = chatPartRepository.saveAll(List.of(
+                ChatPart.create(userId, chatRoom.getId()), ChatPart.create(userId + 1, chatRoom.getId())));
+        chatMessageRepository.saveAll(List.of(
+                ChatMessage.create(chatParts.get(0).getId(), "안녕하세요!", false),
+                ChatMessage.create(chatParts.get(1).getId(), "반가워요!", false)));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+        Long partyId = party.getId();
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+
+        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
+                                                    PartyThumbnailUrl.create(party, "url2")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+
+
+        // when
+        PartyDeleteResponse response = partyService.deleteParty(userId, partyId);
+
+        // then
+        assertThat(response.deletedPartyId()).isEqualTo(partyId);
+
+        assertThat(partyRepository.count()).isZero();
+        assertThat(partyThumbnailUrlRepository.count()).isZero();
+        assertThat(partyJoinRepository.count()).isZero();
+        assertThat(partyAgeRepository.count()).isZero();
+        assertThat(partyReadOnlyRepository.count()).isEqualTo(1l);
+
+        assertThat(chatPartRepository.count()).isZero();
+        assertThat(chatRoomRepository.count()).isZero();
+        assertThat(chatMessageRepository.count()).isZero();
+    }
+
+    @DisplayName("직관팟 작성자가 아니면 직관팟을 삭제할 수 없다.")
+    @Test
+    void deleteParty_checkWriterOrNot() {
+        // given
+        Long userId = 2L;
+        Long writerId = 1L;
+        Long matchId = 1L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        List<ChatPart> chatParts = chatPartRepository.saveAll(List.of(
+                ChatPart.create(userId, chatRoom.getId()), ChatPart.create(userId + 1, chatRoom.getId())));
+        chatMessageRepository.saveAll(List.of(
+                ChatMessage.create(chatParts.get(0).getId(), "안녕하세요!", false),
+                ChatMessage.create(chatParts.get(1).getId(), "반가워요!", false)));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+        Long partyId = party.getId();
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+
+        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
+                PartyThumbnailUrl.create(party, "url2")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.deleteParty(userId, partyId))
+                .isInstanceOf(PartyException.NotPartyWriterException.class)
+                .hasMessage("직관팟 작성자가 아니면 수정할 수 없습니다!");
+    }
+
+    @DisplayName("존재하지 않는 직관팟을 삭제할 수 없다.")
+    @Test
+    void deleteParty_NOT_EXIST_PARTY() {
+        // given
+        Long userId = 1L;
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long invalidPartyId = 9999L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        List<ChatPart> chatParts = chatPartRepository.saveAll(List.of(
+                ChatPart.create(userId, chatRoom.getId()), ChatPart.create(userId + 1, chatRoom.getId())));
+        chatMessageRepository.saveAll(List.of(
+                ChatMessage.create(chatParts.get(0).getId(), "안녕하세요!", false),
+                ChatMessage.create(chatParts.get(1).getId(), "반가워요!", false)));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+        Long partyId = party.getId();
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+
+        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
+                PartyThumbnailUrl.create(party, "url2")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.deleteParty(userId, invalidPartyId))
                 .isInstanceOf(PartyException.NotFoundException.class)
                 .hasMessage("잘못된 직관팟 번호입니다!");
     }

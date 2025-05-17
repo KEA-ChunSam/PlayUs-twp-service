@@ -1,8 +1,8 @@
 package com.playus.twpservice.domain.chat.repository;
 
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.playus.twpservice.domain.common.BaseMongoRepository;
 
-public interface ChatRoomRepository extends MongoRepository<ChatRoom, String> {
+public interface ChatRoomRepository extends BaseMongoRepository<ChatRoom, String> {
 
 }

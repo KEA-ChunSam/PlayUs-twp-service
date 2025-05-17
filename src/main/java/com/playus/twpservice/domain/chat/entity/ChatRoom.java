@@ -1,6 +1,5 @@
 package com.playus.twpservice.domain.chat.entity;
 
-import com.playus.twpservice.domain.common.BaseTimeEntity;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -9,11 +8,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Document(collection = "chatRoom")
-public class ChatRoom extends BaseTimeEntity {
+@Document(collection = "chat_room")
+public class ChatRoom {
 
     @Id
     private String id;
@@ -21,6 +23,12 @@ public class ChatRoom extends BaseTimeEntity {
     @NotNull
     @Size(min = 1, max = 255)
     private String roomName;
+
+    @Field(name = "is_deleted")
+    private Boolean isDeleted = false;
+
+    @Field(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Builder
     private ChatRoom(String roomName) {

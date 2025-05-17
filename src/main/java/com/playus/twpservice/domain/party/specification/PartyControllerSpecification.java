@@ -2,11 +2,12 @@ package com.playus.twpservice.domain.party.specification;
 
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
+import com.playus.twpservice.domain.common.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -291,4 +292,36 @@ public interface PartyControllerSpecification {
     })
     PartyUpdateResponse updateParty(Long userId, @Valid PartyIdRequest idRequest,
                                            @Valid @RequestBody PartyUpdateRequest request);
+
+    @Tag(name = "Patch", description = "직관팟 삭제 API")
+    @Operation(
+            summary = "직관팟 삭제",
+            description = "직관팟 작성자인 로그인한 유저가 직관팟을 삭제합니다.",
+            parameters = {
+                    @Parameter(
+                            name = "partyId",
+                            in = ParameterIn.PATH,
+                            description = "직관팟 ID",
+                            required = true,
+                            example = "1"
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "삭제 성공",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 삭제 응답 예시",
+                                    value = """
+                                            {
+                                              "deletedPartyId": 1
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    PartyDeleteResponse deleteParty(Long userId, @Valid PartyIdRequest idRequest);
 }

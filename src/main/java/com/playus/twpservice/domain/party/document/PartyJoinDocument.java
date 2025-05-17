@@ -13,6 +13,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Document(value = "party_join")
@@ -37,6 +39,8 @@ public class PartyJoinDocument {
     @Field(name = "require_message")
     @Size(max = 100)
     private String requireMessage;
+
+    private LocalDateTime deletedAt;
 
     @Builder
     private PartyJoinDocument(Long id, Long userId, PartyDocument party, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {

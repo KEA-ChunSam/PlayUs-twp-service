@@ -50,11 +50,11 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         Long matchId = 1L;
 
         PartyDocument p1 = PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L,
-                "http://thumbnail", PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId");
+                 PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId");
         PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L,
-                "http://thumbnail", PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id");
+                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id");
         PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L,
-                "http://thumbnail", PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
+                 PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
 
         List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(p1, p2, p3));
 
@@ -103,11 +103,11 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         Long matchId = 1L;
 
         PartyDocument p1 = PartyDocument.createForOnlyTest(partyId, "title1", "text1", 1L, 10L,
-                "http://thumbnail", PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId");
+                 PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId");
         PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L,
-                "http://thumbnail", PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id");
+                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id");
         PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L,
-                "http://thumbnail", PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
+                 PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
 
         List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(p1, p2, p3));
 

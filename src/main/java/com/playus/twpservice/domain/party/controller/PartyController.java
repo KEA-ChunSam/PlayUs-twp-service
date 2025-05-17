@@ -1,12 +1,13 @@
 package com.playus.twpservice.domain.party.controller;
 
+import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
+import com.playus.twpservice.domain.common.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -51,6 +52,11 @@ public class PartyController implements PartyControllerSpecification {
     public PartyUpdateResponse updateParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest,
                                            @Valid @RequestBody PartyUpdateRequest request) {
         return partyService.updateParty(userId, idRequest, request);
+    }
+
+    @PatchMapping("/{partyId}")
+    public PartyDeleteResponse deleteParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest) {
+        return partyService.deleteParty(userId, idRequest.partyId());
     }
 
     @PostMapping("/presigned-url")

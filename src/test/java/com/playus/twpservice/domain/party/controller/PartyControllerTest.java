@@ -1,11 +1,12 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.ControllerTestSupport;
+import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyIdRequest;
+import com.playus.twpservice.domain.common.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -1002,6 +1003,43 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!");
+    }
+
+    @DisplayName("직관팟을 삭제할 수 있다.")
+    @Test
+    void deleteParty() throws Exception {
+        // given
+        Long deletedPartyId = 1L;
+        PartyDeleteResponse expectedResponse = PartyDeleteResponse.of(deletedPartyId);
+        given(partyService.deleteParty(any(Long.class), any(Long.class))).willReturn(expectedResponse);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + deletedPartyId)
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.deletedPartyId").value("1"));
+    }
+
+    @DisplayName("직관팟을 삭제할 때, 직관팟의 ID는 1 이상이여야 한다..")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void deleteParty_EMPTY_PARTYID(String invalidPartyIdStr) throws Exception {
+        // given
+        Long deletedPartyId = 1L;
+        PartyDeleteResponse expectedResponse = PartyDeleteResponse.of(deletedPartyId);
+        given(partyService.deleteParty(any(Long.class), any(Long.class))).willReturn(expectedResponse);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + invalidPartyIdStr)
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
     }
 
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
