@@ -26,7 +26,7 @@ public interface BaseMongoRepository<T, ID> extends MongoRepository<T, ID> {
     @Query("{ 'id': ?0, 'deleted_at': null }")
     Optional<T> findById(ID id);
 
-    @Query("{ 'id': ?0, 'deleted_at': { $ne: null } }")
+    @Query("{ 'id': ?0, 'deleted_at': { '$ne' : null } }")
     Optional<T> findByIdDeleted(ID id);
 
     @Query("{ 'id': ?0, 'deleted_at': null }")
@@ -37,7 +37,7 @@ public interface BaseMongoRepository<T, ID> extends MongoRepository<T, ID> {
     List<T> findAll();
 
     @Override
-    @Query(value = "{ deleted_at: null }", count = true)
+    @Query(value = "{ 'deleted_at' : null }", count = true)
     long count();
 
     @Query(value = "{ 'id': ?0, 'deleted_at': null }", exists = true)
