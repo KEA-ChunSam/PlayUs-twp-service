@@ -1011,19 +1011,36 @@ class PartyControllerTest extends ControllerTestSupport {
     void deleteParty() throws Exception {
         // given
         Long deletedPartyId = 1L;
-        Long writerId = 1L;
-        PartyDeleteRequest request = PartyDeleteRequest.of(writerId);
         PartyDeleteResponse expectedResponse = PartyDeleteResponse.of(deletedPartyId);
-        given(partyService.deleteParty(any(Long.class), any(Long.class), any(Long.class))).willReturn(expectedResponse);
+        given(partyService.deleteParty(any(Long.class), any(Long.class))).willReturn(expectedResponse);
 
         // when // then
         mockMvc.perform(patch("/party/" + deletedPartyId)
                         .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
                         .with(authentication(token)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.deletedPartyId").value("1"));
+    }
+
+    @DisplayName("직관팟을 삭제할 때, 직관팟의 ID는 1 이상이여야 한다..")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void deleteParty_EMPTY_PARTYID(String invalidPartyIdStr) throws Exception {
+        // given
+        Long deletedPartyId = 1L;
+        PartyDeleteResponse expectedResponse = PartyDeleteResponse.of(deletedPartyId);
+        given(partyService.deleteParty(any(Long.class), any(Long.class))).willReturn(expectedResponse);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + invalidPartyIdStr)
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
     }
 
     @DisplayName("직관팟을 삭제할 때, 직관팟 작성자의 ID는 1 이상이여야 한다..")
