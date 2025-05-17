@@ -82,7 +82,7 @@ public class PartyService {
         return PartyUpdateResponse.of(partyId);
     }
 
-    public PartyDeleteResponse deleteParty(Long userId, Long partyId, Long writerId) {
+    public PartyDeleteResponse deleteParty(Long userId, Long partyId) {
 
         PartyDocument partyDocument = partyReadOnlyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("잘못된 직관팟 번호입니다!"));
