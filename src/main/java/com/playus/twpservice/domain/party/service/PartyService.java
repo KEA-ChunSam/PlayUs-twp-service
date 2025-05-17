@@ -84,10 +84,10 @@ public class PartyService {
 
     public PartyDeleteResponse deleteParty(Long userId, Long partyId, Long writerId) {
 
-        PartyAssert.isLoginUserWriter(userId, writerId);
-
         PartyDocument partyDocument = partyReadOnlyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("잘못된 직관팟 번호입니다!"));
+
+        PartyAssert.isLoginUserWriter(userId, partyDocument.getWriterId());
 
         partyThumbnailUrlRepository.deleteByPartyId(partyId);
         partyAgeRepository.deleteByPartyId(partyId);
@@ -100,7 +100,6 @@ public class PartyService {
         List<String> chatPartIds = chatParts.stream()
                 .map(ChatPart::getId)
                 .toList();
-
 
         chatMessageRepository.deleteAllByChatPartIds(chatPartIds);
         chatPartRepository.deleteByChatRoomId(chatRoomId);
