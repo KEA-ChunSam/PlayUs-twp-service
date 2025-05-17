@@ -307,21 +307,7 @@ public interface PartyControllerSpecification {
                             required = true,
                             example = "1"
                     )
-            },
-            requestBody = @RequestBody(
-                    required = true,
-                    content = @Content(
-                            mediaType = APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(
-                                    name = "직관팟 수정 요청 예시",
-                                    value = """
-                                            {
-                                              "writerId" : 1 
-                                            }
-                                            """
-                            )
-                    )
-            )
+            }
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -339,6 +325,5 @@ public interface PartyControllerSpecification {
                     )
             )
     })
-    PartyDeleteResponse deleteParty(Long userId, @Valid PartyIdRequest idRequest,
-                                    @Valid @org.springframework.web.bind.annotation.RequestBody PartyDeleteRequest request);
+    PartyDeleteResponse deleteParty(Long userId, @Valid PartyIdRequest idRequest);
 }

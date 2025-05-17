@@ -56,9 +56,8 @@ public class PartyController implements PartyControllerSpecification {
     }
 
     @PatchMapping("/{partyId}")
-    public PartyDeleteResponse deleteParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest,
-                                           @Valid @RequestBody PartyDeleteRequest request) {
-        return partyService.deleteParty(userId, idRequest.partyId(), request.writerId());
+    public PartyDeleteResponse deleteParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest) {
+        return partyService.deleteParty(userId, idRequest.partyId());
     }
 
     @PostMapping("/presigned-url")
