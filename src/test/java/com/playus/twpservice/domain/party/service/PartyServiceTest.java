@@ -306,7 +306,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
 
         // when
-        PartyDeleteResponse response = partyService.deleteParty(userId, partyId, writerId);
+        PartyDeleteResponse response = partyService.deleteParty(userId, partyId);
 
         // then
         assertThat(response.deletedPartyId()).isEqualTo(partyId);
@@ -349,7 +349,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
 
         // when // then
-        assertThatThrownBy(() -> partyService.deleteParty(userId, partyId, writerId))
+        assertThatThrownBy(() -> partyService.deleteParty(userId, partyId))
                 .isInstanceOf(PartyException.NotPartyWriterException.class)
                 .hasMessage("직관팟 작성자가 아니면 수정할 수 없습니다!");
     }
@@ -382,7 +382,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
 
         // when // then
-        assertThatThrownBy(() -> partyService.deleteParty(userId, invalidPartyId, writerId))
+        assertThatThrownBy(() -> partyService.deleteParty(userId, invalidPartyId))
                 .isInstanceOf(PartyException.NotFoundException.class)
                 .hasMessage("잘못된 직관팟 번호입니다!");
     }
