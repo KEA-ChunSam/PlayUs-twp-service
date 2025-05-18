@@ -1,0 +1,31 @@
+package com.playus.twpservice.domain.party.facade;
+
+import com.playus.twpservice.domain.party.service.PartyService;
+import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
+
+@Component
+@RequiredArgsConstructor
+public class PartyApplyFacade {
+
+    private final RedissonClient redissonClient;
+    private final PartyService partyService;
+
+    public void applyParty(Long userId, Long partyId) {
+        RLock lock = redissonClient.getLock(userId.toString());
+        try {
+            boolean available = lock.tryLock(15, 1, TimeUnit.SECONDS);
+            if (available) {
+                partyService.applyParty(userId, partyId);
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
+        }
+    }
+}

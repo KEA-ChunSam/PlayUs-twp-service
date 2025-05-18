@@ -160,4 +160,8 @@ public class PartyService {
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
     }
+
+    public void applyParty(Long userId, Long partyId) {
+
+    }
 }
