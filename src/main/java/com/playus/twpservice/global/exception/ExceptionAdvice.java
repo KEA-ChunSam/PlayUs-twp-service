@@ -9,12 +9,13 @@ import com.playus.twpservice.domain.party.exception.enums.PartyJoinMethodExcepti
 import com.playus.twpservice.global.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.NoFallbackAvailableException;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import software.amazon.awssdk.core.exception.SdkException;
+
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestControllerAdvice(assignableTypes = {
@@ -22,7 +23,7 @@ import software.amazon.awssdk.core.exception.SdkException;
 })
 public class ExceptionAdvice {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(BindException.class)
     public ErrorResponse handleBindException(BindException e) {
         String errorMessage = e.getAllErrors().get(0).getDefaultMessage();
@@ -30,7 +31,7 @@ public class ExceptionAdvice {
         return ErrorResponse.badRequestError(errorMessage);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler({
             PartyGenderException.InvalidDescriptionException.class,
             PartyJoinMethodException.InvalidDescriptionException.class,
@@ -42,7 +43,7 @@ public class ExceptionAdvice {
         return ErrorResponse.badRequestError(errorMessage);
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(NOT_FOUND)
     @ExceptionHandler({
             PartyException.NotFoundException.class,
             PartyDocumentException.NotFoundException.class
@@ -53,8 +54,17 @@ public class ExceptionAdvice {
         return ErrorResponse.notFoundError(errorMessage);
     }
 
+    @ResponseStatus(CONFLICT)
+    @ExceptionHandler({
+            PartyException.ExceedPartyParticipantsException.class
+    })
+    public ErrorResponse handleConflictException(Exception e) {
+        String errorMessage = e.getMessage();
+        log.warn("Conflict Error: {}", errorMessage);
+        return ErrorResponse.conflictError(errorMessage);
+    }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
     @ExceptionHandler(SdkException.class)
     public ErrorResponse handleSdkException(Exception e) {
         String errorMessage = e.getMessage();
@@ -62,7 +72,7 @@ public class ExceptionAdvice {
         return ErrorResponse.internalServerError("서버 에러가 발생했습니다! 관리자에게 문의해 주세요!");
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public ErrorResponse handleOtherException(Exception e) {
         String errorMessage = e.getMessage();
@@ -70,7 +80,7 @@ public class ExceptionAdvice {
         return ErrorResponse.internalServerError("서버 에러가 발생했습니다! 관리자에게 문의해 주세요!");
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
     @ExceptionHandler(value = {
             NoFallbackAvailableException.class
     })
