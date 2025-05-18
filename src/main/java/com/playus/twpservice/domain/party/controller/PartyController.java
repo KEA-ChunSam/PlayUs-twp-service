@@ -3,7 +3,7 @@ package com.playus.twpservice.domain.party.controller;
 import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
-import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoRequest;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
@@ -40,7 +40,7 @@ public class PartyController implements PartyControllerSpecification {
     }
 
     @GetMapping
-    public List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoListByMatchRequest request) {
+    public List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoRequest request) {
         return partyReadOnlyService.getPartyInfoListByMatchId(request.matchId());
     }
 

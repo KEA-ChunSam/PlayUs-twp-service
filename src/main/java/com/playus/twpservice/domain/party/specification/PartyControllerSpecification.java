@@ -5,7 +5,7 @@ import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
-import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
+import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoRequest;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
@@ -182,7 +182,7 @@ public interface PartyControllerSpecification {
                     )
             )
     })
-    List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoListByMatchRequest request);
+    List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoRequest request);
 
     @Tag(name = "Get", description = "직관팟 상세정보 조회 API")
     @Operation(
