@@ -112,6 +112,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(savedParty.getTitle()).isEqualTo("title");
         assertThat(savedParty.getMinimumParticipants()).isEqualTo(1L);
         assertThat(savedParty.getMaximumParticipants()).isEqualTo(10L);
+        assertThat(savedParty.getCurrentParticipants()).isEqualTo(1L);
         assertThat(savedParty.getPartyGender()).isEqualTo(PartyGender.MALE);
         assertThat(savedParty.getPartyJoinMethod()).isEqualTo(PartyJoinMethod.FIRST_COME);
         assertThat(savedParty.getWriterId()).isEqualTo(userId);
@@ -218,9 +219,9 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         Party result = partyRepository.findAll().get(0);
         assertThat(result).extracting("id", "title", "partyJoinMethod", "partyGender", "minimumParticipants",
-                        "maximumParticipants", "writerId", "matchId", "chatRoomId", "text")
+                        "maximumParticipants", "currentParticipants", "writerId", "matchId", "chatRoomId", "text")
                 .containsExactly(partyId, "title2", PartyJoinMethod.FIRST_COME, PartyGender.MALE, 1L,
-                        10L, writerId, matchId, "TEST-CHATROOM", "message");
+                        10L, 1L, writerId, matchId, "TEST-CHATROOM", "message");
 
         List<PartyAge> ageResult = partyAgeRepository.findAll();
         assertThat(ageResult).hasSize(2)
@@ -296,7 +297,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
         Long partyId = party.getId();
-        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L,
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
@@ -340,7 +341,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
         Long partyId = party.getId();
-        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L,
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
@@ -373,7 +374,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
         Long partyId = party.getId();
-        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L,
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
