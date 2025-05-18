@@ -108,6 +108,10 @@ public class PartyService {
         return PartyDeleteResponse.of(partyId);
     }
 
+    public void applyPartyFCFS(Long userId, Long partyId) {
+
+    }
+
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
         return new PresignedUrlForSaveImageResponse(s3Service.generatePresignedUrl(request.imageFileName()));
     }
@@ -159,9 +163,5 @@ public class PartyService {
         return request.ageGroup().stream()
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
-    }
-
-    public void applyParty(Long userId, Long partyId) {
-
     }
 }

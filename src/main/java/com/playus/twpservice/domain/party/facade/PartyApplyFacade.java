@@ -20,7 +20,7 @@ public class PartyApplyFacade {
         try {
             boolean available = lock.tryLock(15, 1, TimeUnit.SECONDS);
             if (available) {
-                partyService.applyParty(userId, partyId);
+                partyService.applyPartyFCFS(userId, partyId);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
