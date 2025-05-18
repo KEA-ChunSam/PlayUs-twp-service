@@ -62,7 +62,7 @@ public class PartyInfo {
                 writerName,
                 writerGender,
                 matchDate,
-                currentParticipantsCount + 1, // 방장 추가
+                currentParticipantsCount,
                 maximumParticipants,
                 thumbnailUrls,
                 userThumbnailUrls
@@ -81,7 +81,7 @@ public class PartyInfo {
                 writerName,
                 writerGender,
                 matchDate,
-                currentParticipantsCount + 1, // 방장 추가
+                currentParticipantsCount,
                 maximumParticipants,
                 thumbnailUrls,
                 userThumbnailUrls
