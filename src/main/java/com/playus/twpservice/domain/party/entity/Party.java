@@ -44,6 +44,9 @@ public class Party extends BaseTimeEntity {
     @Column(nullable = false, name = "maximum_participants")
     private Long maximumParticipants;
 
+    @Column(nullable = false, name = "current_participants")
+    private Long currentParticipants = 1L;
+
     @Column(nullable = false, name = "writer_id")
     private Long writerId;
 
