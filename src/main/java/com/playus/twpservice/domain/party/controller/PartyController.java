@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.party.controller;
 
+import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
@@ -12,6 +13,7 @@ import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
+import com.playus.twpservice.domain.party.facade.PartyApplyFacade;
 import com.playus.twpservice.domain.party.service.PartyReadOnlyService;
 import com.playus.twpservice.domain.party.service.PartyService;
 import com.playus.twpservice.domain.party.specification.PartyControllerSpecification;
@@ -32,6 +34,7 @@ public class PartyController implements PartyControllerSpecification {
 
     private final PartyService partyService;
     private final PartyReadOnlyService partyReadOnlyService;
+    private final PartyApplyFacade partyApplyFacade;
 
 
     @PostMapping
@@ -60,9 +63,11 @@ public class PartyController implements PartyControllerSpecification {
         return partyService.deleteParty(userId, idRequest.partyId());
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{partyId}/apply/fcfs")
-    public PartyJoinResponse applyPartyFCFS(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest) {
-        return null;
+    public PartyApplyResponse applyPartyFCFS(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest) {
+        partyApplyFacade.applyParty(userId, idRequest.partyId());
+        return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
     }
 
     @PostMapping("/presigned-url")
