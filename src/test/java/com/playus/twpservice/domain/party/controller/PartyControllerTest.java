@@ -1042,6 +1042,38 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
     }
 
+    @DisplayName("선착순 직관팟에 지원할 수 있다.")
+    @Test
+    void applyPartyFCFS() throws Exception {
+        // given
+        Long partyId = 1L;
+
+        // when // then
+        mockMvc.perform(post("/party/" + partyId + "/apply/fcfs")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("직관팟 가입에 성공했습니다!"));
+    }
+
+    @DisplayName("직관팟을 삭제할 때, 직관팟의 ID는 1 이상이여야 한다..")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void applyPartyFCFS_INVALID_PARTYID(String invalidPartyIdStr) throws Exception {
+        // given
+
+        // when // then
+        mockMvc.perform(post("/party/" + invalidPartyIdStr + "/apply/fcfs")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
         mockMvc.perform(post(requestUri)
                         .content(objectMapper.writeValueAsString(request))
