@@ -18,5 +18,11 @@ public abstract class PartyException {
         }
     }
 
+    public static class ExceedPartyParticipantsException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
 
+        public ExceedPartyParticipantsException(String message) {
+            super(message);
+        }
+    }
 }
