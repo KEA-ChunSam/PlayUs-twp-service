@@ -83,6 +83,10 @@ public class Party extends BaseTimeEntity {
         this.partyJoinMethod = PartyJoinMethod.toEnumValue(updateRequest.partyJoinMethod());
     }
 
+    public void increaseCurrentParticipants() {
+        this.currentParticipants++;
+    }
+
     public Party assignChatRoom(String chatRoomId) {
         this.chatRoomId = chatRoomId;
         return this;
@@ -100,5 +104,10 @@ public class Party extends BaseTimeEntity {
                 .writerId(writerId)
                 .matchId(matchId)
                 .build();
+    }
+
+    public Party setCurrentParticipantsForOnlyTest(Long currentParticipants) {
+        this.currentParticipants = currentParticipants;
+        return this;
     }
 }
