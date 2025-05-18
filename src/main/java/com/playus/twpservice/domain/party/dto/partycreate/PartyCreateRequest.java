@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.dto.partycreate;
 
-import com.playus.twpservice.domain.common.MinimumMaximumValidatable;
+import com.playus.twpservice.domain.common.validation.MinimumMaximumValidatable;
 import com.playus.twpservice.global.validation.ValidEnum;
 import com.playus.twpservice.global.validation.ValidEnumList;
 import com.playus.twpservice.domain.party.entity.Party;

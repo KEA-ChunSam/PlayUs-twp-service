@@ -7,7 +7,7 @@ import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailReques
 import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
-import com.playus.twpservice.domain.common.PartyIdRequest;
+import com.playus.twpservice.domain.common.request.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;

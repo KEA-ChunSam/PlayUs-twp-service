@@ -1,7 +1,6 @@
 package com.playus.twpservice.domain.party.dto.partyupdate;
 
-import com.playus.twpservice.domain.common.MinimumMaximumValidatable;
-import com.playus.twpservice.domain.party.entity.Party;
+import com.playus.twpservice.domain.common.validation.MinimumMaximumValidatable;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;

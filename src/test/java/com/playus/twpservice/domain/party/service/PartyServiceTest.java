@@ -10,7 +10,7 @@ import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
-import com.playus.twpservice.domain.common.PartyIdRequest;
+import com.playus.twpservice.domain.common.request.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;

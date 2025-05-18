@@ -1,6 +1,6 @@
 package com.playus.twpservice.global.validation;
 
-import com.playus.twpservice.domain.common.Describable;
+import com.playus.twpservice.domain.common.validation.Describable;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

@@ -7,7 +7,7 @@ import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMa
 import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
-import com.playus.twpservice.domain.common.PartyIdRequest;
+import com.playus.twpservice.domain.common.request.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -33,6 +33,7 @@ public class PartyController implements PartyControllerSpecification {
     private final PartyService partyService;
     private final PartyReadOnlyService partyReadOnlyService;
 
+
     @PostMapping
     public ResponseEntity<PartyCreateResponse> createParty(@AuthenticationPrincipal Long userId, @Valid @RequestBody PartyCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(partyService.createParty(userId, request));
@@ -57,6 +58,11 @@ public class PartyController implements PartyControllerSpecification {
     @PatchMapping("/{partyId}")
     public PartyDeleteResponse deleteParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest) {
         return partyService.deleteParty(userId, idRequest.partyId());
+    }
+
+    @PostMapping("/{partyId}/apply/fcfs")
+    public PartyJoinResponse applyPartyFCFS(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest) {
+        return null;
     }
 
     @PostMapping("/presigned-url")

@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.entity;
 
-import com.playus.twpservice.domain.common.BaseTimeEntity;
+import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyGender;
@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 

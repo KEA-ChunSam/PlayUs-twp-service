@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.document;
 
-import com.playus.twpservice.domain.common.BaseTimeEntity;
+import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import org.springframework.data.annotation.Id;
