@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.dto.partyupdate;
+package com.playus.twpservice.domain.party.dto.update;
 
 import com.playus.twpservice.domain.common.validation.MinimumMaximumValidatable;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;

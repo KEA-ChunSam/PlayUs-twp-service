@@ -1,15 +1,15 @@
 package com.playus.twpservice.domain.party.controller;
 
-import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
-import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
-import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
-import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoRequest;
-import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
-import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
-import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
+import com.playus.twpservice.domain.party.dto.detail.PartyDetailRequest;
+import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
+import com.playus.twpservice.domain.party.dto.info.PartyInfoRequest;
+import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
+import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
+import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
+import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.service.PartyReadOnlyService;

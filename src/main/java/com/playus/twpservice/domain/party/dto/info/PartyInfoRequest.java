@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.dto.partyinfobymatch;
+package com.playus.twpservice.domain.party.dto.info;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

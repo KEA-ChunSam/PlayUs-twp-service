@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.dto.partydelete;
+package com.playus.twpservice.domain.party.dto.delete;
 
 import lombok.Builder;
 

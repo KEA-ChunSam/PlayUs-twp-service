@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.dto.partyupdate;
+package com.playus.twpservice.domain.party.dto.update;
 
 import lombok.Builder;
 

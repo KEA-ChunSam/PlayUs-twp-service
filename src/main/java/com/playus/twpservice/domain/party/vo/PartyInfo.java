@@ -1,7 +1,7 @@
 package com.playus.twpservice.domain.party.vo;
 
-import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
-import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
+import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
