@@ -5,9 +5,12 @@ import com.playus.twpservice.domain.chat.entity.ChatPart;
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
 import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
+import com.playus.twpservice.domain.party.document.PartyJoinDocument;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -34,6 +37,9 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
     private PartyJoinRepository partyJoinRepository;
 
     @Autowired
+    private PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
+
+    @Autowired
     private ChatRoomRepository chatRoomRepository;
 
     @Autowired
@@ -54,7 +60,7 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
         // given
         Long writerId = 1L;
         Long matchId = 1L;
-        Long userId = 1L;
+        Long userId = 5L;
         Long maximumParticipants = 10L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
@@ -62,6 +68,11 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, maximumParticipants,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
+                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
 
         int threadCount = 100; // 총 100개의 thread 사용될 예정
         ExecutorService executorService = Executors.newFixedThreadPool(32); // 최대 32개의 thread가 동시 실행
