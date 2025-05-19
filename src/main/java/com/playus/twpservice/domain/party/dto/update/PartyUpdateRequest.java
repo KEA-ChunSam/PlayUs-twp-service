@@ -43,10 +43,9 @@ public record PartyUpdateRequest  (
 
         @Size(max = 10, message = "썸네일은 최대 10개까지만 가능합니다!")
         List<
-                @NotBlank(message = "사진 URL이 비어 있습니다!")
-                @Pattern(regexp = "^(https?|ftp)://.*$", message = "올바른 URL 형식이 아닙니다!")
+                @NotBlank(message = "사진 파일명이 비어 있습니다!")
                         String>
-                thumbnailUrl,
+                thumbnailImageNameList,
 
         @NotBlank(message = "직관팟 소개 문구가 비어 있습니다!")
         @Size(max = 100, message = "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!")
@@ -56,7 +55,7 @@ public record PartyUpdateRequest  (
 
     public static PartyUpdateRequest of(String title, Long writerId, String method, String gender, List<String> ageGroup,
                                         Long minimumParticipants, Long maximumParticipants,
-                                        List<String> thumbnailUrl, String message) {
+                                        List<String> thumbnailImageNameList, String message) {
 
         return PartyUpdateRequest.builder()
                 .title(title)
@@ -66,7 +65,7 @@ public record PartyUpdateRequest  (
                 .ageGroup(ageGroup)
                 .minimumParticipants(minimumParticipants)
                 .maximumParticipants(maximumParticipants)
-                .thumbnailUrl(thumbnailUrl)
+                .thumbnailImageNameList(thumbnailImageNameList)
                 .message(message)
                 .build();
     }
