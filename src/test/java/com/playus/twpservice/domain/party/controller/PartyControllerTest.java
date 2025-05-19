@@ -1,6 +1,8 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.ControllerTestSupport;
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.common.security.Role;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
@@ -16,10 +18,12 @@ import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImage
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
+import org.mockito.Mockito;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -40,7 +44,26 @@ class PartyControllerTest extends ControllerTestSupport {
 
     Long userId = 1L;
     List<String> thumbnailUrl = List.of("http://image.com");
-    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")));
+//    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")));
+
+    private UsernamePasswordAuthenticationToken token;
+
+    @BeforeEach
+    void setUp() {
+        Long userId = 1L;
+
+        // 더미 OAuth2 사용자
+        CustomOAuth2User principal = Mockito.mock(CustomOAuth2User.class);
+        when(principal.getName()).thenReturn(userId.toString());
+
+        List<SimpleGrantedAuthority> authorities =
+                List.of(new SimpleGrantedAuthority(Role.USER.name()));
+        doReturn(authorities).when(principal).getAuthorities();
+
+        token = new UsernamePasswordAuthenticationToken(
+                principal, null, authorities
+        );
+    }
 
     //  직관팟 생성 happy case
     @DisplayName("직관팟을 생성할 수 있다.")
