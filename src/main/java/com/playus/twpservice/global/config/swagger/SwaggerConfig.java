@@ -14,9 +14,9 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.servers.Server;
 
 @OpenAPIDefinition(info = @Info(
-	title = "PlayUs To Watch in Person Service API",
-	description = "PlayUs 직관 서비스 API 문서",
-	version = "v1.0.0"))
+		title = "PlayUs To Watch in Person Service API",
+		description = "PlayUs 직관팟 서비스 API 문서",
+		version = "v1.0.0"))
 
 @Configuration
 public class SwaggerConfig {
