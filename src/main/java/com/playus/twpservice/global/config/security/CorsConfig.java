@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -28,6 +29,8 @@ public class CorsConfig {
         configuration.addAllowedMethod(HttpMethod.OPTIONS.name());
 
         configuration.setAllowCredentials(true);
+
+        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
         org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
