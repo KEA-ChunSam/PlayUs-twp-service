@@ -1218,6 +1218,7 @@ public interface PartyControllerSpecification {
     @Operation(
             summary = "직관팟 삭제",
             description = "직관팟 작성자인 로그인한 유저가 직관팟을 삭제합니다.",
+            security = @SecurityRequirement(name = "Access"),
             parameters = {
                     @Parameter(
                             name = "Access",
@@ -1335,6 +1336,7 @@ public interface PartyControllerSpecification {
     @Operation(
             summary = "직관팟 선착순 신청",
             description = "선착순 승인제인 직관팟에 신청합니다.",
+            security = @SecurityRequirement(name = "Access"),
             parameters = {
                     @Parameter(
                             name = "Access",
@@ -1511,6 +1513,7 @@ public interface PartyControllerSpecification {
     @Operation(
             summary = "직관팟 승인제 신청",
             description = "승인제 직관팟에 신청합니다.",
+            security = @SecurityRequirement(name = "Access"),
             parameters = {
                     @Parameter(
                             name = "Access",
