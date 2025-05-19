@@ -1358,7 +1358,7 @@ public interface PartyControllerSpecification {
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
-                                    name = "직관팟 삭제 응답 예시",
+                                    name = "승인제 직관팟 신청 응답 예시",
                                     value = """
                                             {
                                               "message": "직관팟 가입에 성공하셨습니다!"
@@ -1383,6 +1383,21 @@ public interface PartyControllerSpecification {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400", description = "직관팟 작성자가 직관팟 지원할 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 작성자는 지원할 수 없습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "401", description = "인증 실패",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
@@ -1392,6 +1407,21 @@ public interface PartyControllerSpecification {
                                               "code": 401,
                                               "status": "UNAUTHORIZED",
                                               "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "거절된 사용자가 다시 지원하려는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "신청이 거절되었으면 다시 지원할 수 없습니다!"
                                             }
                                             """
                             )
@@ -1437,6 +1467,21 @@ public interface PartyControllerSpecification {
                                               "code": 409,
                                               "status": "CONFLICT",
                                               "message": "직관팟 정원이 초과되었습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409", description = "이미 가입 (혹은 대기) 상태인 직관팟에 다시 신청할 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 409,
+                                              "status": "CONFLICT",
+                                              "message": "이미 가입된 직관팟입니다!"
                                             }
                                             """
                             )
@@ -1528,6 +1573,21 @@ public interface PartyControllerSpecification {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400", description = "직관팟 작성자가 직관팟 지원할 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 작성자는 지원할 수 없습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "401", description = "인증 실패",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
@@ -1537,6 +1597,21 @@ public interface PartyControllerSpecification {
                                               "code": 401,
                                               "status": "UNAUTHORIZED",
                                               "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "거절된 사용자가 다시 지원하려는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "신청이 거절되었으면 다시 지원할 수 없습니다!"
                                             }
                                             """
                             )
@@ -1582,6 +1657,21 @@ public interface PartyControllerSpecification {
                                               "code": 409,
                                               "status": "CONFLICT",
                                               "message": "직관팟 정원이 초과되었습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409", description = "이미 가입 (혹은 대기) 상태인 직관팟에 다시 신청할 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 409,
+                                              "status": "CONFLICT",
+                                              "message": "이미 가입된 직관팟입니다!"
                                             }
                                             """
                             )
