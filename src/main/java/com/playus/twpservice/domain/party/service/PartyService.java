@@ -23,7 +23,6 @@ import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
-import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
@@ -121,15 +120,7 @@ public class PartyService {
 
         PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
 
-        partyJoinReadOnlyRepository.findByUserIdAndPartyId(userId, partyId)
-                        .ifPresent(partyJoinDocument -> {
-                            if (partyJoinDocument.getPartyJoinRequestStatus() == PartyJoinRequestStatus.REFUSE) {
-                                throw new PartyJoinDocumentException.RefusedApplyUserException("신청이 거절되었으면 다시 지원할 수 없습니다!");
-                            }
-                            else {
-                                throw new PartyJoinDocumentException.DuplicateApplyException("이미 가입된 직관팟입니다!");
-                            }
-                        });
+        throwIfAlreadyAppliedToParty(userId, partyId);
 
         PartyAssert.isAppliableParty(party);
 
@@ -148,15 +139,7 @@ public class PartyService {
 
         PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
 
-        partyJoinReadOnlyRepository.findByUserIdAndPartyId(userId, partyId)
-                .ifPresent(partyJoinDocument -> {
-                    if (partyJoinDocument.getPartyJoinRequestStatus() == PartyJoinRequestStatus.REFUSE) {
-                        throw new PartyJoinDocumentException.RefusedApplyUserException("신청이 거절되었으면 다시 지원할 수 없습니다!");
-                    }
-                    else {
-                        throw new PartyJoinDocumentException.DuplicateApplyException("이미 가입된 직관팟입니다!");
-                    }
-                });
+        throwIfAlreadyAppliedToParty(userId, partyId);
 
         PartyAssert.isAppliableParty(party);
 
@@ -221,5 +204,12 @@ public class PartyService {
         return request.ageGroup().stream()
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
+    }
+
+    private void throwIfAlreadyAppliedToParty(Long userId, Long partyId) {
+        partyJoinReadOnlyRepository.findByUserIdAndPartyId(userId, partyId)
+                .ifPresent(partyJoinDocument ->
+                        PartyJoinRequestStatus.throwIfAlreadyAppliedToParty(partyJoinDocument.getPartyJoinRequestStatus())
+                );
     }
 }
