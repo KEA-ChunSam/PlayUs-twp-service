@@ -754,8 +754,8 @@ public interface PartyControllerSpecification {
                             examples = @ExampleObject(
                                     value = """
                                             {
-                                              "code": 400,
-                                              "status": "BAD_REQUEST",
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
                                               "message": "직관팟이 존재하지 않습니다!"
                                             }
                                             """
