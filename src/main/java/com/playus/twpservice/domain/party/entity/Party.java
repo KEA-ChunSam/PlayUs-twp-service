@@ -14,12 +14,18 @@ import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
+
+/**
+ * 25/5/19 작성
+ *    직관팟 생성 시 작성자 관련해서는 PartyJoin에 저장되지 않음 (joinStatus, requireMessage 사실상 고정이여서)
+ *
+ */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE party SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
-@Table(name = "party")
+@Table(name = "party", indexes = @Index(name = "idx_party_match_id", columnList = "match_id"))
 public class Party extends BaseTimeEntity {
 
     @Id
