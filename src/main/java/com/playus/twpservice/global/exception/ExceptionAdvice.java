@@ -1,5 +1,6 @@
 package com.playus.twpservice.global.exception;
 
+import com.playus.twpservice.domain.chat.exception.ChatRoomException;
 import com.playus.twpservice.domain.party.controller.PartyController;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
@@ -46,7 +47,8 @@ public class ExceptionAdvice {
     @ResponseStatus(NOT_FOUND)
     @ExceptionHandler({
             PartyException.NotFoundException.class,
-            PartyDocumentException.NotFoundException.class
+            PartyDocumentException.NotFoundException.class,
+            ChatRoomException.NotFoundException.class,
     })
     public ErrorResponse handleNotFoundException(Exception e) {
         String errorMessage = e.getMessage();
