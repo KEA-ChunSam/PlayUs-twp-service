@@ -33,6 +33,8 @@ import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepo
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -473,6 +475,126 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // when // then
         assertThatThrownBy(() -> partyService.applyPartyFCFS(userId, party.getId()))
+                .isInstanceOf(ChatRoomException.NotFoundException.class)
+                .hasMessage("채팅방이 존재하지 않습니다!");
+    }
+
+    @DisplayName("승인제 직관팟에 가입할 수 있다.")
+    @Test
+    void applyParty() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        // when
+        partyService.applyParty(userId, party.getId(), "참여 희망합니다!");
+
+        // then
+        assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
+        assertThat(chatPartRepository.count()).isEqualTo(2);
+        assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(2);
+
+        assertThat(partyJoinRepository.findAll().get(0))
+                .extracting("partyJoinRequestStatus", "requireMessage")
+                .containsExactly(PartyJoinRequestStatus.WAIT, "참여 희망합니다!");
+    }
+
+    @DisplayName("참여 메시지가 없어도 승인제 직관팟에 가입할 수 있다.")
+    @NullAndEmptySource
+    @ParameterizedTest
+    void applyParty_without_requiremessage(String emptyRequireMessage) {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        // when
+        partyService.applyParty(userId, party.getId(), emptyRequireMessage);
+
+        // then
+        assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
+        assertThat(chatPartRepository.count()).isEqualTo(2);
+        assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(2);
+
+        assertThat(partyJoinRepository.findAll().get(0))
+                .extracting("partyJoinRequestStatus", "requireMessage")
+                .containsExactly(PartyJoinRequestStatus.WAIT, emptyRequireMessage);
+    }
+
+    @DisplayName("존재하지 않는 승인제 직관팟에 들어갈 수 없다.")
+    @Test
+    void applyParty_INVALID_PARTY() {
+
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.applyParty(userId, party.getId() - 1, null))
+                .isInstanceOf(PartyException.NotFoundException.class)
+                .hasMessage("직관팟이 존재하지 않습니다!");
+    }
+
+    @DisplayName("인원이 초과된 승인제 직관팟에는 들어갈 수 없다.")
+    @Test
+    void applyParty_EXCEED_PARTICIPANTS() {
+
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
+                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.applyParty(userId, party.getId(), "참여 희망합니다!"))
+                .isInstanceOf(PartyException.ExceedPartyParticipantsException.class)
+                .hasMessage("직관팟 정원이 초과되었습니다!");
+    }
+
+    @DisplayName("존재하지 않는 승인제 채팅방에는 들어갈 수 없다.")
+    @Test
+    void applyParty_INVALID_CHATROOM() {
+
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId() + "a"));
+
+
+        // when // then
+        assertThatThrownBy(() -> partyService.applyParty(userId, party.getId(), "참여 희망합니다!"))
                 .isInstanceOf(ChatRoomException.NotFoundException.class)
                 .hasMessage("채팅방이 존재하지 않습니다!");
     }

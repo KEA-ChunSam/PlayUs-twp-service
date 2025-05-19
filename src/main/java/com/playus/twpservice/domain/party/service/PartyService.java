@@ -8,6 +8,7 @@ import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.assertion.PartyAssert;
 import com.playus.twpservice.domain.party.document.PartyDocument;
+import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
@@ -28,6 +29,7 @@ import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
 import com.playus.twpservice.global.s3.S3Service;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,6 +126,23 @@ public class PartyService {
                 .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
 
         chatPartRepository.save(ChatPart.create(userId, chatRoom.getId()));
+    }
+
+    public PartyApplyResponse applyParty(Long userId, Long partyId, String requireMessage) {
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        PartyAssert.isAppliableParty(party);
+
+        partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.WAIT, requireMessage));
+        party.increaseCurrentParticipants();
+
+        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoomId())
+                .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
+
+        chatPartRepository.save(ChatPart.create(userId, chatRoom.getId()));
+
+        return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
     }
 
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
