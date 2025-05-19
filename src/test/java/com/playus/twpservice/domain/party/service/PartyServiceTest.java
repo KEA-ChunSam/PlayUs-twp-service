@@ -124,7 +124,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         List<PartyThumbnailUrl> savedUrl = partyThumbnailUrlRepository.findAll();
         assertThat(savedUrl).hasSize(2);
         assertThat(savedUrl)
-                .extracting("thumbnailUrl")
+                .extracting("thumbnailImageNameList")
                 .containsExactlyInAnyOrder("url", "url2");
 
         List<PartyAge> savedPartyAges = partyAgeRepository.findAll();
@@ -232,7 +232,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         List<PartyThumbnailUrl> thumbnailResult = partyThumbnailUrlRepository.findAll();
         assertThat(thumbnailResult).hasSize(1)
-                .extracting("thumbnailUrl")
+                .extracting("thumbnailImageNameList")
                 .containsExactly("newUrl");
     }
 

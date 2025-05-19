@@ -43,9 +43,8 @@ public record PartyCreateRequest (
         @Size(max = 10, message = "썸네일은 최대 10개까지만 가능합니다!")
         List<
                 @NotBlank(message = "사진 URL이 비어 있습니다!")
-                @Pattern(regexp = "^(https?|ftp)://.*$", message = "올바른 URL 형식이 아닙니다!")
                         String>
-                thumbnailUrl,
+                thumbnailImageNameList,
 
         @NotNull(message = "경기 ID는 필수입니다!")
         @Min(value = 1, message = "경기 ID는 1 이상이어야 합니다!")
@@ -68,7 +67,7 @@ public record PartyCreateRequest (
                 .ageGroup(ageGroup)
                 .minimumParticipants(minimumParticipants)
                 .maximumParticipants(maximumParticipants)
-                .thumbnailUrl(thumbnailUrl)
+                .thumbnailImageNameList(thumbnailUrl)
                 .matchId(matchId)
                 .message(message)
                 .build();

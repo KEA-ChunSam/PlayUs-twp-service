@@ -285,8 +285,8 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!");
     }
 
-    //  직관팟 생성 thumbnailUrl 이슈
-    @DisplayName("직관팟 생성 중 사진 url은 비어 있거나, http/https/ftp로 시작해야 한다.")
+    //  직관팟 생성 thumbnailImageNameList 이슈
+    @DisplayName("직관팟 생성 중 사진 url은 비어 있어도 된다..")
     @MethodSource("validUrlGroupProvider")
     @ParameterizedTest(name = "url = {0}")
     void createParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
@@ -330,28 +330,6 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "썸네일은 최대 10개까지만 가능합니다!");
-    }
-
-    @DisplayName("직관팟 생성 중 사진 url은 올바른 format이여야 한다.")
-    @MethodSource("invalidUrlGroupProvider")
-    @ParameterizedTest(name = "url = {0}")
-    void createParty_INVALID_IMAGE_URL(List<String> invalidUrl) throws Exception {
-        // given
-        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, 1L, "message");
-        PartyCreateResponse response = PartyCreateResponse.of(1L, "id");
-        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
-
-        // when // then
-        assertBadRequestOfPartyCreateRequest(request, "/party", "올바른 URL 형식이 아닙니다!");
-    }
-
-    static Stream<Arguments> invalidUrlGroupProvider() {
-        return Stream.of(
-                Arguments.of(List.of("abc://123.com", "123456")),
-                Arguments.of(List.of("!@#$%%", "#$%^&%$#", "#(*##$#$")),
-                Arguments.of(Arrays.asList("사진 URL", "IMAGE URL")),
-                Arguments.of(Arrays.asList("abc@123.com", "www.abc.com"))
-        );
     }
 
     //  직관팟 생성 matchId 이슈
@@ -944,7 +922,7 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!");
     }
 
-    //  직관팟 수정 thumbnailUrl 이슈
+    //  직관팟 수정 thumbnailImageNameList 이슈
     @DisplayName("직관팟 수정 중 사진 url은 비어 있거나, http/https/ftp로 시작해야 한다.")
     @MethodSource("validUrlGroupProvider")
     @ParameterizedTest(name = "url = {0}")

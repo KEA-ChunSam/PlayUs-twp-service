@@ -43,7 +43,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")
-                .and("partyThumbnailUrl.thumbnailUrl").as("thumbnailUrls");
+                .and("partyThumbnailUrl.thumbnailImageNameList").as("thumbnailUrls");
 
         Aggregation aggregation = Aggregation.newAggregation(
                 matchOperation,
@@ -78,7 +78,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")
-                .and("partyThumbnailUrl.thumbnailUrl").as("thumbnailUrls");
+                .and("partyThumbnailUrl.thumbnailImageNameList").as("thumbnailUrls");
 
         Aggregation aggregation = Aggregation.newAggregation(
                 matchOperation,

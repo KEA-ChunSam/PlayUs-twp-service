@@ -29,7 +29,6 @@ import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
 import com.playus.twpservice.global.s3.S3Service;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -182,13 +181,13 @@ public class PartyService {
     }
 
     private static List<PartyThumbnailUrl> toPartyThumbnailUrlEntity(PartyCreateRequest request, Party party) {
-        return request.thumbnailUrl().stream()
+        return request.thumbnailImageNameList().stream()
                 .map(thumbnailUrl -> PartyThumbnailUrl.create(party, thumbnailUrl))
                 .toList();
     }
 
     private static boolean thumbnailUrlExistsIn(PartyCreateRequest request) {
-        return !Objects.isNull(request.thumbnailUrl()) && !request.thumbnailUrl().isEmpty();
+        return !Objects.isNull(request.thumbnailImageNameList()) && !request.thumbnailImageNameList().isEmpty();
     }
 
     private static List<PartyAge> toPartyAgeEntity(PartyCreateRequest request, Party party) {
