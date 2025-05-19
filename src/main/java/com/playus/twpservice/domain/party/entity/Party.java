@@ -14,6 +14,8 @@ import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
+import static com.playus.twpservice.domain.party.exception.entity.PartyException.*;
+
 
 /**
  * 25/5/19 작성
@@ -90,6 +92,9 @@ public class Party extends BaseTimeEntity {
     }
 
     public void increaseCurrentParticipants() {
+        if (this.currentParticipants >= this.maximumParticipants) {
+            throw new ExceedPartyParticipantsException("직관팟 정원이 초과되었습니다!");
+        }
         this.currentParticipants++;
     }
 
