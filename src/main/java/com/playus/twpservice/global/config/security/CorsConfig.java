@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Collections;
@@ -13,14 +14,21 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
+
+    private static final List<String> ALLOWED_ORIGINS = List.of(
+            "http://localhost:3000",
+            "http://localhost:8080"
+    );
+
     @Bean("corsConfigurationSource")
-    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000"
-        ));
-        configuration.addAllowedHeader("*");
+        configuration.setAllowedOrigins(ALLOWED_ORIGINS);
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
         configuration.addAllowedMethod(HttpMethod.GET.name());
         configuration.addAllowedMethod(HttpMethod.POST.name());
@@ -28,11 +36,7 @@ public class CorsConfig {
         configuration.addAllowedMethod(HttpMethod.DELETE.name());
         configuration.addAllowedMethod(HttpMethod.OPTIONS.name());
 
-        configuration.setAllowCredentials(true);
-
-        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

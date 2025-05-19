@@ -35,10 +35,7 @@ public class SecurityConfig {
     private final RedisTemplate<String, String> redisTemplate;
     private final CorsConfigurationSource corsConfigurationSource;
 
-    private static final List<String> ALLOWED_ORIGINS = List.of(
-            "http://localhost:3000",
-            "http://localhost:8080"
-    );
+
 
     private String [] getWhiteList() {
         return new String[] {
@@ -69,18 +66,7 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class
                 )
 
-                .cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest req) {
-                        CorsConfiguration c = new CorsConfiguration();
-                        c.setAllowedOrigins(ALLOWED_ORIGINS);
-                        c.setAllowedMethods(Collections.singletonList("*"));
-                        c.setAllowedHeaders(Collections.singletonList("*"));
-                        c.setAllowCredentials(true);
-                        c.setExposedHeaders(Collections.singletonList("Authorization"));
-                        return c;
-                    }
-                }))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
                 // JWT Resource Server 설정 추가
                 .oauth2ResourceServer(rs -> rs
