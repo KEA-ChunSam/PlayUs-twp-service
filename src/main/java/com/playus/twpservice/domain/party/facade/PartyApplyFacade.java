@@ -17,15 +17,18 @@ public class PartyApplyFacade {
 
     public void applyParty(Long userId, Long partyId) {
         RLock lock = redissonClient.getLock(partyId.toString());
+        boolean isLocked = false;
         try {
-            boolean available = lock.tryLock(10, 1, TimeUnit.SECONDS);
-            if (available) {
+            isLocked = lock.tryLock(10, 1, TimeUnit.SECONDS);
+            if (isLocked) {
                 partyService.applyPartyFCFS(userId, partyId);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
-            lock.unlock();
+            if (isLocked && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 }
