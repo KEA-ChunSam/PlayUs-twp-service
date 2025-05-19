@@ -286,7 +286,7 @@ class PartyControllerTest extends ControllerTestSupport {
     }
 
     //  직관팟 생성 thumbnailImageNameList 이슈
-    @DisplayName("직관팟 생성 중 사진 url은 비어 있어도 된다..")
+    @DisplayName("직관팟 생성 중 사진 파일명은 비어 있어도 된다..")
     @MethodSource("validUrlGroupProvider")
     @ParameterizedTest(name = "url = {0}")
     void createParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
@@ -309,14 +309,14 @@ class PartyControllerTest extends ControllerTestSupport {
     static Stream<Arguments> validUrlGroupProvider() {
         return Stream.of(
                 Arguments.of(List.of()),
-                Arguments.of(List.of("http://image.com")),
-                Arguments.of(List.of("https://image.com")),
-                Arguments.of(Arrays.asList("http://image.com", "https://image.com")),
-                Arguments.of(Arrays.asList("http://image.co.kr", "https://image.com", "ftp://image.com"))
+                Arguments.of(List.of("image.jpg")),
+                Arguments.of(List.of("image.png")),
+                Arguments.of(Arrays.asList("image.jpg", "image.png")),
+                Arguments.of(Arrays.asList("image.jpg", "image.png", "image.webp"))
         );
     }
 
-    @DisplayName("직관팟 생성 중 사진 url은 최대 10개까지만 담을 수 있다.")
+    @DisplayName("직관팟 생성 중 사진 파일명은 최대 10개까지만 담을 수 있다.")
     @Test
     void createParty_NULL_IMAGE_URL() throws Exception {
         // given
@@ -923,7 +923,7 @@ class PartyControllerTest extends ControllerTestSupport {
     }
 
     //  직관팟 수정 thumbnailImageNameList 이슈
-    @DisplayName("직관팟 수정 중 사진 url은 비어 있거나, http/https/ftp로 시작해야 한다.")
+    @DisplayName("직관팟 수정 중 사진 파일명은 비어 있어도 된다. ")
     @MethodSource("validUrlGroupProvider")
     @ParameterizedTest(name = "url = {0}")
     void updateParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
@@ -962,20 +962,6 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "썸네일은 최대 10개까지만 가능합니다!");
     }
 
-    @DisplayName("직관팟 수정 중 사진 url은 올바른 format이여야 한다.")
-    @MethodSource("invalidUrlGroupProvider")
-    @ParameterizedTest(name = "url = {0}")
-    void updateParty_INVALID_IMAGE_URL(List<String> invalidUrl) throws Exception {
-        // given
-        Long partyId = 1L;
-        Long writerId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("title", writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, "message");
-        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
-
-        // when // then
-        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "올바른 URL 형식이 아닙니다!");
-    }
 
     //  직관팟 수정 message 이슈
     @DisplayName("직관팟 수정 중 소개 문구는 필수이다.")
