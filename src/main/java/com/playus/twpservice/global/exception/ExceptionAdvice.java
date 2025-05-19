@@ -3,6 +3,7 @@ package com.playus.twpservice.global.exception;
 import com.playus.twpservice.domain.chat.exception.ChatRoomException;
 import com.playus.twpservice.domain.party.controller.PartyController;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
+import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.exception.enums.PartyAgeGroupException;
 import com.playus.twpservice.domain.party.exception.enums.PartyGenderException;
@@ -44,6 +45,15 @@ public class ExceptionAdvice {
         return ErrorResponse.badRequestError(errorMessage);
     }
 
+    @ResponseStatus(FORBIDDEN)
+    @ExceptionHandler({
+            PartyJoinDocumentException.RefusedApplyUserException.class
+    })
+    public ErrorResponse handleForbiddenException(Exception e) {
+        String errorMessage = e.getMessage();
+        return ErrorResponse.forbiddenError(errorMessage);
+    }
+
     @ResponseStatus(NOT_FOUND)
     @ExceptionHandler({
             PartyException.NotFoundException.class,
@@ -58,7 +68,8 @@ public class ExceptionAdvice {
 
     @ResponseStatus(CONFLICT)
     @ExceptionHandler({
-            PartyException.ExceedPartyParticipantsException.class
+            PartyException.ExceedPartyParticipantsException.class,
+            PartyJoinDocumentException.DuplicateApplyException.class
     })
     public ErrorResponse handleConflictException(Exception e) {
         String errorMessage = e.getMessage();
