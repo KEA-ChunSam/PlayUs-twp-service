@@ -42,7 +42,7 @@ public record PartyCreateRequest (
 
         @Size(max = 10, message = "썸네일은 최대 10개까지만 가능합니다!")
         List<
-                @NotBlank(message = "사진 URL이 비어 있습니다!")
+                @NotBlank(message = "사진 파일명이 비어 있습니다!") // List.of() 는 되지만 List.of("") 는 안 됨
                         String>
                 thumbnailImageNameList,
 
