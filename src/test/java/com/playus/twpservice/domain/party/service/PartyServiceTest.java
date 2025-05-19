@@ -9,6 +9,7 @@ import com.playus.twpservice.domain.chat.repository.ChatMessageRepository;
 import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.document.PartyDocument;
+import com.playus.twpservice.domain.party.document.PartyJoinDocument;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
@@ -24,7 +25,9 @@ import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
+import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
@@ -64,6 +67,9 @@ class PartyServiceTest extends IntegrationTestSupport {
     private PartyReadOnlyRepository partyReadOnlyRepository;
 
     @Autowired
+    private PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
+
+    @Autowired
     private ChatRoomRepository chatRoomRepository;
 
     @Autowired
@@ -78,7 +84,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         partyAgeRepository.deleteAll();
         partyJoinRepository.deleteAll();
         partyRepository.deleteAll();
+
         partyReadOnlyRepository.deleteAll();
+        partyJoinReadOnlyRepository.deleteAll();
 
         chatRoomRepository.deleteAll();
         chatMessageRepository.deleteAll();
@@ -403,7 +411,13 @@ class PartyServiceTest extends IntegrationTestSupport {
         chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(4L));
+
+        // partyJoinDocument 통한 상태 검증 로직으로 넣음
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
+                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
 
         // when
         partyService.applyPartyFCFS(userId, party.getId());
@@ -411,7 +425,82 @@ class PartyServiceTest extends IntegrationTestSupport {
         // then
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
         assertThat(chatPartRepository.count()).isEqualTo(2);
-        assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(2);
+        assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(5);
+    }
+
+    @DisplayName("자신이 만든 선착순 직관팟에 지원할 수 없다.")
+    @Test
+    void applyPartyFCFS_WRITER_DUPLICATE_APPLY() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 1L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
+                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.applyPartyFCFS(writerId, party.getId()))
+                .isInstanceOf(PartyException.NotPartyWriterException.class)
+                .hasMessage("직관팟 작성자는 지원할 수 없습니다!");
+    }
+
+    @DisplayName("이미 지원한 직관팟에 다시 지원할 수 없다.")
+    @Test
+    void applyPartyFCFS_Duplicate_APPLY() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, userId, party.getId(), PartyJoinRequestStatus.ACCEPT, null), // usreId 대상
+                PartyJoinDocument.createForOnlyTest(2L, 2L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 3L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.applyPartyFCFS(userId, party.getId()))
+                .isInstanceOf(PartyJoinDocumentException.DuplicateApplyException.class)
+                .hasMessage("이미 가입된 직관팟입니다!");
+    }
+
+    @DisplayName("거절된 지원팟에 다시 지원할 수 없다.")
+    @Test
+    void applyPartyFCFS_REFUSED_APPLY() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, userId, party.getId(), PartyJoinRequestStatus.REFUSE, null), // 대상
+                PartyJoinDocument.createForOnlyTest(2L, 2L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 3L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.applyPartyFCFS(userId, party.getId()))
+                .isInstanceOf(PartyJoinDocumentException.RefusedApplyUserException.class)
+                .hasMessage("신청이 거절되었으면 다시 지원할 수 없습니다!");
     }
 
     @DisplayName("존재하지 않는 직관팟에 들어갈 수 없다.")
@@ -427,7 +516,12 @@ class PartyServiceTest extends IntegrationTestSupport {
         chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(4L));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
+                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
 
         // when // then
         assertThatThrownBy(() -> partyService.applyPartyFCFS(userId, party.getId() - 1))
@@ -451,6 +545,11 @@ class PartyServiceTest extends IntegrationTestSupport {
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
                 .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
 
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
+                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
+
         // when // then
         assertThatThrownBy(() -> partyService.applyPartyFCFS(userId, party.getId()))
                 .isInstanceOf(PartyException.ExceedPartyParticipantsException.class)
@@ -471,6 +570,11 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId() + "a"));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
+                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
 
 
         // when // then
@@ -493,6 +597,11 @@ class PartyServiceTest extends IntegrationTestSupport {
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
 
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
+                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
+
         // when
         partyService.applyParty(userId, party.getId(), "참여 희망합니다!");
 
@@ -504,6 +613,81 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(partyJoinRepository.findAll().get(0))
                 .extracting("partyJoinRequestStatus", "requireMessage")
                 .containsExactly(PartyJoinRequestStatus.WAIT, "참여 희망합니다!");
+    }
+
+    @DisplayName("자신이 만든 승인제 직관팟에 지원할 수 없다.")
+    @Test
+    void applyParty_WRITER_DUPLICATE_APPLY() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
+                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.applyParty(writerId, party.getId(), null))
+                .isInstanceOf(PartyException.NotPartyWriterException.class)
+                .hasMessage("직관팟 작성자는 지원할 수 없습니다!");
+    }
+
+    @DisplayName("이미 지원한 승인제 직관팟에 다시 지원할 수 없다.")
+    @Test
+    void applyParty_Duplicate_APPLY() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, userId, party.getId(), PartyJoinRequestStatus.ACCEPT, null), // usreId 대상
+                PartyJoinDocument.createForOnlyTest(2L, 2L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 3L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.applyParty(userId, party.getId(), null))
+                .isInstanceOf(PartyJoinDocumentException.DuplicateApplyException.class)
+                .hasMessage("이미 가입된 직관팟입니다!");
+    }
+
+    @DisplayName("거절된 승인제 지원팟에 다시 지원할 수 없다.")
+    @Test
+    void applyParty_REFUSED_APPLY() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        Long userId = 5L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, userId, party.getId(), PartyJoinRequestStatus.REFUSE, null), // 대상
+                PartyJoinDocument.createForOnlyTest(2L, 2L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 3L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.applyParty(userId, party.getId(), null))
+                .isInstanceOf(PartyJoinDocumentException.RefusedApplyUserException.class)
+                .hasMessage("신청이 거절되었으면 다시 지원할 수 없습니다!");
     }
 
     @DisplayName("참여 메시지가 없어도 승인제 직관팟에 가입할 수 있다.")
@@ -520,6 +704,11 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
+                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
 
         // when
         partyService.applyParty(userId, party.getId(), emptyRequireMessage);
@@ -548,6 +737,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+
 
         // when // then
         assertThatThrownBy(() -> partyService.applyParty(userId, party.getId() - 1, null))
