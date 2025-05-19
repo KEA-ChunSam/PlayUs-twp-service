@@ -1036,6 +1036,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void applyPartyFCFS() throws Exception {
         // given
         Long partyId = 1L;
+        willDoNothing().given(partyApplyFacade).applyParty(any(Long.class), any(Long.class));
 
         // when // then
         mockMvc.perform(post("/party/" + partyId + "/apply/fcfs")
