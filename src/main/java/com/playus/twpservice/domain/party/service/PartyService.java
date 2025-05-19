@@ -161,7 +161,7 @@ public class PartyService {
     private void updatePartyThumbnails(PartyUpdateRequest updateRequest, Long partyId, Party savedParty) {
         partyThumbnailUrlRepository.deleteByPartyId(partyId);
         partyThumbnailUrlRepository.saveAll(
-                updateRequest.thumbnailUrl().stream()
+                updateRequest.thumbnailImageNameList().stream()
                         .map(thumbnailUrl -> PartyThumbnailUrl.create(savedParty, thumbnailUrl))
                         .toList()
         );
