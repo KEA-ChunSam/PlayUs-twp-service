@@ -100,8 +100,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0), "thumbnailUrl2");
         partyThumbnailUrlReadOnlyRepository.saveAll(List.of(ptu1, ptu2));
 
-        PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0), PartyJoinRequestStatus.ACCEPT, null);
-        PartyJoinDocument pj2 = PartyJoinDocument.createForOnlyTest(2L, 5L, partyDocuments.get(0), PartyJoinRequestStatus.WAIT, "가입 원합니다!");
+        PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null);
+        PartyJoinDocument pj2 = PartyJoinDocument.createForOnlyTest(2L, 5L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!");
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when
@@ -173,8 +173,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0), "thumbnailUrl2");
         partyThumbnailUrlReadOnlyRepository.saveAll(List.of(ptu1, ptu2));
 
-        PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0), PartyJoinRequestStatus.ACCEPT, null);
-        PartyJoinDocument pj2 = PartyJoinDocument.createForOnlyTest(2L, 5L, partyDocuments.get(0), PartyJoinRequestStatus.WAIT, "가입 원합니다!");
+        PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null);
+        PartyJoinDocument pj2 = PartyJoinDocument.createForOnlyTest(2L, 5L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!");
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when
