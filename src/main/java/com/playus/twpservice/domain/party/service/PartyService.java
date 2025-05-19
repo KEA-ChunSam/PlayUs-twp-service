@@ -23,6 +23,8 @@ import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
+import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
@@ -44,17 +46,18 @@ import static com.playus.twpservice.domain.party.exception.entity.PartyException
 public class PartyService {
 
     private final PartyRepository partyRepository;
+    private final PartyJoinRepository partyJoinRepository;
     private final PartyAgeRepository partyAgeRepository;
     private final PartyThumbnailUrlRepository partyThumbnailUrlRepository;
-
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatPartRepository chatPartRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    private final S3Service s3Service;
     private final PartyReadOnlyRepository partyReadOnlyRepository;
-    private final PartyJoinRepository partyJoinRepository;
+    private final PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
+
+    private final S3Service s3Service;
 
     public PartyCreateResponse createParty(Long userId, PartyCreateRequest request) {
         ChatRoom chatRoom = initializeChatRoomAsWriter(userId, request);
@@ -73,7 +76,7 @@ public class PartyService {
         Long partyId = idRequest.partyId();
         Long writerId = updateRequest.writerId();
 
-        PartyAssert.isLoginUserWriter(userId, writerId);
+        PartyAssert.isLoginUserWriter(userId, writerId, "직관팟 작성자가 아니면 수정할 수 없습니다!");
 
         Party savedParty = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("잘못된 직관팟 번호입니다!"));
@@ -91,7 +94,7 @@ public class PartyService {
         PartyDocument partyDocument = partyReadOnlyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("잘못된 직관팟 번호입니다!"));
 
-        PartyAssert.isLoginUserWriter(userId, partyDocument.getWriterId());
+        PartyAssert.isLoginUserWriter(userId, partyDocument.getWriterId(), "직관팟 작성자가 아니면 수정할 수 없습니다!");
 
         partyThumbnailUrlRepository.deleteByPartyId(partyId);
         partyAgeRepository.deleteByPartyId(partyId);
@@ -116,6 +119,18 @@ public class PartyService {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
 
+        PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
+
+        partyJoinReadOnlyRepository.findByUserIdAndPartyId(userId, partyId)
+                        .ifPresent(partyJoinDocument -> {
+                            if (partyJoinDocument.getPartyJoinRequestStatus() == PartyJoinRequestStatus.REFUSE) {
+                                throw new PartyJoinDocumentException.RefusedApplyUserException("신청이 거절되었으면 다시 지원할 수 없습니다!");
+                            }
+                            else {
+                                throw new PartyJoinDocumentException.DuplicateApplyException("이미 가입된 직관팟입니다!");
+                            }
+                        });
+
         PartyAssert.isAppliableParty(party);
 
         partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.ACCEPT, null));
@@ -130,6 +145,18 @@ public class PartyService {
     public PartyApplyResponse applyParty(Long userId, Long partyId, String requireMessage) {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
+
+        partyJoinReadOnlyRepository.findByUserIdAndPartyId(userId, partyId)
+                .ifPresent(partyJoinDocument -> {
+                    if (partyJoinDocument.getPartyJoinRequestStatus() == PartyJoinRequestStatus.REFUSE) {
+                        throw new PartyJoinDocumentException.RefusedApplyUserException("신청이 거절되었으면 다시 지원할 수 없습니다!");
+                    }
+                    else {
+                        throw new PartyJoinDocumentException.DuplicateApplyException("이미 가입된 직관팟입니다!");
+                    }
+                });
 
         PartyAssert.isAppliableParty(party);
 
