@@ -16,7 +16,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE party_join SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
-@Table(name = "party_join")
+@Table(name = "party_join", indexes = {
+        @Index(name = "idx_party_join_user_id", columnList = "user_id")
+})
 public class PartyJoin {
 
     @Id
