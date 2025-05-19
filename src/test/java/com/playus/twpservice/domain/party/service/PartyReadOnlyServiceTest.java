@@ -96,8 +96,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         PartyAgeDocument pa2 = PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(1).getId(), 20);
         partyAgeReadOnlyRepository.saveAll(List.of(pa1, pa2));
 
-        PartyThumbnailUrlDocument ptu1 = PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0), "thumbnailUrl1");
-        PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0), "thumbnailUrl2");
+        PartyThumbnailUrlDocument ptu1 = PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), "thumbnailUrl1");
+        PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), "thumbnailUrl2");
         partyThumbnailUrlReadOnlyRepository.saveAll(List.of(ptu1, ptu2));
 
         PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null);
@@ -169,8 +169,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         PartyAgeDocument pa2 = PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(1).getId(), 20);
         partyAgeReadOnlyRepository.saveAll(List.of(pa1, pa2));
 
-        PartyThumbnailUrlDocument ptu1 = PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0), "thumbnailUrl1");
-        PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0), "thumbnailUrl2");
+        PartyThumbnailUrlDocument ptu1 = PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), "thumbnailUrl1");
+        PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), "thumbnailUrl2");
         partyThumbnailUrlReadOnlyRepository.saveAll(List.of(ptu1, ptu2));
 
         PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null);

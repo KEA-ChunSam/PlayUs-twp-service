@@ -23,9 +23,8 @@ public class PartyThumbnailUrlDocument {
 
     @NotNull
     @Indexed
-    @DocumentReference(lazy = true)
     @Field(name = "party_id")
-    private PartyDocument party;
+    private Long partyId;
 
     @NotNull
     private String thumbnailUrl;
@@ -33,16 +32,16 @@ public class PartyThumbnailUrlDocument {
     private LocalDateTime deletedAt;
 
     @Builder
-    private PartyThumbnailUrlDocument(Long id, PartyDocument party, String thumbnailUrl) {
+    private PartyThumbnailUrlDocument(Long id, Long partyId, String thumbnailUrl) {
         this.id = id;
-        this.party = party;
+        this.partyId = partyId;
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public static PartyThumbnailUrlDocument createForOnlyTest(Long id, PartyDocument party, String thumbnailUrl) {
+    public static PartyThumbnailUrlDocument createForOnlyTest(Long id, Long partyId, String thumbnailUrl) {
         return PartyThumbnailUrlDocument.builder()
                 .id(id)
-                .party(party)
+                .partyId(partyId)
                 .thumbnailUrl(thumbnailUrl)
                 .build();
     }
