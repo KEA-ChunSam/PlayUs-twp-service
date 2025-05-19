@@ -16,9 +16,9 @@ public class PartyApplyFacade {
     private final PartyService partyService;
 
     public void applyParty(Long userId, Long partyId) {
-        RLock lock = redissonClient.getLock(userId.toString());
+        RLock lock = redissonClient.getLock(partyId.toString());
         try {
-            boolean available = lock.tryLock(15, 1, TimeUnit.SECONDS);
+            boolean available = lock.tryLock(10, 1, TimeUnit.SECONDS);
             if (available) {
                 partyService.applyPartyFCFS(userId, partyId);
             }
