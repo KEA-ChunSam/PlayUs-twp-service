@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
+import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
@@ -36,7 +37,6 @@ public class PartyController implements PartyControllerSpecification {
     private final PartyReadOnlyService partyReadOnlyService;
     private final PartyApplyFacade partyApplyFacade;
 
-
     @PostMapping
     public ResponseEntity<PartyCreateResponse> createParty(@AuthenticationPrincipal Long userId, @Valid @RequestBody PartyCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(partyService.createParty(userId, request));
@@ -68,6 +68,13 @@ public class PartyController implements PartyControllerSpecification {
     public PartyApplyResponse applyPartyFCFS(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest) {
         partyApplyFacade.applyParty(userId, idRequest.partyId());
         return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{partyId}/apply")
+    public PartyApplyResponse applyParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest,
+                                         @Valid @RequestBody PartyApproveApplyRequest request) {
+        return partyService.applyParty(userId, idRequest.partyId(), request.requireMessage());
     }
 
     @PostMapping("/presigned-url")

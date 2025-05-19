@@ -1,6 +1,8 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.ControllerTestSupport;
+import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
+import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
@@ -1065,6 +1067,68 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         mockMvc.perform(post("/party/" + invalidPartyIdStr + "/apply/fcfs")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
+    @DisplayName("승인제 직관팟에 지원할 수 있다.")
+    @Test
+    void applyParty() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyApproveApplyRequest request = PartyApproveApplyRequest.of("message");
+        PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+        given(partyService.applyParty(any(Long.class), any(Long.class), anyString()))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(post("/party/" + partyId + "/apply")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("직관팟 가입에 성공했습니다!"));
+    }
+
+    @DisplayName("메시지가 없어도 승인제 직관팟에 지원할 수 있다.")
+    @Test
+    void applyParty_EMPTY_MESSAGE() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyApproveApplyRequest request = PartyApproveApplyRequest.of(null);
+        PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+        given(partyService.applyParty(any(Long.class), any(Long.class), any()))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(post("/party/" + partyId + "/apply")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("직관팟 가입에 성공했습니다!"));
+    }
+
+    @DisplayName("승인제 직관팟을 지원할 때, 직관팟의 ID는 1 이상이여야 한다..")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void applyParty_INVALID_PARTYID(String invalidPartyIdStr) throws Exception {
+        // given
+        PartyApproveApplyRequest request = PartyApproveApplyRequest.of(null);
+        PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+        given(partyService.applyParty(any(Long.class), any(Long.class), any()))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(post("/party/" + invalidPartyIdStr + "/apply")
+                        .content(objectMapper.writeValueAsString(request))
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())
