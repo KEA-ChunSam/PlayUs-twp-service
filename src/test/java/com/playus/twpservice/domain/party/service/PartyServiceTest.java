@@ -410,7 +410,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(4L));
+                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId).assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(4L));
 
         // partyJoinDocument 통한 상태 검증 로직으로 넣음
         partyJoinReadOnlyRepository.saveAll(List.of(
