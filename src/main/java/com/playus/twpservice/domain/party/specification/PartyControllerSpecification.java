@@ -1419,8 +1419,8 @@ public interface PartyControllerSpecification {
                             examples = @ExampleObject(
                                     value = """
                                             {
-                                              "code": 401,
-                                              "status": "UNAUTHORIZED",
+                                              "code": 403,
+                                              "status": "FORBIDDEN",
                                               "message": "신청이 거절되었으면 다시 지원할 수 없습니다!"
                                             }
                                             """
