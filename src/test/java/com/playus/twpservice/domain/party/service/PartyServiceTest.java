@@ -408,7 +408,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(4L));
@@ -424,7 +423,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatPartRepository.count()).isEqualTo(2);
+        assertThat(chatPartRepository.count()).isEqualTo(1);
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(5);
     }
 
@@ -437,7 +436,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 1L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
@@ -462,7 +460,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
@@ -487,7 +484,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
@@ -513,7 +509,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(4L));
@@ -539,7 +534,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
@@ -566,7 +560,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId() + "a"));
@@ -592,7 +585,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
@@ -607,7 +599,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatPartRepository.count()).isEqualTo(2);
+        assertThat(chatPartRepository.count()).isEqualTo(1);
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(2);
 
         assertThat(partyJoinRepository.findAll().get(0))
@@ -624,7 +616,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
@@ -649,7 +640,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
@@ -674,7 +664,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
@@ -700,7 +689,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
@@ -715,7 +703,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatPartRepository.count()).isEqualTo(2);
+        assertThat(chatPartRepository.count()).isEqualTo(1);
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(2);
 
         assertThat(partyJoinRepository.findAll().get(0))
@@ -733,7 +721,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
@@ -755,7 +742,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                         PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
@@ -777,7 +763,6 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 5L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId() + "a"));
