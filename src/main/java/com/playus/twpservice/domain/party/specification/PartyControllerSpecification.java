@@ -1,5 +1,8 @@
 package com.playus.twpservice.domain.party.specification;
 
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
+import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
@@ -20,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
@@ -36,6 +40,14 @@ public interface PartyControllerSpecification {
     @Operation(
             summary = "직관팟 생성",
             description = "로그인한 사용자가 작성자로서 직관팟을 생성합니다.",
+            security = @SecurityRequirement(name = "Access"),
+            parameters = @Parameter(
+                    name = "Access",
+                    description = "JWT Access Token (쿠키)",
+                    in = ParameterIn.COOKIE,
+                    required = true,
+                    example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            ),
             requestBody = @RequestBody(
                     required = true,
                     content = @Content(
@@ -50,7 +62,7 @@ public interface PartyControllerSpecification {
                                               "ageGroup": ["10대", "20대"],
                                               "minimumParticipants": 3,
                                               "maximumParticipants": 5,
-                                              "thumbnailUrl": ["https://image.example.com/party.jpg"],
+                                              "thumbnailImageNameList": ["party.jpg"],
                                               "matchId" : "1",
                                               "message": "재밌게 응원할 분 구해요!"
                                             }
@@ -59,7 +71,7 @@ public interface PartyControllerSpecification {
                     )
             )
     )
-    @ApiResponses(value = {
+    @ApiResponses({
             @ApiResponse(
                     responseCode = "201", description = "생성 성공",
                     content = @Content(
@@ -74,14 +86,364 @@ public interface PartyControllerSpecification {
                                             """
                             )
                     )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "최소 참여 인원이 최대 참여 인원보다 클 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 제목이 비어 있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 제목이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 제목이 1~225자 범위 이외일 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "제목의 길이를 1~225자 이내로 작성해 주세요!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 신청 방식이 비어 있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "신청 방식이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 신청 방식이 기존에 정의되어 있던 것이 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "잘못된 신청 방식입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 생성 시 성별이 비어 있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "참여 원하는 성별이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 생성 시 성별이 기존에 정의되어 있던 것이 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "잘못된 성별 형식입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 생성 시 참여자 나이가 비어 있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "참여자 나이가 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 생성 시 참여자 나이가 기존에 정의되어 있던 것이 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "잘못된 참여자 나이입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 생성 시 참여자 나이 개수가 기존에 정의되어 있던 나이를 초과했을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "참여자 나이는 최대 6개까지 가능합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "최소 참여 인원이 비어있을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최소 참여 인원이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "최소 참여 인원이 1명 아래일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최소 참여 인원은 1명 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "최대 참여 인원이 비어있을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최대 참여 인원이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "최대 참여 인원이 1명 아래일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최대 참여 인원은 1명 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "썸네일 이미지가 10개를 넘어갈 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "썸네일은 최대 10개까지만 가능합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "썸네일 이미지명이 빈 문자열일 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "사진 파일명이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "경기 ID가 비어있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "경기 ID는 필수입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "경기 ID가 1 미만일 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "경기 ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 소개 문구가 비어있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 소개 문구가 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 소개 문구가 1~100자 사이가 아닐 경우",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
             )
     })
-    ResponseEntity<PartyCreateResponse> createParty(Long userId, @Valid PartyCreateRequest request);
+    ResponseEntity<PartyCreateResponse> createParty(@Parameter(hidden = true) CustomOAuth2User principal,
+                                                    @Valid @Parameter(description = "직관팟 생성 요청", required = true) PartyCreateRequest request);
 
     @Tag(name = "Post", description = "Presigned URL 발급 API")
     @Operation(
             summary = "Presigned URL 발급",
             description = "프론트에서 이미지를 직접 저장하기 위한 Presigned URL을 생성 및 반환합니다. (버킷에 저장할 때는 PUT으로)",
+            security = @SecurityRequirement(name = "Access"),
+            parameters = @Parameter(
+                    name = "Access",
+                    description = "JWT Access Token (쿠키)",
+                    in = ParameterIn.COOKIE,
+                    required = true,
+                    example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            ),
             requestBody = @RequestBody(
                     required = true,
                     content = @Content(
@@ -111,15 +473,69 @@ public interface PartyControllerSpecification {
                                             """
                             )
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "이미지 파일명이 비어있을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "이미지 파일명은 필수입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
             )
     })
-    PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(@Valid PresignedUrlForSaveImageRequest request);
+    PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(@Valid @Parameter(description = "Presigned URL 발급 요청", required = true)
+                                                                      PresignedUrlForSaveImageRequest request);
 
     @Tag(name = "Get", description = "직관팟 조회 API")
     @Operation(
             summary = "직관팟 조회 API",
             description = "특정 경기에 대한 모든 직관팟을 조회합니다.",
+            security = @SecurityRequirement(name = "Access"),
             parameters = {
+                    @Parameter(
+                    name = "Access",
+                    description = "JWT Access Token (쿠키)",
+                    in = ParameterIn.COOKIE,
+                    required = true,
+                    example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            ),
                     @Parameter(
                             name = "matchId",
                             description = "경기 ID",
@@ -180,15 +596,82 @@ public interface PartyControllerSpecification {
                                             """
                             )
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "경기 ID가 없을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "경기 ID는 필수입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "경기 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
             )
     })
-    List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoRequest request);
+    List<PartyInfoResponse> getPartiesByMatchId(@Valid @Parameter(description = "직관팟 리스트 요청", required = true) PartyInfoRequest request);
 
     @Tag(name = "Get", description = "직관팟 상세정보 조회 API")
     @Operation(
             summary = "직관팟 상세정보 조회 API",
             description = "특정 직관팟에 대한 자세한 정보를 조회합니다.",
             parameters = {
+                    @Parameter(
+                            name = "Access",
+                            description = "JWT Access Token (쿠키)",
+                            in = ParameterIn.COOKIE,
+                            required = true,
+                            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    ),
                     @Parameter(
                             name = "partyId",
                             in = ParameterIn.PATH,
@@ -233,9 +716,69 @@ public interface PartyControllerSpecification {
                                             """
                             )
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "직관팟 ID로 직관팟을 찾을 수 없는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟이 존재하지 않습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
             )
     })
-    PartyDetailResponse getPartyDetail(@Valid PartyDetailRequest request);
+    PartyDetailResponse getPartyDetail(@Valid @Parameter(description = "직관팟 상세정보 요청", required = true) PartyDetailRequest request);
 
 
     @Tag(name = "Put", description = "직관팟 수정 API")
@@ -243,6 +786,13 @@ public interface PartyControllerSpecification {
             summary = "직관팟 수정",
             description = "직관팟 작성자인 로그인한 유저가 직관팟을 수정합니다.",
             parameters = {
+                    @Parameter(
+                            name = "Access",
+                            description = "JWT Access Token (쿠키)",
+                            in = ParameterIn.COOKIE,
+                            required = true,
+                            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    ),
                     @Parameter(
                             name = "partyId",
                             in = ParameterIn.PATH,
@@ -288,16 +838,394 @@ public interface PartyControllerSpecification {
                                             """
                             )
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "최소 참여 인원이 최대 참여 인원보다 클 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 제목이 비어 있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 제목이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 제목이 1~225자 범위 이외일 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "제목의 길이를 1~225자 이내로 작성해 주세요!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "작성자 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "작성자 ID는 1 이상이어야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 신청 방식이 비어 있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "신청 방식이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 신청 방식이 기존에 정의되어 있던 것이 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "잘못된 신청 방식입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 수정 시 성별이 비어 있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "참여 원하는 성별이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 수정 시 성별이 기존에 정의되어 있던 것이 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "잘못된 성별 형식입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 수정 시 참여자 나이가 비어 있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "참여자 나이가 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 수정 시 참여자 나이가 기존에 정의되어 있던 것이 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "잘못된 참여자 나이입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 수정 시 참여자 나이 개수가 기존에 정의되어 있던 나이를 초과했을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "참여자 나이는 최대 6개까지 가능합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "최소 참여 인원이 비어있을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최소 참여 인원이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "최소 참여 인원이 1명 아래일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최소 참여 인원은 1명 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "최대 참여 인원이 비어있을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최대 참여 인원이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "최대 참여 인원이 1명 아래일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "최대 참여 인원은 1명 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "썸네일 이미지가 10개를 넘어갈 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "썸네일은 최대 10개까지만 가능합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "썸네일 이미지명이 빈 문자열일 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "사진 파일명이 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 소개 문구가 비어있을 때 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 소개 문구가 비어 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 소개 문구가 1~100자 사이가 아닐 경우",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 소개 문구의 길이를 1~100자 이내로 작성해 주세요!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400", description = "로그인 유저가 직관팟 작성자가 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 작성자가 아니면 수정할 수 없습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "직관팟 ID로 직관팟을 찾을 수 없는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "잘못된 직관팟 번호입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
             )
     })
-    PartyUpdateResponse updateParty(Long userId, @Valid PartyIdRequest idRequest,
-                                           @Valid @RequestBody PartyUpdateRequest request);
+    PartyUpdateResponse updateParty(@Parameter(hidden = true) CustomOAuth2User principal,
+                                    @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest,
+                                    @Valid @Parameter(description = "직관팟 수정 요청", required = true) PartyUpdateRequest request);
 
     @Tag(name = "Patch", description = "직관팟 삭제 API")
     @Operation(
             summary = "직관팟 삭제",
             description = "직관팟 작성자인 로그인한 유저가 직관팟을 삭제합니다.",
             parameters = {
+                    @Parameter(
+                            name = "Access",
+                            description = "JWT Access Token (쿠키)",
+                            in = ParameterIn.COOKIE,
+                            required = true,
+                            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    ),
                     @Parameter(
                             name = "partyId",
                             in = ParameterIn.PATH,
@@ -321,7 +1249,361 @@ public interface PartyControllerSpecification {
                                             """
                             )
                     )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "로그인 유저가 직관팟 작성자가 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 작성자가 아니면 수정할 수 없습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "직관팟 ID로 직관팟을 찾을 수 없는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "잘못된 직관팟 번호입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
             )
     })
-    PartyDeleteResponse deleteParty(Long userId, @Valid PartyIdRequest idRequest);
+    PartyDeleteResponse deleteParty(@Parameter(hidden = true) CustomOAuth2User principal,
+                                    @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
+
+
+
+    @Tag(name = "Post", description = "직관팟 선착순 신청 API")
+    @Operation(
+            summary = "직관팟 선착순 신청",
+            description = "선착순 승인제인 직관팟에 신청합니다.",
+            parameters = {
+                    @Parameter(
+                            name = "Access",
+                            description = "JWT Access Token (쿠키)",
+                            in = ParameterIn.COOKIE,
+                            required = true,
+                            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    ),
+                    @Parameter(
+                            name = "partyId",
+                            in = ParameterIn.PATH,
+                            description = "직관팟 ID",
+                            required = true,
+                            example = "1"
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201", description = "신청 성공",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 삭제 응답 예시",
+                                    value = """
+                                            {
+                                              "message": "직관팟 가입에 성공하셨습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "직관팟 ID로 직관팟을 찾을 수 없는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "잘못된 직관팟 번호입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "채팅방 ID로 직관팟을 찾을 수 없는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "채팅방이 존재하지 않습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409", description = "직관팟 정원이 초과될 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 409,
+                                              "status": "CONFLICT",
+                                              "message": "직관팟 정원이 초과되었습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    PartyApplyResponse applyPartyFCFS(@Parameter(hidden = true) CustomOAuth2User principal,
+                                      @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
+
+
+    @Tag(name = "Post", description = "승인제 직관팟 신청 API")
+    @Operation(
+            summary = "직관팟 승인제 신청",
+            description = "승인제 직관팟에 신청합니다.",
+            parameters = {
+                    @Parameter(
+                            name = "Access",
+                            description = "JWT Access Token (쿠키)",
+                            in = ParameterIn.COOKIE,
+                            required = true,
+                            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    ),
+                    @Parameter(
+                            name = "partyId",
+                            in = ParameterIn.PATH,
+                            description = "직관팟 ID",
+                            required = true,
+                            example = "1"
+                    )
+            },
+            requestBody = @RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "승인제 직관팟 신청 요청 예시",
+                                    value = """
+                                            {
+                                              "requireMessage" : "직관팟 참여하고 싶습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201", description = "신청 성공",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "승인제 직관팟 신청 응답 예시",
+                                    value = """
+                                            {
+                                              "message": "직관팟 가입에 성공하셨습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "직관팟 ID로 직관팟을 찾을 수 없는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "잘못된 직관팟 번호입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "채팅방 ID로 직관팟을 찾을 수 없는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "채팅방이 존재하지 않습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409", description = "직관팟 정원이 초과될 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 409,
+                                              "status": "CONFLICT",
+                                              "message": "직관팟 정원이 초과되었습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    PartyApplyResponse applyParty(@Parameter(hidden = true) CustomOAuth2User principal,
+                                  @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest,
+                                  @Valid @Parameter(description = "직관팟 신청 시 방장에게 보여줄 requireMessage 작성") PartyApproveApplyRequest request);
 }
