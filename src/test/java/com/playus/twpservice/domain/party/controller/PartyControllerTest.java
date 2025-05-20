@@ -1,10 +1,13 @@
 package com.playus.twpservice.domain.party.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.ControllerTestSupport;
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
 import com.playus.twpservice.domain.common.security.Role;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
+import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
+import com.playus.twpservice.domain.party.dto.approve.PartyApproveResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
@@ -44,7 +47,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
     Long userId = 1L;
     List<String> thumbnailUrl = List.of("http://image.com");
-//    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")));
+//    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(applicantUserId, null, List.of(new SimpleGrantedAuthority("USER")));
 
     private UsernamePasswordAuthenticationToken token;
 
@@ -1124,6 +1127,111 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
+    @DisplayName("직관팟을 승인할 수 있다.")
+    @Test
+    void approveParty() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyApproveRequest request = PartyApproveRequest.of(1L, Boolean.TRUE);
+        PartyApproveResponse response = PartyApproveResponse.of("직관팟 가입 신청 승인 성공했습니다!");
+        given(partyService.approveParty(any(Long.class), any(Long.class), any(PartyApproveRequest.class)))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + partyId + "/approve")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("직관팟 가입 신청 승인 성공했습니다!"));
+    }
+
+    @DisplayName("직관팟을 승인할 때 직관팟의 ID는 1 이상이여야 한다.")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void approveParty_INVALID_PARTYID(String invalidPartyStr) throws Exception {
+        // given
+        PartyApproveRequest request = PartyApproveRequest.of(1L, Boolean.TRUE);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + invalidPartyStr + "/approve")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
+    @DisplayName("직관팟을 승인할 때 지원자의 ID는 필수이다.")
+    @Test
+    void approveParty_EMPTY_APPLICANT_ID() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyApproveRequest request = PartyApproveRequest.of(null, Boolean.TRUE);
+        PartyApproveResponse response = PartyApproveResponse.of("직관팟 가입 신청 승인 성공했습니다!");
+        given(partyService.approveParty(any(Long.class), any(Long.class), any(PartyApproveRequest.class)))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + partyId + "/approve")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("지원자 ID는 필수입니다!"));
+    }
+
+    @DisplayName("직관팟을 승인할 때 지원자의 ID는 1 이상이여야 한다.")
+    @Test
+    void approveParty_NEGATIVE_APPLICANT() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyApproveRequest request = PartyApproveRequest.of(null, Boolean.TRUE);
+        PartyApproveResponse response = PartyApproveResponse.of("직관팟 가입 신청 승인 성공했습니다!");
+        given(partyService.approveParty(any(Long.class), any(Long.class), any(PartyApproveRequest.class)))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + partyId + "/approve")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("지원자 ID는 필수입니다!"));
+    }
+
+    @DisplayName("직관팟을 승인할 때 승인 여부는 필수이다")
+    @Test
+    void approveParty_EMPTY_IS_APPROVED() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyApproveRequest request = PartyApproveRequest.of(1L, null);
+        PartyApproveResponse response = PartyApproveResponse.of("직관팟 가입 신청 승인 성공했습니다!");
+        given(partyService.approveParty(any(Long.class), any(Long.class), any(PartyApproveRequest.class)))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + partyId + "/approve")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("승인 여부는 필수입니다!"));
     }
 
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
