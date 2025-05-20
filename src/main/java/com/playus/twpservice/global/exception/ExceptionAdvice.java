@@ -45,6 +45,16 @@ public class ExceptionAdvice {
         return ErrorResponse.badRequestError(errorMessage);
     }
 
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler({
+            PartyException.InvalidApproveRequestToPartyException.class
+    })
+    public ErrorResponse handleInvalidApproveRequestException(Exception e) {
+        String errorMessage = e.getMessage();
+        log.warn(errorMessage);
+        return ErrorResponse.badRequestError(errorMessage);
+    }
+
     @ResponseStatus(FORBIDDEN)
     @ExceptionHandler({
             PartyJoinDocumentException.RefusedApplyUserException.class
