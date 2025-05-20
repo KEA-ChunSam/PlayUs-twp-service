@@ -5,14 +5,17 @@ import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
 import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
+import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
+import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
+import com.playus.twpservice.domain.party.feign.response.PartyApplicantsInfoFeignResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
@@ -84,11 +87,11 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         given(matchFeignClient.getMatchDate(matchId)).willReturn(matchDate);
 
         PartyDocument p1 = PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
-                 PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId"); // 대상
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId"); // 대상
         PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 1L,
-                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id"); // 대상
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id"); // 대상
         PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L, 1L,
-                 PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
+                PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
 
         List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(p1, p2, p3));
 
@@ -157,11 +160,11 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         given(matchFeignClient.getMatchDate(matchId)).willReturn(matchDate);
 
         PartyDocument p1 = PartyDocument.createForOnlyTest(partyId, "title1", "text1", 1L, 10L, 3L,
-                 PartyGender.MALE, PartyJoinMethod.FIRST_COME, writerId, matchId, "chatRoomId"); // 대상
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, writerId, matchId, "chatRoomId"); // 대상
         PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 1L,
-                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id"); // 대상
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id"); // 대상
         PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L, 1L,
-                 PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
+                PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
 
         List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(p1, p2, p3));
 
@@ -188,7 +191,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
                 .containsExactly(
                         1L, 1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), "text1", List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성",
-                                matchDate, 3L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2"), List.of("http://writer1-thumbnail", "http://user1", "http://user2")
+                        matchDate, 3L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2"), List.of("http://writer1-thumbnail", "http://user1", "http://user2")
 
                 );
     }
@@ -203,5 +206,114 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> partyReadOnlyService.getPartyDetail(partyId))
                 .isInstanceOf(PartyDocumentException.NotFoundException.class)
                 .hasMessage("직관팟이 존재하지 않습니다!");
+    }
+
+    @DisplayName("직관팟에 신청한 유저의 정보를 불러올 수 있다.")
+    @Test
+    void getAppliedUsers() {
+        // given
+        Long userId = 1L;
+        Long matchId = 1L;
+        given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
+                List.of(PartyApplicantsInfoFeignResponse.of("kim", 14, "http://user1.jpg"),
+                        PartyApplicantsInfoFeignResponse.of("jung", 27, "http://user2.jpg")
+        ));
+
+        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, "chatRoomId"));
+
+        partyJoinReadOnlyRepository.saveAll(
+                List.of(
+                        PartyJoinDocument.createForOnlyTest(1L, userId + 1, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망"),
+                        PartyJoinDocument.createForOnlyTest(2L, userId + 2, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망2"),
+                        PartyJoinDocument.createForOnlyTest(3L, userId + 3, p1.getId(), PartyJoinRequestStatus.REFUSE, "참여 희망3")
+                )
+        );
+
+        // when
+        List<PartyAppliedUserResponse> response = partyReadOnlyService.getAppliedUsers(userId, p1.getId());
+
+        // then
+        assertThat(response).hasSize(2)
+                .extracting("userId", "name", "ageGroup", "thumbnailUrl", "requireMessage")
+                .containsExactlyInAnyOrder(
+                        tuple(userId + 1, "kim", "10대", "http://user1.jpg", "참여 희망"),
+                        tuple(userId + 2, "jung", "20대", "http://user2.jpg", "참여 희망2")
+                );
+    }
+
+    @DisplayName("잘못된 직관팟에 대해서 신청 유저 목록을 조회할 수 없다.")
+    @Test
+    void getAppliedUsers_INVALID_PARTY() {
+        // given
+        Long userId = 1L;
+        Long matchId = 1L;
+        given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
+                List.of(PartyApplicantsInfoFeignResponse.of("kim", 14, "http://user1.jpg"),
+                        PartyApplicantsInfoFeignResponse.of("jung", 27, "http://user2.jpg")
+                ));
+
+        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, "chatRoomId"));
+
+        partyJoinReadOnlyRepository.saveAll(
+                List.of(
+                        PartyJoinDocument.createForOnlyTest(1L, userId + 1, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망"),
+                        PartyJoinDocument.createForOnlyTest(2L, userId + 2, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망2"),
+                        PartyJoinDocument.createForOnlyTest(3L, userId + 3, p1.getId(), PartyJoinRequestStatus.REFUSE, "참여 희망3")
+                )
+        );
+
+        // when // then
+        assertThatThrownBy(() -> partyReadOnlyService.getAppliedUsers(userId, p1.getId() + 1))
+                .isInstanceOf(PartyDocumentException.NotFoundException.class)
+                .hasMessage("직관팟이 존재하지 않습니다!");
+    }
+
+    @DisplayName("직관팟 방장이 아니면 신청 유저 목록을 가져올 수 없다.")
+    @Test
+    void getAppliedUsers_NOT_WRITER() {
+        Long userId = 1L;
+        Long matchId = 1L;
+        given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
+                List.of(PartyApplicantsInfoFeignResponse.of("kim", 14, "http://user1.jpg"),
+                        PartyApplicantsInfoFeignResponse.of("jung", 27, "http://user2.jpg")
+                ));
+
+        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId + 1, matchId, "chatRoomId"));
+
+        partyJoinReadOnlyRepository.saveAll(
+                List.of(
+                        PartyJoinDocument.createForOnlyTest(1L, userId + 1, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망"),
+                        PartyJoinDocument.createForOnlyTest(2L, userId + 2, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망2"),
+                        PartyJoinDocument.createForOnlyTest(3L, userId + 3, p1.getId(), PartyJoinRequestStatus.REFUSE, "참여 희망3")
+                )
+        );
+
+        // when // then
+        assertThatThrownBy(() -> partyReadOnlyService.getAppliedUsers(userId, p1.getId()))
+                .isInstanceOf(PartyException.NotPartyWriterException.class)
+                .hasMessage("방장이 아니면 직관팟 지원자를 조회할 수 없습니다!");
+    }
+
+    @DisplayName("직관팟에 신청한 유저가 없을 수 있다.")
+    @Test
+    void getAppliedUsers_EMPTY_APPLICANTS() {
+        // given
+        Long userId = 1L;
+        Long matchId = 1L;
+        given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
+                List.of()
+        );
+
+        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, "chatRoomId"));
+
+        // when
+        List<PartyAppliedUserResponse> response = partyReadOnlyService.getAppliedUsers(userId, p1.getId());
+
+        // then
+        assertThat(response).hasSize(0);
     }
 }
