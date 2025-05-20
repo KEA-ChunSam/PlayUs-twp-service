@@ -42,4 +42,13 @@ public enum PartyAgeGroup implements Describable {
         }
         throw new InvalidAgeException("Invalid age: " + age);
     }
+
+    public static String getAgeDescriptionByAge(int age) {
+        for (PartyAgeGroup group : PartyAgeGroup.values()) {
+            if (group.getAge() == age) {
+                return group.getDescription();
+            }
+        }
+        throw new InvalidAgeException("Invalid age: " + age);
+    }
 }
