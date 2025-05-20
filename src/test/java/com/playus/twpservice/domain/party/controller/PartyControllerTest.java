@@ -1241,7 +1241,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         Long partyId = 1L;
         given(partyService.getAppliedUsers(any(Long.class), any(Long.class)))
-                .willReturn(List.of(PartyAppliedUserResponse.of(1L, "name", 10, "http://image.jpg", "참여 희망합니다!")));
+                .willReturn(List.of(PartyAppliedUserResponse.of(1L, "name", "10대", "http://image.jpg", "참여 희망합니다!")));
 
         // when // then
         mockMvc.perform(get("/party/" + partyId + "/applied")
@@ -1251,7 +1251,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].userId").value(1L))
                 .andExpect(jsonPath("$[0].name").value("name"))
-                .andExpect(jsonPath("$[0].age").value(10))
+                .andExpect(jsonPath("$[0].ageGroup").value("10대"))
                 .andExpect(jsonPath("$[0].thumbnailImageUrl").value("http://image.jpg"))
                 .andExpect(jsonPath("$[0].requireMessage").value("참여 희망합니다!"));
     }

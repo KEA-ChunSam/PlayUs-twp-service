@@ -6,16 +6,16 @@ import lombok.Builder;
 public record PartyAppliedUserResponse(
         Long userId,
         String name,
-        int age,
+        String ageGroup,
         String thumbnailImageUrl,
         String requireMessage
 ) {
 
-    public static PartyAppliedUserResponse of(Long userId, String name, int age, String thumbnailImageUrl, String requireMessage) {
+    public static PartyAppliedUserResponse of(Long userId, String name, String ageGroup, String thumbnailImageUrl, String requireMessage) {
         return PartyAppliedUserResponse.builder()
                 .userId(userId)
                 .name(name)
-                .age(age)
+                .ageGroup(ageGroup)
                 .thumbnailImageUrl(thumbnailImageUrl)
                 .requireMessage(requireMessage)
                 .build();
