@@ -28,7 +28,7 @@ public class PartyReadOnlyService {
 
     public List<PartyInfoResponse> getPartyInfoListByMatchId(Long matchId) {
 
-        List<PartyInfo> partyInfoList = partyRepository.findPartyInfo(matchId);
+        List<PartyInfo> partyInfoList = partyRepository.findPartyInfoList(matchId);
 
         updateUserThumbnailUrls(partyInfoList);
         updateWriterInfo(partyInfoList);

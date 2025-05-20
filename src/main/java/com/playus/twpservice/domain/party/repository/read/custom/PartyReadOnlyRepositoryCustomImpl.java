@@ -24,7 +24,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
      * @return
      */
     @Override
-    public List<PartyInfo> findPartyInfo(Long matchId) {
+    public List<PartyInfo> findPartyInfoList(Long matchId) {
 
         MatchOperation matchOperation = match(new Criteria("match_id").is(matchId));
 

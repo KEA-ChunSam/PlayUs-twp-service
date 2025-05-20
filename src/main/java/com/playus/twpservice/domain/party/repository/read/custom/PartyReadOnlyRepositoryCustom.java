@@ -6,6 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PartyReadOnlyRepositoryCustom {
-    List<PartyInfo> findPartyInfo(Long matchId);
+    List<PartyInfo> findPartyInfoList(Long matchId);
     Optional<PartyInfo> findPartyDetail(Long partyId);
 }
