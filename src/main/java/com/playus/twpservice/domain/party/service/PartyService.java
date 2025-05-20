@@ -191,7 +191,7 @@ public class PartyService {
             return PartyApproveResponse.of("직관팟 가입 신청 거절 성공했습니다!");
         }
 
-        // 5. partyId와 user 가진 ChatRoom 저장
+        // 5. partyId와 user 가진 ChatPart 저장
         ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoomId())
                 .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
         chatPartRepository.save(ChatPart.create(applicantUserId, chatRoom.getId()));
