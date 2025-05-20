@@ -40,7 +40,7 @@ public class PartyReadOnlyService {
     }
 
     public PartyDetailResponse getPartyDetail(Long partyId) {
-        PartyInfo partyDetail = partyRepository.findPartyDetailBy(partyId)
+        PartyInfo partyDetail = partyRepository.findPartyDetail(partyId)
                 .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
 
         updateUserThumbnailUrls(List.of(partyDetail));

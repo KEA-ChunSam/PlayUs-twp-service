@@ -124,7 +124,7 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when
-        Optional<PartyInfo> result = partyReadOnlyRepository.findPartyDetailBy(partyId);
+        Optional<PartyInfo> result = partyReadOnlyRepository.findPartyDetail(partyId);
 
         // then
         assertThat(result).isPresent();
@@ -146,7 +146,7 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         Long notFoundPartyId = 5L;
 
         // when
-        Optional<PartyInfo> result = partyReadOnlyRepository.findPartyDetailBy(notFoundPartyId);
+        Optional<PartyInfo> result = partyReadOnlyRepository.findPartyDetail(notFoundPartyId);
 
         // then
         assertThat(result).isEmpty();

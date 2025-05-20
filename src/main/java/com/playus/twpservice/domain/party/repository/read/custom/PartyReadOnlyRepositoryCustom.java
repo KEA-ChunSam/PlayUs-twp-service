@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface PartyReadOnlyRepositoryCustom {
     List<PartyInfo> findPartyInfo(Long matchId);
-    Optional<PartyInfo> findPartyDetailBy(Long partyId);
+    Optional<PartyInfo> findPartyDetail(Long partyId);
 }
