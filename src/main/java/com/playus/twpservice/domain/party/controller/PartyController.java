@@ -91,7 +91,7 @@ public class PartyController implements PartyControllerSpecification {
     @GetMapping("/{partyId}/applied")
     public List<PartyAppliedUserResponse> getAppliedUsers(@AuthenticationPrincipal CustomOAuth2User principal,
                                                           @Valid PartyIdRequest idRequest) {
-        return partyService.getAppliedUsers(principal.getId(), idRequest.partyId());
+        return partyReadOnlyService.getAppliedUsers(principal.getId(), idRequest.partyId());
     }
 
     @PostMapping("/presigned-url")

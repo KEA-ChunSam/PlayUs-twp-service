@@ -1240,7 +1240,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void getAppliedUser() throws Exception {
         // given
         Long partyId = 1L;
-        given(partyService.getAppliedUsers(any(Long.class), any(Long.class)))
+        given(partyReadOnlyService.getAppliedUsers(any(Long.class), any(Long.class)))
                 .willReturn(List.of(PartyAppliedUserResponse.of(1L, "name", "10대", "http://image.jpg", "참여 희망합니다!")));
 
         // when // then
