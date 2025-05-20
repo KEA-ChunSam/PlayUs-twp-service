@@ -1252,7 +1252,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$[0].userId").value(1L))
                 .andExpect(jsonPath("$[0].name").value("name"))
                 .andExpect(jsonPath("$[0].ageGroup").value("10대"))
-                .andExpect(jsonPath("$[0].thumbnailImageUrl").value("http://image.jpg"))
+                .andExpect(jsonPath("$[0].thumbnailUrl").value("http://image.jpg"))
                 .andExpect(jsonPath("$[0].requireMessage").value("참여 희망합니다!"));
     }
 

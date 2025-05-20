@@ -7,16 +7,16 @@ public record PartyAppliedUserResponse(
         Long userId,
         String name,
         String ageGroup,
-        String thumbnailImageUrl,
+        String thumbnailUrl,
         String requireMessage
 ) {
 
-    public static PartyAppliedUserResponse of(Long userId, String name, String ageGroup, String thumbnailImageUrl, String requireMessage) {
+    public static PartyAppliedUserResponse of(Long userId, String name, String ageGroup, String thumbnailUrl, String requireMessage) {
         return PartyAppliedUserResponse.builder()
                 .userId(userId)
                 .name(name)
                 .ageGroup(ageGroup)
-                .thumbnailImageUrl(thumbnailImageUrl)
+                .thumbnailUrl(thumbnailUrl)
                 .requireMessage(requireMessage)
                 .build();
     }
