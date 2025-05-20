@@ -1952,21 +1952,6 @@ public interface PartyControllerSpecification {
                     )
             ),
             @ApiResponse(
-                    responseCode = "409", description = "이미 가입 (혹은 대기) 상태인 직관팟에 다시 신청할 경우 발생",
-                    content = @Content(
-                            mediaType = APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                              "code": 409,
-                                              "status": "CONFLICT",
-                                              "message": "이미 가입된 직관팟입니다!"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
                     responseCode = "500", description = "서버 내부 오류",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
