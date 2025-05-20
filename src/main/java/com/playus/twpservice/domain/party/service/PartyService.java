@@ -9,6 +9,8 @@ import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.assertion.PartyAssert;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
+import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
+import com.playus.twpservice.domain.party.dto.approve.PartyApproveResponse;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
@@ -22,7 +24,10 @@ import com.playus.twpservice.domain.party.entity.PartyAge;
 import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
+import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
+import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
@@ -114,6 +119,7 @@ public class PartyService {
         return PartyDeleteResponse.of(partyId);
     }
 
+    // user 쪽 merge 되면 나이, 성별 검증 로직 추가하기!
     public void applyPartyFCFS(Long userId, Long partyId) {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
@@ -133,6 +139,7 @@ public class PartyService {
         chatPartRepository.save(ChatPart.create(userId, chatRoom.getId()));
     }
 
+    // user 쪽 merge 되면 나이, 성별 검증 로직 추가하기!
     public PartyApplyResponse applyParty(Long userId, Long partyId, String requireMessage) {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
@@ -144,18 +151,53 @@ public class PartyService {
         PartyAssert.isAppliableParty(party);
 
         partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.WAIT, requireMessage));
-        party.increaseCurrentParticipants();
-
-        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoomId())
-                .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
-
-        chatPartRepository.save(ChatPart.create(userId, chatRoom.getId()));
 
         return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
     }
 
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
         return new PresignedUrlForSaveImageResponse(s3Service.generatePresignedUrl(request.imageFileName()));
+    }
+
+    // 나이, 성별 검증은 이전 승인제 직관팟 신청에서 검증함!
+    public PartyApproveResponse approveParty(Long loginUserId, Long partyId, PartyApproveRequest request) {
+
+        // 1. 직관팟 불러오기
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        if (party.getPartyJoinMethod() == PartyJoinMethod.FIRST_COME) {
+            throw new PartyException.InvalidApproveRequestToPartyException("선착순 모집인 직관팟에는 승인 요청을 보낼 수 없습니다!");
+        }
+
+        Long writerId = party.getWriterId();
+        Long applicantUserId = request.applicantUserId();
+
+        // 2. 로그인한 유저가 직관팟 작성자가 맞는지 확인 (작성자 아니면 승인 불가!)
+        PartyAssert.isLoginUserWriter(loginUserId, writerId, "작성자가 아니면 승인할 수 없습니다!");
+
+        // 3. partyId와 applicantUserId 가진 PartyJoin 가져오기
+        PartyJoin partyJoin = partyJoinRepository.findByPartyIdAndUserId(partyId, applicantUserId)
+                .orElseThrow(() -> new NotFoundException("직관팟 지원자가 아닙니다!"));
+
+        // 4. isApproved 가 false 일 경우 PartyJoin refused 로 바꾸고 response return
+        //                  true 일 경우 PartyJoin approved 로 바꿈
+        if (request.isApproved()) {
+            partyJoin.approve();
+            partyJoinRepository.save(partyJoin);
+        } else {
+            partyJoin.refuse();
+            partyJoinRepository.save(partyJoin);
+            return PartyApproveResponse.of("직관팟 가입 신청 거절 성공했습니다!");
+        }
+
+        // 5. partyId와 user 가진 ChatRoom 저장
+        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoomId())
+                .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
+        chatPartRepository.save(ChatPart.create(applicantUserId, chatRoom.getId()));
+
+        // 6. response return
+        return PartyApproveResponse.of("직관팟 가입 신청 승인 성공했습니다!");
     }
 
 
@@ -212,4 +254,6 @@ public class PartyService {
                         PartyJoinRequestStatus.throwIfAlreadyAppliedToParty(partyJoinDocument.getPartyJoinRequestStatus())
                 );
     }
+
+
 }
