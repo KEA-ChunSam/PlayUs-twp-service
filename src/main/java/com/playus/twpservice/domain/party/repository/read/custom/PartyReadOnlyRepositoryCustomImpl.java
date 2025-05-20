@@ -24,7 +24,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
      * @return
      */
     @Override
-    public List<PartyInfo> findPartyInfoBy(Long matchId) {
+    public List<PartyInfo> findPartyInfoList(Long matchId) {
 
         MatchOperation matchOperation = match(new Criteria("match_id").is(matchId));
 
@@ -59,7 +59,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
     }
 
     @Override
-    public Optional<PartyInfo> findPartyDetailBy(Long partyId) {
+    public Optional<PartyInfo> findPartyDetail(Long partyId) {
         MatchOperation matchOperation = match(new Criteria("_id").is(partyId));
 
         LookupOperation partyAgeLookupOperation = lookup("party_age", "_id", "party_id", "partyAge");

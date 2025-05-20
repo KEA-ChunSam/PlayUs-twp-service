@@ -10,6 +10,8 @@ import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
+import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
+import com.playus.twpservice.domain.party.dto.approve.PartyApproveResponse;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
@@ -25,6 +27,7 @@ import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
@@ -536,7 +539,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId)
+                        PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId)
                 .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
@@ -599,8 +602,8 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatPartRepository.count()).isEqualTo(1);
-        assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(2);
+        assertThat(chatPartRepository.count()).isEqualTo(0);
+        assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(1);
 
         assertThat(partyJoinRepository.findAll().get(0))
                 .extracting("partyJoinRequestStatus", "requireMessage")
@@ -703,8 +706,8 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatPartRepository.count()).isEqualTo(1);
-        assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(2);
+        assertThat(chatPartRepository.count()).isEqualTo(0);
+        assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(1);
 
         assertThat(partyJoinRepository.findAll().get(0))
                 .extracting("partyJoinRequestStatus", "requireMessage")
@@ -753,24 +756,152 @@ class PartyServiceTest extends IntegrationTestSupport {
                 .hasMessage("직관팟 정원이 초과되었습니다!");
     }
 
-    @DisplayName("존재하지 않는 승인제 채팅방에는 들어갈 수 없다.")
+    @DisplayName("승인제 직관팟에 대한 참여 요청을 승인할 수 있다.")
     @Test
-    void applyParty_INVALID_CHATROOM() {
-
+    void approveParty() {
         // given
-        Long writerId = 1L;
-        Long matchId = 1L;
-        Long userId = 5L;
+        Long loginUserId = 1L;
+        Long applicantUserId = 2L;
+        PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId() + "a"));
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+        Long partyId = party.getId();
 
+        partyJoinRepository.saveAll(List.of(
+           PartyJoin.create(applicantUserId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")
+        ));
+
+        // when
+        PartyApproveResponse response = partyService.approveParty(loginUserId, partyId, request);
+
+        // then
+        assertThat(response.message()).isEqualTo("직관팟 가입 신청 승인 성공했습니다!");
+        assertThat(partyJoinRepository.findAll().get(0))
+                .extracting("partyJoinRequestStatus", "requireMessage")
+                .containsExactly(PartyJoinRequestStatus.ACCEPT, "참여 희망합니다!");
+        assertThat(chatPartRepository.findAll().get(0))
+                .extracting("userId", "chatRoomId")
+                .containsExactly(applicantUserId, chatRoom.getId());
+    }
+
+    @DisplayName("승인제 직관팟에 대한 참여 요청을 거절할 수 있다.")
+    @Test
+    void approveParty_REFUSE() {
+        // given
+        Long loginUserId = 1L;
+        Long applicantUserId = 2L;
+        PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, false);
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+        Long partyId = party.getId();
+
+        partyJoinRepository.saveAll(List.of(
+                PartyJoin.create(applicantUserId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")
+        ));
+
+        // when
+        PartyApproveResponse response = partyService.approveParty(loginUserId, partyId, request);
+
+        // then
+        assertThat(response.message()).isEqualTo("직관팟 가입 신청 거절 성공했습니다!");
+        assertThat(partyJoinRepository.findAll().get(0))
+                .extracting("partyJoinRequestStatus", "requireMessage")
+                .containsExactly(PartyJoinRequestStatus.REFUSE, "참여 희망합니다!");
+        assertThat(chatPartRepository.count()).isZero();
+    }
+
+    @DisplayName("존재하지 않는 승인제 직관팟에 대해서는 승인 요청을 날릴 수 없다..")
+    @Test
+    void approveParty_NOT_FOUND() {
+        // given
+        Long loginUserId = 1L;
+        Long applicantUserId = 2L;
+        PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+        partyJoinRepository.saveAll(List.of(
+                PartyJoin.create(applicantUserId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")
+        ));
 
         // when // then
-        assertThatThrownBy(() -> partyService.applyParty(userId, party.getId(), "참여 희망합니다!"))
-                .isInstanceOf(ChatRoomException.NotFoundException.class)
-                .hasMessage("채팅방이 존재하지 않습니다!");
+        assertThatThrownBy(() -> partyService.approveParty(loginUserId, party.getId() + 1, request))
+                .isInstanceOf(PartyException.NotFoundException.class)
+                .hasMessage("직관팟이 존재하지 않습니다!");
     }
+
+    @DisplayName("선착순 직관팟에 대해 승인 요청을 날릴 수 없다.")
+    @Test
+    void approveParty_NOT_FCFS() {
+        // given
+        Long loginUserId = 1L;
+        Long applicantUserId = 2L;
+        PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+        Long partyId = party.getId();
+
+        partyJoinRepository.saveAll(List.of(
+                PartyJoin.create(applicantUserId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")
+        ));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.approveParty(loginUserId, partyId, request))
+                .isInstanceOf(PartyException.InvalidApproveRequestToPartyException.class)
+                .hasMessage("선착순 모집인 직관팟에는 승인 요청을 보낼 수 없습니다!");
+    }
+
+    @DisplayName("오직 작성자만 직관팟에 대해 승인할 수 있습니다.")
+    @Test
+    void approveParty_ONLY_WRITER_CAN_APPROVE() {
+        // given
+        Long loginUserId = 1L;
+        Long applicantUserId = 2L;
+        PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId + 1, 1L).assignChatRoom(chatRoom.getId()));
+        Long partyId = party.getId();
+
+        partyJoinRepository.saveAll(List.of(
+                PartyJoin.create(applicantUserId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")
+        ));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.approveParty(loginUserId, partyId, request))
+                .isInstanceOf(PartyException.NotPartyWriterException.class)
+                .hasMessage("작성자가 아니면 승인할 수 없습니다!");
+    }
+
+    @DisplayName("직관팟 지원자가 아닌 경우에는 승인할 수 없다.")
+    @Test
+    void approveParty_NOT_APPLICANT() {
+        // given
+        Long loginUserId = 1L;
+        Long applicantUserId = 2L;
+        PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+        Long partyId = party.getId();
+
+        partyJoinRepository.saveAll(List.of(
+                PartyJoin.create(applicantUserId + 1, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")
+        ));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.approveParty(loginUserId, partyId, request))
+                .isInstanceOf(PartyException.NotFoundException.class)
+                .hasMessage("직관팟 지원자가 아닙니다!");
+    }
+
 }

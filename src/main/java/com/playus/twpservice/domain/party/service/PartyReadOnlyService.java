@@ -28,19 +28,19 @@ public class PartyReadOnlyService {
 
     public List<PartyInfoResponse> getPartyInfoListByMatchId(Long matchId) {
 
-        List<PartyInfo> partySummaryList = partyRepository.findPartyInfoBy(matchId);
+        List<PartyInfo> partyInfoList = partyRepository.findPartyInfoList(matchId);
 
-        updateUserThumbnailUrls(partySummaryList);
-        updateWriterInfo(partySummaryList);
-        updateMatchDate(partySummaryList, matchId);
+        updateUserThumbnailUrls(partyInfoList);
+        updateWriterInfo(partyInfoList);
+        updateMatchDate(partyInfoList, matchId);
 
-        return partySummaryList.stream()
+        return partyInfoList.stream()
                 .map(PartyInfo::toResponse)
                 .toList();
     }
 
     public PartyDetailResponse getPartyDetail(Long partyId) {
-        PartyInfo partyDetail = partyRepository.findPartyDetailBy(partyId)
+        PartyInfo partyDetail = partyRepository.findPartyDetail(partyId)
                 .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
 
         updateUserThumbnailUrls(List.of(partyDetail));
