@@ -144,8 +144,8 @@ class UserFeignClientTest extends IntegrationTestSupport {
         // given
         List<Long> userIdList = List.of(1L, 2L);
         List<PartyApplicantsInfoFeignResponse> expectedResponse = List.of(
-                PartyApplicantsInfoFeignResponse.of("kim", 14, "http://user1-thumb"),
-                PartyApplicantsInfoFeignResponse.of("jung", 27,  "http://user2-thumb")
+                PartyApplicantsInfoFeignResponse.of(1L, "kim", 14, "http://user1-thumb"),
+                PartyApplicantsInfoFeignResponse.of(2L, "jung", 27,  "http://user2-thumb")
         );
 
         stubFor(post(urlEqualTo("/user/api/info"))
@@ -161,10 +161,10 @@ class UserFeignClientTest extends IntegrationTestSupport {
 
         // then
         assertThat(result).hasSize(2)
-                .extracting("name", "age", "thumbnailUrl")
+                .extracting("userId", "name", "age", "thumbnailUrl")
                 .containsExactly(
-                        tuple("kim", 14, "http://user1-thumb"),
-                        tuple("jung", 27, "http://user2-thumb")
+                        tuple(1L, "kim", 14, "http://user1-thumb"),
+                        tuple(2L, "jung", 27, "http://user2-thumb")
                 );
     }
 
