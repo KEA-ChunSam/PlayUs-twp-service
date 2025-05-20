@@ -47,7 +47,8 @@ public class ExceptionAdvice {
 
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler({
-            PartyException.InvalidApproveRequestToPartyException.class
+            PartyException.InvalidApproveRequestToPartyException.class,
+            PartyException.NotPartyWriterException.class
     })
     public ErrorResponse handleInvalidApproveRequestException(Exception e) {
         String errorMessage = e.getMessage();
