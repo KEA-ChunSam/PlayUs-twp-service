@@ -183,6 +183,7 @@ public class PartyService {
         // 4. isApproved 가 false 일 경우 PartyJoin refused 로 바꾸고 response return
         //                  true 일 경우 PartyJoin approved 로 바꿈
         if (request.isApproved()) {
+            party.increaseCurrentParticipants();
             partyJoin.approve();
             partyJoinRepository.save(partyJoin);
         } else {
