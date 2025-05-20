@@ -1,17 +1,21 @@
 package com.playus.twpservice.domain.party.controller;
 
-import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
-import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailRequest;
-import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
-import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoListByMatchRequest;
-import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
-import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
-import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
-import com.playus.twpservice.domain.common.PartyIdRequest;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
+import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
+import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
+import com.playus.twpservice.domain.party.dto.detail.PartyDetailRequest;
+import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
+import com.playus.twpservice.domain.party.dto.info.PartyInfoRequest;
+import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
+import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
+import com.playus.twpservice.domain.common.request.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
+import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
+import com.playus.twpservice.domain.party.facade.PartyApplyFacade;
 import com.playus.twpservice.domain.party.service.PartyReadOnlyService;
 import com.playus.twpservice.domain.party.service.PartyService;
 import com.playus.twpservice.domain.party.specification.PartyControllerSpecification;
@@ -32,14 +36,15 @@ public class PartyController implements PartyControllerSpecification {
 
     private final PartyService partyService;
     private final PartyReadOnlyService partyReadOnlyService;
+    private final PartyApplyFacade partyApplyFacade;
 
     @PostMapping
-    public ResponseEntity<PartyCreateResponse> createParty(@AuthenticationPrincipal Long userId, @Valid @RequestBody PartyCreateRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(partyService.createParty(userId, request));
+    public ResponseEntity<PartyCreateResponse> createParty(@AuthenticationPrincipal CustomOAuth2User principal, @Valid @RequestBody PartyCreateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(partyService.createParty(principal.getId(), request));
     }
 
     @GetMapping
-    public List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoListByMatchRequest request) {
+    public List<PartyInfoResponse> getPartiesByMatchId(@Valid PartyInfoRequest request) {
         return partyReadOnlyService.getPartyInfoListByMatchId(request.matchId());
     }
 
@@ -49,14 +54,28 @@ public class PartyController implements PartyControllerSpecification {
     }
 
     @PutMapping("/{partyId}")
-    public PartyUpdateResponse updateParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest,
+    public PartyUpdateResponse updateParty(@AuthenticationPrincipal CustomOAuth2User principal, @Valid PartyIdRequest idRequest,
                                            @Valid @RequestBody PartyUpdateRequest request) {
-        return partyService.updateParty(userId, idRequest, request);
+        return partyService.updateParty(principal.getId(), idRequest, request);
     }
 
     @PatchMapping("/{partyId}")
-    public PartyDeleteResponse deleteParty(@AuthenticationPrincipal Long userId, @Valid PartyIdRequest idRequest) {
-        return partyService.deleteParty(userId, idRequest.partyId());
+    public PartyDeleteResponse deleteParty(@AuthenticationPrincipal CustomOAuth2User principal, @Valid PartyIdRequest idRequest) {
+        return partyService.deleteParty(principal.getId(), idRequest.partyId());
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{partyId}/apply/fcfs")
+    public PartyApplyResponse applyPartyFCFS(@AuthenticationPrincipal CustomOAuth2User principal, @Valid PartyIdRequest idRequest) {
+        partyApplyFacade.applyParty(principal.getId(), idRequest.partyId());
+        return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{partyId}/apply")
+    public PartyApplyResponse applyParty(@AuthenticationPrincipal CustomOAuth2User principal, @Valid PartyIdRequest idRequest,
+                                         @Valid @RequestBody PartyApproveApplyRequest request) {
+        return partyService.applyParty(principal.getId(), idRequest.partyId(), request.requireMessage());
     }
 
     @PostMapping("/presigned-url")

@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.common;
+package com.playus.twpservice.domain.common.data;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

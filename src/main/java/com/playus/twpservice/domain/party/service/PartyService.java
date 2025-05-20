@@ -2,23 +2,28 @@ package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.domain.chat.entity.ChatPart;
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
+import com.playus.twpservice.domain.chat.exception.ChatRoomException;
 import com.playus.twpservice.domain.chat.repository.ChatMessageRepository;
 import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
 import com.playus.twpservice.domain.party.assertion.PartyAssert;
 import com.playus.twpservice.domain.party.document.PartyDocument;
-import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
-import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
-import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
-import com.playus.twpservice.domain.common.PartyIdRequest;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
+import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
+import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
+import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
+import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
+import com.playus.twpservice.domain.common.request.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
+import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyAge;
+import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
@@ -40,17 +45,18 @@ import static com.playus.twpservice.domain.party.exception.entity.PartyException
 public class PartyService {
 
     private final PartyRepository partyRepository;
+    private final PartyJoinRepository partyJoinRepository;
     private final PartyAgeRepository partyAgeRepository;
     private final PartyThumbnailUrlRepository partyThumbnailUrlRepository;
-
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatPartRepository chatPartRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    private final S3Service s3Service;
     private final PartyReadOnlyRepository partyReadOnlyRepository;
-    private final PartyJoinRepository partyJoinRepository;
+    private final PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
+
+    private final S3Service s3Service;
 
     public PartyCreateResponse createParty(Long userId, PartyCreateRequest request) {
         ChatRoom chatRoom = initializeChatRoomAsWriter(userId, request);
@@ -69,7 +75,7 @@ public class PartyService {
         Long partyId = idRequest.partyId();
         Long writerId = updateRequest.writerId();
 
-        PartyAssert.isLoginUserWriter(userId, writerId);
+        PartyAssert.isLoginUserWriter(userId, writerId, "직관팟 작성자가 아니면 수정할 수 없습니다!");
 
         Party savedParty = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("잘못된 직관팟 번호입니다!"));
@@ -87,7 +93,7 @@ public class PartyService {
         PartyDocument partyDocument = partyReadOnlyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("잘못된 직관팟 번호입니다!"));
 
-        PartyAssert.isLoginUserWriter(userId, partyDocument.getWriterId());
+        PartyAssert.isLoginUserWriter(userId, partyDocument.getWriterId(), "직관팟 작성자가 아니면 수정할 수 없습니다!");
 
         partyThumbnailUrlRepository.deleteByPartyId(partyId);
         partyAgeRepository.deleteByPartyId(partyId);
@@ -108,10 +114,49 @@ public class PartyService {
         return PartyDeleteResponse.of(partyId);
     }
 
+    public void applyPartyFCFS(Long userId, Long partyId) {
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
+
+        throwIfAlreadyAppliedToParty(userId, partyId);
+
+        PartyAssert.isAppliableParty(party);
+
+        partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.ACCEPT, null));
+        party.increaseCurrentParticipants();
+
+        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoomId())
+                .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
+
+        chatPartRepository.save(ChatPart.create(userId, chatRoom.getId()));
+    }
+
+    public PartyApplyResponse applyParty(Long userId, Long partyId, String requireMessage) {
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
+
+        throwIfAlreadyAppliedToParty(userId, partyId);
+
+        PartyAssert.isAppliableParty(party);
+
+        partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.WAIT, requireMessage));
+        party.increaseCurrentParticipants();
+
+        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoomId())
+                .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
+
+        chatPartRepository.save(ChatPart.create(userId, chatRoom.getId()));
+
+        return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+    }
+
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {
         return new PresignedUrlForSaveImageResponse(s3Service.generatePresignedUrl(request.imageFileName()));
     }
-
 
 
     private void updatePartyAgeGroup(PartyUpdateRequest updateRequest, Long partyId, Party savedParty) {
@@ -126,7 +171,7 @@ public class PartyService {
     private void updatePartyThumbnails(PartyUpdateRequest updateRequest, Long partyId, Party savedParty) {
         partyThumbnailUrlRepository.deleteByPartyId(partyId);
         partyThumbnailUrlRepository.saveAll(
-                updateRequest.thumbnailUrl().stream()
+                updateRequest.thumbnailImageNameList().stream()
                         .map(thumbnailUrl -> PartyThumbnailUrl.create(savedParty, thumbnailUrl))
                         .toList()
         );
@@ -146,18 +191,25 @@ public class PartyService {
     }
 
     private static List<PartyThumbnailUrl> toPartyThumbnailUrlEntity(PartyCreateRequest request, Party party) {
-        return request.thumbnailUrl().stream()
+        return request.thumbnailImageNameList().stream()
                 .map(thumbnailUrl -> PartyThumbnailUrl.create(party, thumbnailUrl))
                 .toList();
     }
 
     private static boolean thumbnailUrlExistsIn(PartyCreateRequest request) {
-        return !Objects.isNull(request.thumbnailUrl()) && !request.thumbnailUrl().isEmpty();
+        return !Objects.isNull(request.thumbnailImageNameList()) && !request.thumbnailImageNameList().isEmpty();
     }
 
     private static List<PartyAge> toPartyAgeEntity(PartyCreateRequest request, Party party) {
         return request.ageGroup().stream()
                 .map(age -> PartyAge.create(party, PartyAgeGroup.getAgeByDescription(age)))
                 .toList();
+    }
+
+    private void throwIfAlreadyAppliedToParty(Long userId, Long partyId) {
+        partyJoinReadOnlyRepository.findByUserIdAndPartyId(userId, partyId)
+                .ifPresent(partyJoinDocument ->
+                        PartyJoinRequestStatus.throwIfAlreadyAppliedToParty(partyJoinDocument.getPartyJoinRequestStatus())
+                );
     }
 }

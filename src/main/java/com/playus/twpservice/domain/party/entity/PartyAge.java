@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.party.entity;
 
+import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @SQLDelete(sql = "UPDATE party_age SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 @Table(name = "party_age")
-public class PartyAge {
+public class PartyAge extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.common;
+package com.playus.twpservice.domain.common.request;
 
 import jakarta.validation.constraints.Min;
 

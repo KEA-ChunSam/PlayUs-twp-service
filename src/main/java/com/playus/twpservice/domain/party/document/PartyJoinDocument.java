@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
@@ -29,9 +28,8 @@ public class PartyJoinDocument {
 
     @NotNull
     @Indexed
-    @DocumentReference(lazy = true)
     @Field(name = "party_id")
-    private PartyDocument party;
+    private Long partyId;
 
     @NotNull
     private PartyJoinRequestStatus partyJoinRequestStatus;
@@ -40,23 +38,27 @@ public class PartyJoinDocument {
     @Size(max = 100)
     private String requireMessage;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
     private LocalDateTime deletedAt;
 
     @Builder
-    private PartyJoinDocument(Long id, Long userId, PartyDocument party, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
+    private PartyJoinDocument(Long id, Long userId, Long partyId, PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
         this.id = id;
         this.userId = userId;
-        this.party = party;
+        this.partyId = partyId;
         this.partyJoinRequestStatus = partyJoinRequestStatus;
         this.requireMessage = requireMessage;
     }
 
-    public static PartyJoinDocument createForOnlyTest(Long id, Long userId, PartyDocument party,
+    public static PartyJoinDocument createForOnlyTest(Long id, Long userId, Long partyId,
                                                       PartyJoinRequestStatus partyJoinRequestStatus, String requireMessage) {
         return PartyJoinDocument.builder()
                 .id(id)
                 .userId(userId)
-                .party(party)
+                .partyId(partyId)
                 .partyJoinRequestStatus(partyJoinRequestStatus)
                 .requireMessage(requireMessage)
                 .build();

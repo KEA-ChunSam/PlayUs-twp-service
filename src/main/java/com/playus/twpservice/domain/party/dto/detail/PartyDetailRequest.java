@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.dto.partydescription;
+package com.playus.twpservice.domain.party.dto.detail;
 
 import jakarta.validation.constraints.Min;
 

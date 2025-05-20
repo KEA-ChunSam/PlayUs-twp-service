@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.validation;
 
-import com.playus.twpservice.domain.common.MinimumMaximumValidatable;
+import com.playus.twpservice.domain.common.validation.MinimumMaximumValidatable;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

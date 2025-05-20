@@ -49,25 +49,25 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         // given
         Long matchId = 1L;
 
-        PartyDocument p1 = PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L,
-                 PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId");
-        PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L,
-                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id");
-        PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L,
+        PartyDocument p1 = PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 2L,
+                 PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId"); // 대상
+        PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L,0L,
+                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id"); // 대상
+        PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L, 0L,
                  PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
 
         List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(p1, p2, p3));
 
-        PartyAgeDocument pa1 = PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0), 10);
-        PartyAgeDocument pa2 = PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(1), 20);
+        PartyAgeDocument pa1 = PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), 10);
+        PartyAgeDocument pa2 = PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(1).getId(), 20);
         partyAgeReadOnlyRepository.saveAll(List.of(pa1, pa2));
 
-        PartyThumbnailUrlDocument ptu1 = PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0), "thumbnailUrl1");
-        PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0), "thumbnailUrl2");
+        PartyThumbnailUrlDocument ptu1 = PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), "thumbnailUrl1");
+        PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), "thumbnailUrl2");
         partyThumbnailUrlReadOnlyRepository.saveAll(List.of(ptu1, ptu2));
 
-        PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0), PartyJoinRequestStatus.ACCEPT, null);
-        PartyJoinDocument pj2 = PartyJoinDocument.createForOnlyTest(2L, 5L, partyDocuments.get(0), PartyJoinRequestStatus.WAIT, "가입 원합니다!");
+        PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null); // p1
+        PartyJoinDocument pj2 = PartyJoinDocument.createForOnlyTest(2L, 5L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!"); // p1
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when
@@ -102,25 +102,25 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
         Long partyId = 1L;
         Long matchId = 1L;
 
-        PartyDocument p1 = PartyDocument.createForOnlyTest(partyId, "title1", "text1", 1L, 10L,
+        PartyDocument p1 = PartyDocument.createForOnlyTest(partyId, "title1", "text1", 1L, 10L, 2L,
                  PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId");
-        PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L,
+        PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 0L,
                  PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id");
-        PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L,
+        PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L,0L,
                  PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
 
         List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(p1, p2, p3));
 
-        PartyAgeDocument pa1 = PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0), 10);
-        PartyAgeDocument pa2 = PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(1), 20);
+        PartyAgeDocument pa1 = PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), 10);
+        PartyAgeDocument pa2 = PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(1).getId(), 20);
         partyAgeReadOnlyRepository.saveAll(List.of(pa1, pa2));
 
-        PartyThumbnailUrlDocument ptu1 = PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0), "thumbnailUrl1");
-        PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0), "thumbnailUrl2");
+        PartyThumbnailUrlDocument ptu1 = PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), "thumbnailUrl1");
+        PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), "thumbnailUrl2");
         partyThumbnailUrlReadOnlyRepository.saveAll(List.of(ptu1, ptu2));
 
-        PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0), PartyJoinRequestStatus.ACCEPT, null);
-        PartyJoinDocument pj2 = PartyJoinDocument.createForOnlyTest(2L, 5L, partyDocuments.get(0), PartyJoinRequestStatus.WAIT, "가입 원합니다!");
+        PartyJoinDocument pj1 = PartyJoinDocument.createForOnlyTest(1L, 4L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null);
+        PartyJoinDocument pj2 = PartyJoinDocument.createForOnlyTest(2L, 5L, partyDocuments.get(0).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!");
         partyJoinReadOnlyRepository.saveAll(List.of(pj1, pj2));
 
         // when

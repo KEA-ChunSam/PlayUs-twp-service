@@ -1,23 +1,29 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.ControllerTestSupport;
-import com.playus.twpservice.domain.party.dto.partydelete.PartyDeleteResponse;
-import com.playus.twpservice.domain.party.dto.partydescription.PartyDetailResponse;
-import com.playus.twpservice.domain.party.dto.partyinfobymatch.PartyInfoResponse;
-import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateRequest;
-import com.playus.twpservice.domain.party.dto.partycreate.PartyCreateResponse;
-import com.playus.twpservice.domain.common.PartyIdRequest;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateResponse;
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.common.security.Role;
+import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
+import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
+import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
+import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
+import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
+import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
+import com.playus.twpservice.domain.common.request.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
+import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
+import org.mockito.Mockito;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -38,7 +44,26 @@ class PartyControllerTest extends ControllerTestSupport {
 
     Long userId = 1L;
     List<String> thumbnailUrl = List.of("http://image.com");
-    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")));
+//    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER")));
+
+    private UsernamePasswordAuthenticationToken token;
+
+    @BeforeEach
+    void setUp() {
+        Long userId = 1L;
+
+        // 더미 OAuth2 사용자
+        CustomOAuth2User principal = Mockito.mock(CustomOAuth2User.class);
+        when(principal.getName()).thenReturn(userId.toString());
+
+        List<SimpleGrantedAuthority> authorities =
+                List.of(new SimpleGrantedAuthority(Role.USER.name()));
+        doReturn(authorities).when(principal).getAuthorities();
+
+        token = new UsernamePasswordAuthenticationToken(
+                principal, null, authorities
+        );
+    }
 
     //  직관팟 생성 happy case
     @DisplayName("직관팟을 생성할 수 있다.")
@@ -260,8 +285,8 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyCreateRequest(request, "/party", "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!");
     }
 
-    //  직관팟 생성 thumbnailUrl 이슈
-    @DisplayName("직관팟 생성 중 사진 url은 비어 있거나, http/https/ftp로 시작해야 한다.")
+    //  직관팟 생성 thumbnailImageNameList 이슈
+    @DisplayName("직관팟 생성 중 사진 파일명은 비어 있어도 된다..")
     @MethodSource("validUrlGroupProvider")
     @ParameterizedTest(name = "url = {0}")
     void createParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
@@ -284,14 +309,14 @@ class PartyControllerTest extends ControllerTestSupport {
     static Stream<Arguments> validUrlGroupProvider() {
         return Stream.of(
                 Arguments.of(List.of()),
-                Arguments.of(List.of("http://image.com")),
-                Arguments.of(List.of("https://image.com")),
-                Arguments.of(Arrays.asList("http://image.com", "https://image.com")),
-                Arguments.of(Arrays.asList("http://image.co.kr", "https://image.com", "ftp://image.com"))
+                Arguments.of(List.of("image.jpg")),
+                Arguments.of(List.of("image.png")),
+                Arguments.of(Arrays.asList("image.jpg", "image.png")),
+                Arguments.of(Arrays.asList("image.jpg", "image.png", "image.webp"))
         );
     }
 
-    @DisplayName("직관팟 생성 중 사진 url은 최대 10개까지만 담을 수 있다.")
+    @DisplayName("직관팟 생성 중 사진 파일명은 최대 10개까지만 담을 수 있다.")
     @Test
     void createParty_NULL_IMAGE_URL() throws Exception {
         // given
@@ -305,28 +330,6 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         assertBadRequestOfPartyCreateRequest(request, "/party", "썸네일은 최대 10개까지만 가능합니다!");
-    }
-
-    @DisplayName("직관팟 생성 중 사진 url은 올바른 format이여야 한다.")
-    @MethodSource("invalidUrlGroupProvider")
-    @ParameterizedTest(name = "url = {0}")
-    void createParty_INVALID_IMAGE_URL(List<String> invalidUrl) throws Exception {
-        // given
-        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, 1L, "message");
-        PartyCreateResponse response = PartyCreateResponse.of(1L, "id");
-        given(partyService.createParty(any(Long.class), any(PartyCreateRequest.class))).willReturn(response);
-
-        // when // then
-        assertBadRequestOfPartyCreateRequest(request, "/party", "올바른 URL 형식이 아닙니다!");
-    }
-
-    static Stream<Arguments> invalidUrlGroupProvider() {
-        return Stream.of(
-                Arguments.of(List.of("abc://123.com", "123456")),
-                Arguments.of(List.of("!@#$%%", "#$%^&%$#", "#(*##$#$")),
-                Arguments.of(Arrays.asList("사진 URL", "IMAGE URL")),
-                Arguments.of(Arrays.asList("abc@123.com", "www.abc.com"))
-        );
     }
 
     //  직관팟 생성 matchId 이슈
@@ -919,8 +922,8 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "최소 참여 인원은 최대 참여 인원보다 클 수 없습니다!");
     }
 
-    //  직관팟 수정 thumbnailUrl 이슈
-    @DisplayName("직관팟 수정 중 사진 url은 비어 있거나, http/https/ftp로 시작해야 한다.")
+    //  직관팟 수정 thumbnailImageNameList 이슈
+    @DisplayName("직관팟 수정 중 사진 파일명은 비어 있어도 된다. ")
     @MethodSource("validUrlGroupProvider")
     @ParameterizedTest(name = "url = {0}")
     void updateParty_VALID_IMAGE_URL(List<String> validUrl) throws Exception {
@@ -959,20 +962,6 @@ class PartyControllerTest extends ControllerTestSupport {
         assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "썸네일은 최대 10개까지만 가능합니다!");
     }
 
-    @DisplayName("직관팟 수정 중 사진 url은 올바른 format이여야 한다.")
-    @MethodSource("invalidUrlGroupProvider")
-    @ParameterizedTest(name = "url = {0}")
-    void updateParty_INVALID_IMAGE_URL(List<String> invalidUrl) throws Exception {
-        // given
-        Long partyId = 1L;
-        Long writerId = 1L;
-        PartyUpdateRequest request = PartyUpdateRequest.of("title", writerId, "선착순", "남자만", List.of("10대", "20대"), 1L, 10L, invalidUrl, "message");
-        PartyUpdateResponse response = PartyUpdateResponse.of(1L);
-        given(partyService.updateParty(any(Long.class), any(PartyIdRequest.class), any(PartyUpdateRequest.class))).willReturn(response);
-
-        // when // then
-        assertBadRequestOfPartyUpdateRequest(request, "/party/" + partyId, "올바른 URL 형식이 아닙니다!");
-    }
 
     //  직관팟 수정 message 이슈
     @DisplayName("직관팟 수정 중 소개 문구는 필수이다.")
@@ -1033,6 +1022,101 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         mockMvc.perform(patch("/party/" + invalidPartyIdStr)
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
+    @DisplayName("선착순 직관팟에 지원할 수 있다.")
+    @Test
+    void applyPartyFCFS() throws Exception {
+        // given
+        Long partyId = 1L;
+        willDoNothing().given(partyApplyFacade).applyParty(any(Long.class), any(Long.class));
+
+        // when // then
+        mockMvc.perform(post("/party/" + partyId + "/apply/fcfs")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("직관팟 가입에 성공했습니다!"));
+    }
+
+    @DisplayName("직관팟을 삭제할 때, 직관팟의 ID는 1 이상이여야 한다..")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void applyPartyFCFS_INVALID_PARTYID(String invalidPartyIdStr) throws Exception {
+        // given
+
+        // when // then
+        mockMvc.perform(post("/party/" + invalidPartyIdStr + "/apply/fcfs")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
+    @DisplayName("승인제 직관팟에 지원할 수 있다.")
+    @Test
+    void applyParty() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyApproveApplyRequest request = PartyApproveApplyRequest.of("message");
+        PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+        given(partyService.applyParty(any(Long.class), any(Long.class), anyString()))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(post("/party/" + partyId + "/apply")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("직관팟 가입에 성공했습니다!"));
+    }
+
+    @DisplayName("메시지가 없어도 승인제 직관팟에 지원할 수 있다.")
+    @Test
+    void applyParty_EMPTY_MESSAGE() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyApproveApplyRequest request = PartyApproveApplyRequest.of(null);
+        PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+        given(partyService.applyParty(any(Long.class), any(Long.class), any()))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(post("/party/" + partyId + "/apply")
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("직관팟 가입에 성공했습니다!"));
+    }
+
+    @DisplayName("승인제 직관팟을 지원할 때, 직관팟의 ID는 1 이상이여야 한다..")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void applyParty_INVALID_PARTYID(String invalidPartyIdStr) throws Exception {
+        // given
+        PartyApproveApplyRequest request = PartyApproveApplyRequest.of(null);
+        PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+        given(partyService.applyParty(any(Long.class), any(Long.class), any()))
+                .willReturn(response);
+
+        // when // then
+        mockMvc.perform(post("/party/" + invalidPartyIdStr + "/apply")
+                        .content(objectMapper.writeValueAsString(request))
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())

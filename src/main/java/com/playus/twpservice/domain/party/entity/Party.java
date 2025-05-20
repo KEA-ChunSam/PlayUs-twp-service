@@ -1,7 +1,7 @@
 package com.playus.twpservice.domain.party.entity;
 
-import com.playus.twpservice.domain.common.BaseTimeEntity;
-import com.playus.twpservice.domain.party.dto.partyupdate.PartyUpdateRequest;
+import com.playus.twpservice.domain.common.data.BaseTimeEntity;
+import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import jakarta.persistence.*;
@@ -11,16 +11,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
+import static com.playus.twpservice.domain.party.exception.entity.PartyException.*;
+
+
+/**
+ * 25/5/19 작성
+ *    직관팟 생성 시 작성자 관련해서는 PartyJoin에 저장되지 않음 (joinStatus, requireMessage 사실상 고정이여서)
+ *
+ */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE party SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
-@Table(name = "party")
+@Table(name = "party", indexes = @Index(name = "idx_party_match_id", columnList = "match_id"))
 public class Party extends BaseTimeEntity {
 
     @Id
@@ -43,6 +50,9 @@ public class Party extends BaseTimeEntity {
 
     @Column(nullable = false, name = "maximum_participants")
     private Long maximumParticipants;
+
+    @Column(nullable = false, name = "current_participants")
+    private Long currentParticipants = 1L;
 
     @Column(nullable = false, name = "writer_id")
     private Long writerId;
@@ -81,6 +91,13 @@ public class Party extends BaseTimeEntity {
         this.partyJoinMethod = PartyJoinMethod.toEnumValue(updateRequest.partyJoinMethod());
     }
 
+    public void increaseCurrentParticipants() {
+        if (this.currentParticipants >= this.maximumParticipants) {
+            throw new ExceedPartyParticipantsException("직관팟 정원이 초과되었습니다!");
+        }
+        this.currentParticipants++;
+    }
+
     public Party assignChatRoom(String chatRoomId) {
         this.chatRoomId = chatRoomId;
         return this;
@@ -98,5 +115,10 @@ public class Party extends BaseTimeEntity {
                 .writerId(writerId)
                 .matchId(matchId)
                 .build();
+    }
+
+    public Party setCurrentParticipantsForOnlyTest(Long currentParticipants) {
+        this.currentParticipants = currentParticipants;
+        return this;
     }
 }

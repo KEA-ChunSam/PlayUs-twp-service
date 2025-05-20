@@ -37,12 +37,12 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("title").as("title")
                 .and("writer_id").as("writerId")
                 .and("match_id").as("matchId")
+                .and("current_participants").as("currentParticipantsCount")
                 .and("partyJoin.user_id").as("userIdList")
                 .and("partyJoinMethod").as("partyJoinMethod")
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")
-                .and("partyJoin").size().as("currentParticipantsCount")
                 .and("partyThumbnailUrl.thumbnailUrl").as("thumbnailUrls");
 
         Aggregation aggregation = Aggregation.newAggregation(
@@ -55,7 +55,6 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
 
         AggregationResults<PartyInfo> results = readMongoTemplate.aggregate(aggregation, "party", PartyInfo.class);
 
-        // currentParticipantsCount에 1 추가해줘야! (response 생성 시 처리해줫음)
         return results.getMappedResults();
     }
 
@@ -73,12 +72,12 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("text").as("text")
                 .and("writer_id").as("writerId")
                 .and("match_id").as("matchId")
+                .and("current_participants").as("currentParticipantsCount")
                 .and("partyJoin.user_id").as("userIdList")
                 .and("partyJoinMethod").as("partyJoinMethod")
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")
-                .and("partyJoin").size().as("currentParticipantsCount")
                 .and("partyThumbnailUrl.thumbnailUrl").as("thumbnailUrls");
 
         Aggregation aggregation = Aggregation.newAggregation(
@@ -92,7 +91,6 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
         AggregationResults<PartyInfo> results = readMongoTemplate.aggregate(aggregation, "party", PartyInfo.class);
         List<PartyInfo> resultList = results.getMappedResults();
 
-        // currentParticipantsCount에 1 추가해줘야! (response 생성 시 처리해줫음)
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
 }

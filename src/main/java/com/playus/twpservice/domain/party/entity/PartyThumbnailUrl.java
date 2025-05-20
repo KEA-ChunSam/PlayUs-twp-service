@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.party.entity;
 
+import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,7 +16,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE party_thumbnail_url SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
-public class PartyThumbnailUrl {
+@Table(name = "party_thumbnail_url")
+public class PartyThumbnailUrl extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

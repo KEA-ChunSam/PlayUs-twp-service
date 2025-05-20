@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.party.document;
 
-import com.playus.twpservice.domain.common.BaseTimeEntity;
+import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import org.springframework.data.annotation.Id;
@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -19,7 +20,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Document(value = "party")
-public class PartyDocument extends BaseTimeEntity {
+public class PartyDocument {
 
     @Id
     private Long id;
@@ -44,6 +45,10 @@ public class PartyDocument extends BaseTimeEntity {
     private Long maximumParticipants;
 
     @NotNull
+    @Field(name = "current_participants")
+    private Long currentParticipants;
+
+    @NotNull
     @Field(name = "writer_id")
     private Long writerId;
 
@@ -59,16 +64,21 @@ public class PartyDocument extends BaseTimeEntity {
     @NotNull
     private String text;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
     private LocalDateTime deletedAt;
 
     @Builder
-    private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants,
+    private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, Long currentParticipants,
                           PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, String chatRoomId) {
         this.id = id;
         this.title = title;
         this.text = text;
         this.minimumParticipants = minimumParticipants;
         this.maximumParticipants = maximumParticipants;
+        this.currentParticipants = currentParticipants;
         this.partyGender = partyGender;
         this.partyJoinMethod = partyJoinMethod;
         this.matchId = matchId;
@@ -77,7 +87,7 @@ public class PartyDocument extends BaseTimeEntity {
     }
 
     public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants,
-                                                  Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod,
+                                                  Long maximumParticipants, Long currentParticipantsCount, PartyGender partyGender, PartyJoinMethod partyJoinMethod,
                                                   Long writerId, Long matchId, String chatRoomId) {
         return PartyDocument.builder()
                 .id(id)
@@ -85,6 +95,7 @@ public class PartyDocument extends BaseTimeEntity {
                 .text(text)
                 .minimumParticipants(minimumParticipants)
                 .maximumParticipants(maximumParticipants)
+                .currentParticipants(currentParticipantsCount)
                 .partyGender(partyGender)
                 .partyJoinMethod(partyJoinMethod)
                 .writerId(writerId)

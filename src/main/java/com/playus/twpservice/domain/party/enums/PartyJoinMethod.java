@@ -1,7 +1,7 @@
 package com.playus.twpservice.domain.party.enums;
 
 import com.playus.twpservice.domain.party.exception.enums.PartyJoinMethodException;
-import com.playus.twpservice.domain.common.Describable;
+import com.playus.twpservice.domain.common.validation.Describable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

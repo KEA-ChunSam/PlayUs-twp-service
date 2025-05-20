@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.party.entity;
 
+import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -16,8 +17,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE party_join SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
-@Table(name = "party_join")
-public class PartyJoin {
+@Table(name = "party_join", indexes = {
+        @Index(name = "idx_party_join_user_id", columnList = "user_id")
+})
+public class PartyJoin extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
