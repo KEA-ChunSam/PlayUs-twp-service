@@ -1877,7 +1877,7 @@ public interface PartyControllerSpecification {
                     )
             ),
             @ApiResponse(
-                    responseCode = "403", description = "거절된 사용자가 다시 지원하려는 경우 발생",
+                    responseCode = "401", description = "거절된 사용자가 다시 지원하려는 경우 발생",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
