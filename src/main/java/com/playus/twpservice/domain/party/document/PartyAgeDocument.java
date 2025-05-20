@@ -28,6 +28,10 @@ public class PartyAgeDocument {
     @NotNull
     private Integer age;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
     private LocalDateTime deletedAt;
 
     @Builder

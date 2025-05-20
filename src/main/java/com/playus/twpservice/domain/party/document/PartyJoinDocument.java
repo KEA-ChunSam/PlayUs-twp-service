@@ -38,6 +38,10 @@ public class PartyJoinDocument {
     @Size(max = 100)
     private String requireMessage;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
     private LocalDateTime deletedAt;
 
     @Builder

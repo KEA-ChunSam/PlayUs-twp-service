@@ -29,6 +29,10 @@ public class PartyThumbnailUrlDocument {
     @NotNull
     private String thumbnailUrl;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
     private LocalDateTime deletedAt;
 
     @Builder

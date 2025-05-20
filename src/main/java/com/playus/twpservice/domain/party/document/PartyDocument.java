@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -62,6 +63,10 @@ public class PartyDocument extends BaseTimeEntity {
 
     @NotNull
     private String text;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     private LocalDateTime deletedAt;
 
