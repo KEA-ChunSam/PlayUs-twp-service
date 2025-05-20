@@ -58,4 +58,12 @@ public class PartyJoin extends BaseTimeEntity {
                 .requireMessage(requireMessage)
                 .build();
     }
+
+    public void approve() {
+        this.partyJoinRequestStatus = PartyJoinRequestStatus.ACCEPT;
+    }
+
+    public void refuse() {
+        this.partyJoinRequestStatus = PartyJoinRequestStatus.REFUSE;
+    }
 }
