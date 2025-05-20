@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.ControllerTestSupport;
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
 import com.playus.twpservice.domain.common.security.Role;
+import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
@@ -1232,6 +1233,44 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("승인 여부는 필수입니다!"));
+    }
+
+    @DisplayName("직관팟 신청 인원 목록을 불러올 수 있다.")
+    @Test
+    void getAppliedUser() throws Exception {
+        // given
+        Long partyId = 1L;
+        given(partyService.getAppliedUsers(any(Long.class), any(Long.class)))
+                .willReturn(List.of(PartyAppliedUserResponse.of(1L, "name", 10, "http://image.jpg", "참여 희망합니다!")));
+
+        // when // then
+        mockMvc.perform(get("/party/" + partyId + "/applied")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].userId").value(1L))
+                .andExpect(jsonPath("$[0].name").value("name"))
+                .andExpect(jsonPath("$[0].age").value(10))
+                .andExpect(jsonPath("$[0].thumbnailImageUrl").value("http://image.jpg"))
+                .andExpect(jsonPath("$[0].requireMessage").value("참여 희망합니다!"));
+    }
+
+    @DisplayName("직관팟을 승인할 때 직관팟의 ID는 1 이상이여야 한다.")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void getAppliedUser_INVALID_PARTYID(String invalidPartyStr) throws Exception {
+        // given
+
+        // when // then
+        mockMvc.perform(get("/party/" + invalidPartyStr + "/applied")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
     }
 
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {

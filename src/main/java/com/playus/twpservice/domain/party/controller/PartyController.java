@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
@@ -85,6 +86,12 @@ public class PartyController implements PartyControllerSpecification {
                                              @Valid PartyIdRequest idRequest,
                                              @Valid @RequestBody PartyApproveRequest request) {
         return partyService.approveParty(principal.getId(), idRequest.partyId(), request);
+    }
+
+    @GetMapping("/{partyId}/applied")
+    public List<PartyAppliedUserResponse> getAppliedUsers(@AuthenticationPrincipal CustomOAuth2User principal,
+                                                          @Valid PartyIdRequest idRequest) {
+        return partyService.getAppliedUsers(principal.getId(), idRequest.partyId());
     }
 
     @PostMapping("/presigned-url")
