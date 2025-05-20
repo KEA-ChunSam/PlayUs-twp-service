@@ -17,15 +17,14 @@ import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignRes
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.vo.PartyInfo;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
+
 
 @Service
 @RequiredArgsConstructor
@@ -81,27 +80,27 @@ public class PartyReadOnlyService {
                 .map(PartyJoinDocument::getRequireMessage)
                 .toList();
 
-        List<PartyAppliedUserResponse> responseList = new ArrayList<>();
+        return returnPartyApplicantInfoList(applicantsIdList, partyApplicantsInfo, requireMessageList);
+    }
 
-        for (int i = 0; i < applicantsIdList.size(); i++) {
-            Long applicantId = applicantsIdList.get(i);
-            PartyApplicantsInfoFeignResponse info = partyApplicantsInfo.get(i);
-            String requireMessage = requireMessageList.get(i);
+    private static List<PartyAppliedUserResponse> returnPartyApplicantInfoList(List<Long> applicantsIdList, List<PartyApplicantsInfoFeignResponse> partyApplicantsInfo, List<String> requireMessageList) {
+        return IntStream.range(0, applicantsIdList.size())
+                .mapToObj(i -> {
+                    Long applicantId = applicantsIdList.get(i);
+                    PartyApplicantsInfoFeignResponse info = partyApplicantsInfo.get(i);
+                    String requireMessage = requireMessageList.get(i);
 
-            String ageGroupDescription = PartyAgeGroup.getAgeDescriptionByAge((info.age()/10) * 10);
+                    String ageGroupDescription = PartyAgeGroup.getAgeDescriptionByAge((info.age() / 10) * 10);
 
-            PartyAppliedUserResponse response = PartyAppliedUserResponse.of(
-                    applicantId,
-                    info.name(),
-                    ageGroupDescription,
-                    info.thumbnailUrl(),
-                    requireMessage
-            );
-
-            responseList.add(response);
-        }
-
-        return responseList;
+                    return PartyAppliedUserResponse.of(
+                            applicantId,
+                            info.name(),
+                            ageGroupDescription,
+                            info.thumbnailUrl(),
+                            requireMessage
+                    );
+                })
+                .toList();
     }
 
     private void updateUserThumbnailUrls(List<PartyInfo> summaries) {
