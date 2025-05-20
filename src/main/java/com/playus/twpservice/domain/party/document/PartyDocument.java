@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Document(value = "party")
-public class PartyDocument extends BaseTimeEntity {
+public class PartyDocument {
 
     @Id
     private Long id;
