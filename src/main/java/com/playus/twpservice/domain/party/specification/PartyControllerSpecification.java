@@ -1705,7 +1705,7 @@ public interface PartyControllerSpecification {
 
     @Tag(name = "Patch", description = "방장으로서 승인제 직관팟 신청 유저 승인 API")
     @Operation(
-            summary = "",
+            summary = "승인제 직관팟 신청 승인/거절",
             description = "직관팟 신청자에 대해 승인 여부를 결정합니다.",
             security = @SecurityRequirement(name = "Access"),
             parameters = {
@@ -1714,7 +1714,7 @@ public interface PartyControllerSpecification {
                             description = "JWT Access Token (쿠키)",
                             in = ParameterIn.COOKIE,
                             required = true,
-                            example = ""
+                            example = "abcd"
                     ),
                     @Parameter(
                             name = "partyId",
