@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
@@ -68,35 +70,56 @@ public class PartyReadOnlyService {
 
         List<PartyJoinDocument> waitingApplicants = partyJoinReadOnlyRepository.findByPartyIdAndStatus(partyDocument.getId(), PartyJoinRequestStatus.WAIT);
 
-        List<Long> applicantsIdList = waitingApplicants
-                .stream()
+        if (waitingApplicants.isEmpty()) {
+            return List.of();
+        }
+
+        // 지원자 ID 목록 추출
+        List<Long> orderedUserIds = waitingApplicants.stream()
                 .map(PartyJoinDocument::getUserId)
                 .toList();
 
-        List<PartyApplicantsInfoFeignResponse> partyApplicantsInfo = userFeignClient.getPartyApplicantsInfo(applicantsIdList);
+        // 사용자 ID를 키로 하는 요구 메시지 맵 생성
+        Map<Long, String> userRequireMessageMap = waitingApplicants.stream()
+                .collect(Collectors.toMap(
+                        PartyJoinDocument::getUserId,
+                        PartyJoinDocument::getRequireMessage
+                ));
 
-        List<String> requireMessageList = waitingApplicants
-                .stream()
-                .map(PartyJoinDocument::getRequireMessage)
-                .toList();
+        // 지원자 정보 조회
+        List<PartyApplicantsInfoFeignResponse> orderedUserInfos = userFeignClient.getPartyApplicantsInfo(orderedUserIds);
 
-        return returnPartyApplicantInfoList(applicantsIdList, partyApplicantsInfo, requireMessageList);
+        // 주의: Feign 클라이언트가 요청 순서를 보존한다고 가정합니다
+        return returnPartyApplicantInfoList(orderedUserIds, orderedUserInfos, userRequireMessageMap);
     }
 
-    private static List<PartyAppliedUserResponse> returnPartyApplicantInfoList(List<Long> applicantsIdList, List<PartyApplicantsInfoFeignResponse> partyApplicantsInfo, List<String> requireMessageList) {
-        return IntStream.range(0, applicantsIdList.size())
-                .mapToObj(i -> {
-                    Long applicantId = applicantsIdList.get(i);
-                    PartyApplicantsInfoFeignResponse info = partyApplicantsInfo.get(i);
-                    String requireMessage = requireMessageList.get(i);
+    private static List<PartyAppliedUserResponse> returnPartyApplicantInfoList(
+            List<Long> orderedUserIds,
+            List<PartyApplicantsInfoFeignResponse> orderedUserInfos,
+            Map<Long, String> userRequireMessageMap) {
 
-                    String ageGroupDescription = PartyAgeGroup.getAgeDescriptionByAge((info.age() / 10) * 10);
+        if (orderedUserIds.isEmpty()) {
+            return List.of();
+        }
+
+        if (orderedUserIds.size() != orderedUserInfos.size()) {
+            throw new IllegalStateException("지원자 정보 개수가 일치하지 않습니다.");
+        }
+
+        // orderedUserInfos[i]가 orderedUserIds[i]에 해당한다고 가정합니다
+        return IntStream.range(0, orderedUserIds.size())
+                .mapToObj(i -> {
+                    Long userId = orderedUserIds.get(i);
+                    PartyApplicantsInfoFeignResponse userInfo = orderedUserInfos.get(i);
+                    String requireMessage = userRequireMessageMap.get(userId);
+
+                    String ageGroupDescription = PartyAgeGroup.getAgeDescriptionByAge((userInfo.age() / 10) * 10);
 
                     return PartyAppliedUserResponse.of(
-                            applicantId,
-                            info.name(),
+                            userId,
+                            userInfo.name(),
                             ageGroupDescription,
-                            info.thumbnailUrl(),
+                            userInfo.thumbnailUrl(),
                             requireMessage
                     );
                 })

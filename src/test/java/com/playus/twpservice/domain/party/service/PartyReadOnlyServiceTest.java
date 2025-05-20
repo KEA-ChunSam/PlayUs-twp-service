@@ -215,8 +215,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         Long userId = 1L;
         Long matchId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
-                List.of(PartyApplicantsInfoFeignResponse.of("kim", 14, "http://user1.jpg"),
-                        PartyApplicantsInfoFeignResponse.of("jung", 27, "http://user2.jpg")
+                List.of(PartyApplicantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
+                        PartyApplicantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
         ));
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
@@ -249,8 +249,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         Long userId = 1L;
         Long matchId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
-                List.of(PartyApplicantsInfoFeignResponse.of("kim", 14, "http://user1.jpg"),
-                        PartyApplicantsInfoFeignResponse.of("jung", 27, "http://user2.jpg")
+                List.of(PartyApplicantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
+                        PartyApplicantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
                 ));
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
@@ -276,8 +276,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         Long userId = 1L;
         Long matchId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
-                List.of(PartyApplicantsInfoFeignResponse.of("kim", 14, "http://user1.jpg"),
-                        PartyApplicantsInfoFeignResponse.of("jung", 27, "http://user2.jpg")
+                List.of(PartyApplicantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
+                        PartyApplicantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
                 ));
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
