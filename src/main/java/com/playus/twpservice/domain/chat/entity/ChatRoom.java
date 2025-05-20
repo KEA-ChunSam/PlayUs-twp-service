@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.chat.entity;
 
+import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Document(collection = "chat_room")
-public class ChatRoom {
+public class ChatRoom extends BaseTimeEntity {
 
     @Id
     private String id;
