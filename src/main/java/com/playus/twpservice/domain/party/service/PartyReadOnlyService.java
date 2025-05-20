@@ -28,13 +28,13 @@ public class PartyReadOnlyService {
 
     public List<PartyInfoResponse> getPartyInfoListByMatchId(Long matchId) {
 
-        List<PartyInfo> partySummaryList = partyRepository.findPartyInfoBy(matchId);
+        List<PartyInfo> partyInfoList = partyRepository.findPartyInfo(matchId);
 
-        updateUserThumbnailUrls(partySummaryList);
-        updateWriterInfo(partySummaryList);
-        updateMatchDate(partySummaryList, matchId);
+        updateUserThumbnailUrls(partyInfoList);
+        updateWriterInfo(partyInfoList);
+        updateMatchDate(partyInfoList, matchId);
 
-        return partySummaryList.stream()
+        return partyInfoList.stream()
                 .map(PartyInfo::toResponse)
                 .toList();
     }
