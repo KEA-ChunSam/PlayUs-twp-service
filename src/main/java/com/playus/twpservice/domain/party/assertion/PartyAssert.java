@@ -9,18 +9,21 @@ import static com.playus.twpservice.domain.party.exception.entity.PartyException
 
 public class PartyAssert extends Assert {
 
+    // 400
     public static void isLoginUserWriter(Long userId, Long writerId, String message) {
         if (!Objects.equals(userId, writerId)) {
             throw new NotPartyWriterException(message);
         }
     }
 
+    // 400
     public static void isParticipatedPartyAsWriter(Long userId, Long writerId, String message) {
         if (Objects.equals(userId, writerId)) {
             throw new NotPartyWriterException(message);
         }
     }
 
+    // 409
     public static void isAppliableParty(Party party) {
         if (party.getCurrentParticipants() >= party.getMaximumParticipants()) {
             throw new ExceedPartyParticipantsException("직관팟 정원이 초과되었습니다!");
