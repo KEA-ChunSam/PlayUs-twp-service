@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.chat.entity;
 
+import com.playus.twpservice.domain.common.data.BaseMongoTimeEntity;
 import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.NotBlank;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Document(collection = "chat_message")
-public class ChatMessage extends BaseTimeEntity {
+public class ChatMessage extends BaseMongoTimeEntity {
 
     @Id
     private String id;
