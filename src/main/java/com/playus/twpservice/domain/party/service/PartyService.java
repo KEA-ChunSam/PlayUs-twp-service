@@ -13,6 +13,7 @@ import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveResponse;
+import com.playus.twpservice.domain.party.dto.cancel.PartyCancelResponse;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
@@ -38,6 +39,7 @@ import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
 import com.playus.twpservice.global.s3.S3Service;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -211,6 +213,27 @@ public class PartyService {
         party.decreaseCurrentMember();
 
         return PartyLeaveResponse.of("직관팟 탈퇴에 성공하셨습니다!");
+    }
+
+    public PartyCancelResponse cancelParty(CustomOAuth2User principal, Long partyId) {
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        if (PartyJoinMethod.FIRST_COME.equals(party.getPartyJoinMethod())) {
+            throw new NotAllowedToFirstComePartyException("선착순 직관팟에는 지원하지 않는 기능입니다!");
+        }
+
+        Long loginUserId = principal.getId();
+        PartyAssert.isParticipatedPartyAsWriter(loginUserId, party.getWriterId(), "방장은 직관팟을 삭제해 주세요!");
+
+        PartyJoin partyJoin = partyJoinRepository.findByPartyIdAndUserId(party.getId(), loginUserId)
+                .orElseThrow(() -> new ApplicantNotFoundException("직관팟에 신청한 사람만 탈퇴할 수 있습니다!"));
+
+        PartyAssert.isWaitingUser(partyJoin.getPartyJoinRequestStatus());
+
+        partyJoinRepository.delete(partyJoin);
+
+        return PartyCancelResponse.of("직관팟 신청 취소에 성공하셨습니다!");
     }
 
     private Long validateApplyCondition(CustomOAuth2User oauth2User, Long partyId, Party party) {
