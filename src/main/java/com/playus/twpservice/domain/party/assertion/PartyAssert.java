@@ -34,12 +34,12 @@ public class PartyAssert extends Assert {
 
         // 400
         if (userGender != Gender.UNDEFINED && !party.getPartyGender().equals(userGender.toPartyGender())) {
-            throw new NotAllowedPartyConditionException("직관팟 성별이 맞지 않습니다!");
+            throw new NotAllowedPartyConditionException("직관팟 성별에 맞지 않습니다!");
         }
 
         // 400
         if (!partyAgeGroupList.contains(userAgeGroup)) {
-            throw new NotAllowedPartyConditionException("직관팟 나이가 맞지 않습니다!");
+            throw new NotAllowedPartyConditionException("직관팟 나이에 맞지 않습니다!");
         }
     }
 }

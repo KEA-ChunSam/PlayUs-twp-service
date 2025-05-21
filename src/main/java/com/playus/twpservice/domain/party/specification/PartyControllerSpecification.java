@@ -1863,6 +1863,36 @@ public interface PartyControllerSpecification {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400", description = "직관팟 성별 조건에 맞지 않는 사람이 들어올 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 성별에 맞지 않습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 나이 조건에 맞지 않는 사람이 들어올 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 나이에 맞지 않습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "401", description = "인증 실패",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
