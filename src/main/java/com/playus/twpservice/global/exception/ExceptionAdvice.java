@@ -40,9 +40,6 @@ public class ExceptionAdvice {
             PartyAgeGroupException.InvalidDescriptionException.class,
 
             PartyException.InvalidApproveRequestToPartyException.class,
-            PartyException.NotPartyWriterException.class,
-
-            PartyException.NotAllowedPartyConditionException.class
     })
     public ErrorResponse handleBadRequestException(Exception e) {
         String errorMessage = e.getMessage();
@@ -52,7 +49,9 @@ public class ExceptionAdvice {
 
     @ResponseStatus(FORBIDDEN)
     @ExceptionHandler({
-            PartyJoinDocumentException.RefusedApplyUserException.class
+            PartyJoinDocumentException.RefusedApplyUserException.class,
+            PartyException.NotPartyWriterException.class,
+            PartyException.NotAllowedPartyConditionException.class
     })
     public ErrorResponse handleForbiddenException(Exception e) {
         String errorMessage = e.getMessage();

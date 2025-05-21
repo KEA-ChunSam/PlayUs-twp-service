@@ -1154,21 +1154,6 @@ public interface PartyControllerSpecification {
             ),
 
             @ApiResponse(
-                    responseCode = "400", description = "로그인 유저가 직관팟 작성자가 아닐 경우 발생",
-                    content = @Content(
-                            mediaType = APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                              "code": 400,
-                                              "status": "BAD_REQUEST",
-                                              "message": "직관팟 작성자가 아니면 수정할 수 없습니다!"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
                     responseCode = "401", description = "인증 실패",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
@@ -1178,6 +1163,21 @@ public interface PartyControllerSpecification {
                                               "code": 401,
                                               "status": "UNAUTHORIZED",
                                               "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "로그인 유저가 직관팟 작성자가 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "status": "FORBIDDEN",
+                                              "message": "직관팟 작성자가 아니면 수정할 수 없습니다!"
                                             }
                                             """
                             )
@@ -1271,21 +1271,6 @@ public interface PartyControllerSpecification {
                     )
             ),
             @ApiResponse(
-                    responseCode = "400", description = "로그인 유저가 직관팟 작성자가 아닐 경우 발생",
-                    content = @Content(
-                            mediaType = APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                              "code": 400,
-                                              "status": "BAD_REQUEST",
-                                              "message": "직관팟 작성자가 아니면 수정할 수 없습니다!"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
                     responseCode = "401", description = "인증 실패",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
@@ -1295,6 +1280,21 @@ public interface PartyControllerSpecification {
                                               "code": 401,
                                               "status": "UNAUTHORIZED",
                                               "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "로그인 유저가 직관팟 작성자가 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "status": "FORBIDDEN",
+                                              "message": "직관팟 작성자가 아니면 수정할 수 없습니다!"
                                             }
                                             """
                             )
@@ -1862,36 +1862,7 @@ public interface PartyControllerSpecification {
                             )
                     )
             ),
-            @ApiResponse(
-                    responseCode = "400", description = "직관팟 성별 조건에 맞지 않는 사람이 들어올 경우 발생",
-                    content = @Content(
-                            mediaType = APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                              "code": 400,
-                                              "status": "BAD_REQUEST",
-                                              "message": "직관팟 성별에 맞지 않습니다!"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400", description = "직관팟 나이 조건에 맞지 않는 사람이 들어올 경우 발생",
-                    content = @Content(
-                            mediaType = APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                              "code": 400,
-                                              "status": "BAD_REQUEST",
-                                              "message": "직관팟 나이에 맞지 않습니다!"
-                                            }
-                                            """
-                            )
-                    )
-            ),
+
             @ApiResponse(
                     responseCode = "401", description = "인증 실패",
                     content = @Content(
@@ -1922,6 +1893,38 @@ public interface PartyControllerSpecification {
                             )
                     )
             ),
+
+            @ApiResponse(
+                    responseCode = "403", description = "직관팟 성별 조건에 맞지 않는 사람이 들어올 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "status": "FORBIDDEN",
+                                              "message": "직관팟 성별에 맞지 않습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "직관팟 나이 조건에 맞지 않는 사람이 들어올 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "status": "FORBIDDEN",
+                                              "message": "직관팟 나이에 맞지 않습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+
             @ApiResponse(
                     responseCode = "404", description = "직관팟 ID로 직관팟을 찾을 수 없는 경우 발생",
                     content = @Content(
@@ -2070,21 +2073,6 @@ public interface PartyControllerSpecification {
                     )
             ),
             @ApiResponse(
-                    responseCode = "400", description = "직관팟 방장이 아닌 자가 직관팟 지원자 조회 시도할 경우",
-                    content = @Content(
-                            mediaType = APPLICATION_JSON_VALUE,
-                            examples = @ExampleObject(
-                                    value = """
-                                            {
-                                              "code": 400,
-                                              "status": "BAD_REQUEST",
-                                              "message": "방장이 아니면 직관팟 지원자를 조회할 수 없습니다!"
-                                            }
-                                            """
-                            )
-                    )
-            ),
-            @ApiResponse(
                     responseCode = "401", description = "인증 실패",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
@@ -2094,6 +2082,21 @@ public interface PartyControllerSpecification {
                                               "code": 401,
                                               "status": "UNAUTHORIZED",
                                               "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "직관팟 방장이 아닌 자가 직관팟 지원자 조회 시도할 경우",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "status": "FORBIDDEN",
+                                              "message": "방장이 아니면 직관팟 지원자를 조회할 수 없습니다!"
                                             }
                                             """
                             )
