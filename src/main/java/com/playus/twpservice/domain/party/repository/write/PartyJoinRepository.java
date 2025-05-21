@@ -15,7 +15,4 @@ public interface PartyJoinRepository extends JpaRepository<PartyJoin, Long> {
 
     @Query("SELECT p FROM PartyJoin p WHERE p.party.id = :partyId AND p.userId = :userId")
     Optional<PartyJoin> findByPartyIdAndUserId(Long partyId, Long userId);
-
-    @Query("SELECT p FROM PartyJoin p WHERE p.userId = :userId")
-    Optional<PartyJoin> findByUserId(Long userId);
 }

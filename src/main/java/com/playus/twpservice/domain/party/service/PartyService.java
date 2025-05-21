@@ -202,7 +202,7 @@ public class PartyService {
         Long loginUserId = principal.getId();
         PartyAssert.isParticipatedPartyAsWriter(loginUserId, party.getWriterId(), "방장은 직관팟을 삭제해 주세요!");
 
-        PartyJoin partyJoin = partyJoinRepository.findByUserId(loginUserId)
+        PartyJoin partyJoin = partyJoinRepository.findByPartyIdAndUserId(party.getId(), loginUserId)
                 .orElseThrow(() -> new ApplicantNotFoundException("직관팟에 참여한 사람만 탈퇴할 수 있습니다!"));
 
         PartyAssert.isAcceptedUser(partyJoin.getPartyJoinRequestStatus());
