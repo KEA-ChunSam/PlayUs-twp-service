@@ -1,6 +1,7 @@
 package com.playus.twpservice.global.jwt;
 
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.common.security.Gender;
 import com.playus.twpservice.domain.common.security.Role;
 import com.playus.twpservice.domain.common.security.UserDto;
 import io.jsonwebtoken.JwtException;
@@ -32,7 +33,10 @@ public class JwtFilter extends OncePerRequestFilter {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain)
+            throws ServletException, IOException {
 
         String token = null;
         Cookie[] cookies = request.getCookies();
@@ -55,9 +59,11 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (!jwtUtil.isExpired(token)) {
                     String userId = jwtUtil.getUserId(token);
                     String role = jwtUtil.getRole(token);
+                    int age = jwtUtil.getAge(token);
+                    String gender = jwtUtil.getGender(token);
 
                     CustomOAuth2User principal = new CustomOAuth2User(
-                            UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role))
+                            UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role), age, Gender.valueOf(gender))
                     );
                     Authentication auth = new UsernamePasswordAuthenticationToken(
                             principal, null, principal.getAuthorities()

@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
@@ -69,7 +70,7 @@ public class PartyController implements PartyControllerSpecification {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{partyId}/apply/fcfs")
     public PartyApplyResponse applyPartyFCFS(@AuthenticationPrincipal CustomOAuth2User principal, @Valid PartyIdRequest idRequest) {
-        partyApplyFacade.applyParty(principal.getId(), idRequest.partyId());
+        partyApplyFacade.applyParty(principal, idRequest.partyId());
         return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
     }
 
@@ -77,7 +78,7 @@ public class PartyController implements PartyControllerSpecification {
     @PostMapping("/{partyId}/apply")
     public PartyApplyResponse applyParty(@AuthenticationPrincipal CustomOAuth2User principal, @Valid PartyIdRequest idRequest,
                                          @Valid @RequestBody PartyApproveApplyRequest request) {
-        return partyService.applyParty(principal.getId(), idRequest.partyId(), request.requireMessage());
+        return partyService.applyParty(principal, idRequest.partyId(), request.requireMessage());
     }
 
     @PatchMapping("/{partyId}/approve")
@@ -85,6 +86,12 @@ public class PartyController implements PartyControllerSpecification {
                                              @Valid PartyIdRequest idRequest,
                                              @Valid @RequestBody PartyApproveRequest request) {
         return partyService.approveParty(principal.getId(), idRequest.partyId(), request);
+    }
+
+    @GetMapping("/{partyId}/approved-applicants")
+    public List<PartyAppliedUserResponse> getAppliedUsers(@AuthenticationPrincipal CustomOAuth2User principal,
+                                                          @Valid PartyIdRequest idRequest) {
+        return partyReadOnlyService.getAppliedUsers(principal.getId(), idRequest.partyId());
     }
 
     @PostMapping("/presigned-url")

@@ -68,13 +68,6 @@ public class SecurityConfig {
 
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
-                // JWT Resource Server 설정 추가
-                .oauth2ResourceServer(rs -> rs
-                        .jwt(jwt -> jwt
-                                .decoder(jwtDecoder())
-                        )
-                )
-
                 // 인증/인가
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(getWhiteList())
@@ -85,10 +78,5 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        return jwtUtil.jwtDecoder();
     }
 }

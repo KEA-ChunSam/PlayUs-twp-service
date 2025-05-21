@@ -2,6 +2,7 @@ package com.playus.twpservice.domain.party.feign.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.IntegrationTestSupport;
+import com.playus.twpservice.domain.party.feign.response.PartyApplicantsInfoFeignResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.global.response.ErrorResponse;
@@ -133,6 +134,57 @@ class UserFeignClientTest extends IntegrationTestSupport {
 
         // when // then
         assertThatThrownBy(() -> userFeignClient.getWriterInfo(writerIdList))
+                .isInstanceOf(FeignException.class)
+                .hasMessageContaining("사용자가 존재하지 않습니다!");
+    }
+
+    @DisplayName("직관팟 지원자의 정보를 가져올 수 있다.")
+    @Test
+    void getPartyApplicantsInfo() throws JsonProcessingException {
+        // given
+        List<Long> userIdList = List.of(1L, 2L);
+        List<PartyApplicantsInfoFeignResponse> expectedResponse = List.of(
+                PartyApplicantsInfoFeignResponse.of(1L, "kim", 14, "http://user1-thumb"),
+                PartyApplicantsInfoFeignResponse.of(2L, "jung", 27,  "http://user2-thumb")
+        );
+
+        stubFor(post(urlEqualTo("/user/api/info"))
+                .withRequestBody(equalToJson(objectMapper.writeValueAsString(userIdList)))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(objectMapper.writeValueAsString(expectedResponse))
+                ));
+
+        // when
+        List<PartyApplicantsInfoFeignResponse> result = userFeignClient.getPartyApplicantsInfo(userIdList);
+
+        // then
+        assertThat(result).hasSize(2)
+                .extracting("userId", "name", "age", "thumbnailUrl")
+                .containsExactly(
+                        tuple(1L, "kim", 14, "http://user1-thumb"),
+                        tuple(2L, "jung", 27, "http://user2-thumb")
+                );
+    }
+
+    @DisplayName("직관팟 지원자의 정보를 가져오지 못할 수 있다.")
+    @Test
+    void getPartyApplicantsInfo_INVALID_ERROR() throws JsonProcessingException {
+        // given
+        List<Long> userIdList = List.of(1L, 2L);
+        ErrorResponse errorResponse = ErrorResponse.notFoundError("사용자가 존재하지 않습니다!");
+
+        stubFor(post(urlEqualTo("/user/api/info"))
+                .withRequestBody(equalToJson(objectMapper.writeValueAsString(userIdList)))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.NOT_FOUND.value())
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(objectMapper.writeValueAsString(errorResponse))
+                ));
+
+        // when // then
+        assertThatThrownBy(() -> userFeignClient.getPartyApplicantsInfo(userIdList))
                 .isInstanceOf(FeignException.class)
                 .hasMessageContaining("사용자가 존재하지 않습니다!");
     }

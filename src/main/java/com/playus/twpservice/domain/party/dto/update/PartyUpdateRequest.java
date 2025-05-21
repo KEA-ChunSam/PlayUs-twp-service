@@ -53,20 +53,20 @@ public record PartyUpdateRequest  (
 
 ) implements MinimumMaximumValidatable {
 
-    public static PartyUpdateRequest of(String title, Long writerId, String method, String gender, List<String> ageGroup,
-                                        Long minimumParticipants, Long maximumParticipants,
-                                        List<String> thumbnailImageNameList, String message) {
+        public static PartyUpdateRequest of(String title, Long writerId, String method, String gender, List<String> ageGroup,
+                                            Long minimumParticipants, Long maximumParticipants,
+                                            List<String> thumbnailImageNameList, String message) {
 
-        return PartyUpdateRequest.builder()
-                .title(title)
-                .writerId(writerId)
-                .partyJoinMethod(method)
-                .partyGender(gender)
-                .ageGroup(ageGroup)
-                .minimumParticipants(minimumParticipants)
-                .maximumParticipants(maximumParticipants)
-                .thumbnailImageNameList(thumbnailImageNameList)
-                .message(message)
-                .build();
-    }
+                return PartyUpdateRequest.builder()
+                        .title(title)
+                        .writerId(writerId)
+                        .partyJoinMethod(method)
+                        .partyGender(gender)
+                        .ageGroup(ageGroup)
+                        .minimumParticipants(minimumParticipants)
+                        .maximumParticipants(maximumParticipants)
+//                .thumbnailImageNameList(thumbnailImageNameList)
+                        .message(message)
+                        .build();
+        }
 }

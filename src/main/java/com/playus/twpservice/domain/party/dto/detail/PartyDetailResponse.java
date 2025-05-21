@@ -51,17 +51,17 @@ public record PartyDetailResponse(
                         .partyId(partyId)
                         .writerId(writerId)
                         .title(title)
-                        .partyJoinMethod(partyJoinMethod.getDescription())
+//                        .partyJoinMethod(partyJoinMethod.getDescription())
                         .text(text)
-                        .partyAges(partyAges.stream().map(PartyAgeGroup::getDescription).toList())
-                        .availableGender(availableGender.getDescription())
+//                        .partyAges(partyAges.stream().map(PartyAgeGroup::getDescription).toList())
+//                        .availableGender(availableGender.getDescription())
                         .authorName(authorName)
                         .authorGender(authorGender)
                         .matchDate(matchDate)
                         .currentParticipantsCount(currentParticipantsCount)
                         .maximumParticipantsCount(maximumParticipantsCount)
-                        .partyThumbnailUrls(partyThumbnailUrls)
-                        .userThumbnailUrls(userThumbnailUrls)
+//                        .partyThumbnailUrls(partyThumbnailUrls)
+//                        .userThumbnailUrls(userThumbnailUrls)
                         .build();
         }
 

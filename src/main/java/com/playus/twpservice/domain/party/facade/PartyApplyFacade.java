@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.party.facade;
 
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
 import com.playus.twpservice.domain.party.service.PartyService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
@@ -15,13 +16,13 @@ public class PartyApplyFacade {
     private final RedissonClient redissonClient;
     private final PartyService partyService;
 
-    public void applyParty(Long userId, Long partyId) {
+    public void applyParty(CustomOAuth2User oauth2User, Long partyId) {
         RLock lock = redissonClient.getLock(partyId.toString());
         boolean isLocked = false;
         try {
             isLocked = lock.tryLock(10, 1, TimeUnit.SECONDS);
             if (isLocked) {
-                partyService.applyPartyFCFS(userId, partyId);
+                partyService.applyPartyFCFS(oauth2User, partyId);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

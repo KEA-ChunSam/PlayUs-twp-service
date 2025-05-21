@@ -85,10 +85,3 @@ resilience4j:
       circuit:
         base-config: default
 
-feign:
-  user:
-    url: http://user-dummy
-
-  match:
-    url: http://match-dummy
-

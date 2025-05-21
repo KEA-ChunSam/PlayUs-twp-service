@@ -5,11 +5,17 @@ import com.playus.twpservice.domain.chat.entity.ChatPart;
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
 import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.common.security.Gender;
+import com.playus.twpservice.domain.common.security.Role;
+import com.playus.twpservice.domain.common.security.UserDto;
+import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
@@ -40,6 +46,9 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
     private PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
 
     @Autowired
+    private PartyAgeReadOnlyRepository partyAgeReadOnlyRepository;
+
+    @Autowired
     private ChatRoomRepository chatRoomRepository;
 
     @Autowired
@@ -50,6 +59,9 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
         partyJoinRepository.deleteAll();
         partyRepository.deleteAll();
 
+        partyJoinReadOnlyRepository.deleteAll();
+        partyAgeReadOnlyRepository.deleteAll();
+
         chatRoomRepository.deleteAll();
         chatPartRepository.deleteAll();
     }
@@ -58,9 +70,12 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
     @Test
     void applyPart() throws InterruptedException {
         // given
+        Long userId = 5L;
+        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
         Long writerId = 1L;
         Long matchId = 1L;
-        Long userId = 5L;
+
         Long maximumParticipants = 10L;
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
@@ -74,6 +89,11 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
                 PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
                 PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
 
+        partyAgeReadOnlyRepository.saveAll(List.of(
+                PartyAgeDocument.createForOnlyTest(1L, party.getId(), 10),
+                PartyAgeDocument.createForOnlyTest(2L, party.getId(), 20)
+        ));
+
         int threadCount = 100; // 총 100개의 thread 사용될 예정
         ExecutorService executorService = Executors.newFixedThreadPool(32); // 최대 32개의 thread가 동시 실행
         CountDownLatch latch = new CountDownLatch(threadCount); // 타 스레드 작업 완료될 때까지 대기중
@@ -82,7 +102,7 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
         for (int i=0;i<threadCount;i++) {
             executorService.submit(() -> {
                 try {
-                    partyApplyFacade.applyParty(userId, party.getId());
+                    partyApplyFacade.applyParty(customOAuth2User, party.getId());
                 } finally {
                     latch.countDown(); // 위 method 끝나면 countDown() 통해 latch 카운트 감소
                 }
