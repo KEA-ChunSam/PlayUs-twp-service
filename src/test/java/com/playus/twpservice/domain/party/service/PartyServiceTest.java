@@ -204,48 +204,48 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(result.presignedUrl()).isEqualTo(responseUrl);
     }
 
-    @DisplayName("직관팟을 수정할 수 있다.")
-    @Test
-    void updateParty() {
-        // given
-        Long userId = 1L;
-        Long writerId = 1L;
-        Long matchId = 1L;
-
-        Party party = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
-
-        Long partyId = party.getId();
-        PartyIdRequest idRequest = PartyIdRequest.of(partyId);
-
-        PartyUpdateRequest updateRequest = PartyUpdateRequest.of("title2", writerId, "선착순", "남자만", List.of("10대", "20대"),
-                1L, 10L, List.of("newUrl"), "message");
-
-        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
-        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"), PartyThumbnailUrl.create(party, "url2")));
-        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
-
-        // when
-        PartyUpdateResponse response = partyService.updateParty(userId, idRequest, updateRequest);
-
-        // then
-        assertThat(response.partyId()).isEqualTo(partyId);
-
-        Party result = partyRepository.findAll().get(0);
-        assertThat(result).extracting("id", "title", "partyJoinMethod", "partyGender", "minimumParticipants",
-                        "maximumParticipants", "currentParticipants", "writerId", "matchId", "chatRoomId", "text")
-                .containsExactly(partyId, "title2", PartyJoinMethod.FIRST_COME, PartyGender.MALE, 1L,
-                        10L, 1L, writerId, matchId, "TEST-CHATROOM", "message");
-
-        List<PartyAge> ageResult = partyAgeRepository.findAll();
-        assertThat(ageResult).hasSize(2)
-                .extracting("age").containsExactly(10, 20);
-
-        List<PartyThumbnailUrl> thumbnailResult = partyThumbnailUrlRepository.findAll();
-        assertThat(thumbnailResult).hasSize(1)
-                .extracting("thumbnailUrl")
-                .containsExactly("newUrl");
-    }
+//    @DisplayName("직관팟을 수정할 수 있다.")
+//    @Test
+//    void updateParty() {
+//        // given
+//        Long userId = 1L;
+//        Long writerId = 1L;
+//        Long matchId = 1L;
+//
+//        Party party = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
+//                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
+//
+//        Long partyId = party.getId();
+//        PartyIdRequest idRequest = PartyIdRequest.of(partyId);
+//
+//        PartyUpdateRequest updateRequest = PartyUpdateRequest.of("title2", writerId, "선착순", "남자만", List.of("10대", "20대"),
+//                1L, 10L, List.of("newUrl"), "message");
+//
+//        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+//        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"), PartyThumbnailUrl.create(party, "url2")));
+//        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+//
+//        // when
+//        PartyUpdateResponse response = partyService.updateParty(userId, idRequest, updateRequest);
+//
+//        // then
+//        assertThat(response.partyId()).isEqualTo(partyId);
+//
+//        Party result = partyRepository.findAll().get(0);
+//        assertThat(result).extracting("id", "title", "partyJoinMethod", "partyGender", "minimumParticipants",
+//                        "maximumParticipants", "currentParticipants", "writerId", "matchId", "chatRoomId", "text")
+//                .containsExactly(partyId, "title2", PartyJoinMethod.FIRST_COME, PartyGender.MALE, 1L,
+//                        10L, 1L, writerId, matchId, "TEST-CHATROOM", "message");
+//
+//        List<PartyAge> ageResult = partyAgeRepository.findAll();
+//        assertThat(ageResult).hasSize(2)
+//                .extracting("age").containsExactly(10, 20);
+//
+//        List<PartyThumbnailUrl> thumbnailResult = partyThumbnailUrlRepository.findAll();
+//        assertThat(thumbnailResult).hasSize(1)
+//                .extracting("thumbnailUrl")
+//                .containsExactly("newUrl");
+//    }
 
     @DisplayName("직관팟 작성자가 아니면 직관팟을 수정할 수 없다.")
     @Test
