@@ -12,6 +12,8 @@ import java.util.Optional;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 
+
+// 5/21 기준 soft delete 반영 아직 안 되엇음!!!
 @RequiredArgsConstructor
 public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositoryCustom {
 
@@ -39,7 +41,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("match_id").as("matchId")
                 .and("current_participants").as("currentParticipantsCount")
                 .and("partyJoin.user_id").as("userIdList")
-                .and("partyJoinMethod").as("partyJoinMethod")
+                .and("party_join_method").as("partyJoinMethod")
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")
@@ -74,7 +76,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("match_id").as("matchId")
                 .and("current_participants").as("currentParticipantsCount")
                 .and("partyJoin.user_id").as("userIdList")
-                .and("partyJoinMethod").as("partyJoinMethod")
+                .and("party_join_method").as("partyJoinMethod")
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")
