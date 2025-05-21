@@ -216,6 +216,7 @@ public class PartyService {
     }
 
     public PartyCancelResponse cancelParty(CustomOAuth2User principal, Long partyId) {
+
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
 
