@@ -55,9 +55,9 @@ public class PartyReadOnlyService {
         PartyInfo partyDetail = partyRepository.findPartyDetail(partyId)
                 .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
 
-        updateUserThumbnailUrls(List.of(partyDetail));
-        updateWriterInfo(List.of(partyDetail));
-        updateMatchDate(List.of(partyDetail), partyDetail.getMatchId());
+//        updateUserThumbnailUrls(List.of(partyDetail));
+//        updateWriterInfo(List.of(partyDetail));
+//        updateMatchDate(List.of(partyDetail), partyDetail.getMatchId());
 
         return partyDetail.toPartyDetailResponse();
     }
