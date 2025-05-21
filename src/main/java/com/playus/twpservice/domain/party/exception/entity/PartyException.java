@@ -5,7 +5,6 @@ import java.io.Serial;
 public abstract class PartyException {
 
     public static class NotPartyWriterException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
 
         public NotPartyWriterException(String message) {
             super(message);
@@ -13,15 +12,14 @@ public abstract class PartyException {
     }
 
     public static class NotFoundException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
 
         public NotFoundException(String message) {
             super(message);
         }
+
     }
 
     public static class ApplicantNotFoundException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
 
         public ApplicantNotFoundException(String message) {
             super(message);
@@ -29,7 +27,6 @@ public abstract class PartyException {
     }
 
     public static class ExceedPartyParticipantsException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
 
         public ExceedPartyParticipantsException(String message) {
             super(message);
@@ -37,7 +34,6 @@ public abstract class PartyException {
     }
 
     public static class InsufficientPartyParticipantsException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
 
         public InsufficientPartyParticipantsException(String message) {
             super(message);
@@ -46,18 +42,12 @@ public abstract class PartyException {
 
     public static class InvalidApproveRequestToPartyException extends RuntimeException {
 
-        @Serial
-        private static final long serialVersionUID = 1L;
-
         public InvalidApproveRequestToPartyException(String message) {
             super(message);
         }
     }
 
     public static class NotAllowedPartyConditionException extends RuntimeException {
-
-        @Serial
-        private static final long serialVersionUID = 1L;
 
         public NotAllowedPartyConditionException(String message) {
             super(message);
@@ -66,13 +56,15 @@ public abstract class PartyException {
 
     public static class NotAllowedPartyJoinRequestStatusException extends RuntimeException {
 
-        @Serial
-        private static final long serialVersionUID = 1L;
-
         public NotAllowedPartyJoinRequestStatusException(String message) {
             super(message);
         }
     }
 
+    public static class NotAllowedToFirstComePartyException extends RuntimeException {
 
+        public NotAllowedToFirstComePartyException(String message) {
+            super(message);
+        }
+    }
 }
