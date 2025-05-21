@@ -51,7 +51,8 @@ public class ExceptionAdvice {
     @ExceptionHandler({
             PartyJoinDocumentException.RefusedApplyUserException.class,
             PartyException.NotPartyWriterException.class,
-            PartyException.NotAllowedPartyConditionException.class
+            PartyException.NotAllowedPartyConditionException.class,
+            PartyException.NotAllowedPartyJoinRequestStatusException.class
     })
     public ErrorResponse handleForbiddenException(Exception e) {
         String errorMessage = e.getMessage();
@@ -63,6 +64,7 @@ public class ExceptionAdvice {
             PartyException.NotFoundException.class,
             PartyDocumentException.NotFoundException.class,
             ChatRoomException.NotFoundException.class,
+            PartyException.ApplicantNotFoundException.class
     })
     public ErrorResponse handleNotFoundException(Exception e) {
         String errorMessage = e.getMessage();
@@ -73,6 +75,7 @@ public class ExceptionAdvice {
     @ResponseStatus(CONFLICT)
     @ExceptionHandler({
             PartyException.ExceedPartyParticipantsException.class,
+            PartyException.InsufficientPartyParticipantsException.class,
             PartyJoinDocumentException.DuplicateApplyException.class
     })
     public ErrorResponse handleConflictException(Exception e) {

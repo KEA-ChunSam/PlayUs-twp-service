@@ -14,6 +14,7 @@ import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.leave.PartyLeaveResponse;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -92,6 +93,12 @@ public class PartyController implements PartyControllerSpecification {
     public List<PartyAppliedUserResponse> getAppliedUsers(@AuthenticationPrincipal CustomOAuth2User principal,
                                                           @Valid PartyIdRequest idRequest) {
         return partyReadOnlyService.getAppliedUsers(principal.getId(), idRequest.partyId());
+    }
+
+    @PostMapping("/{partyId}/leave")
+    public PartyLeaveResponse leaveParty(@AuthenticationPrincipal CustomOAuth2User principal,
+                                         @Valid PartyIdRequest idRequest) {
+        return partyService.leaveParty(principal, idRequest.partyId());
     }
 
     @PostMapping("/presigned-url")

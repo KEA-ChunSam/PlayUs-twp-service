@@ -18,8 +18,8 @@ import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
+import com.playus.twpservice.domain.party.dto.leave.PartyLeaveResponse;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
-import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageResponse;
 import com.playus.twpservice.domain.party.entity.Party;
@@ -29,7 +29,6 @@ import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
-import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
@@ -46,7 +45,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -823,7 +821,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long partyId = party.getId();
 
         partyJoinRepository.saveAll(List.of(
-           PartyJoin.create(applicantUserId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")
+                PartyJoin.create(applicantUserId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")
         ));
 
         // when
@@ -957,4 +955,194 @@ class PartyServiceTest extends IntegrationTestSupport {
                 .hasMessage("직관팟 지원자가 아닙니다!");
     }
 
+    @DisplayName("직관팟을 탈퇴할 수 있다.")
+    @Test
+    void leaveParty() {
+        // given
+        Long userId = 5L;
+        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        Long writerId = 1L;
+        Long matchId = 1L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
+                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(2L));
+
+        partyJoinRepository.saveAll(
+                List.of(
+                        PartyJoin.create(userId, party, PartyJoinRequestStatus.ACCEPT, "참여 희망합니다!"),
+                        PartyJoin.create(userId + 1, party, PartyJoinRequestStatus.ACCEPT, "참여 원합니다!")
+                )
+        );
+
+        // when
+        PartyLeaveResponse response = partyService.leaveParty(customOAuth2User, party.getId());
+
+        // then
+        assertThat(response.message()).isEqualTo("직관팟 탈퇴에 성공하셨습니다!");
+        assertThat(partyJoinRepository.count()).isEqualTo(1);
+        assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(1);
+    }
+
+    @DisplayName("존재하지 않는 직관팟에 대해 탈퇴할 수 없다.")
+    @Test
+    void leaveParty_INVALID_PARTY() {
+        // given
+        Long writerId = 1L;
+        Long userId = 5L;
+        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        Long matchId = 1L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
+                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(2L));
+
+        partyJoinRepository.saveAll(
+                List.of(
+                        PartyJoin.create(writerId, party, PartyJoinRequestStatus.ACCEPT, "참여 원합니다!")
+                )
+        );
+
+        // when // then
+        assertThatThrownBy(() -> partyService.leaveParty(customOAuth2User, party.getId() + 1))
+                .isInstanceOf(PartyException.NotFoundException.class)
+                .hasMessage("직관팟이 존재하지 않습니다!");
+    }
+
+    @DisplayName("직관팟 방장은 직관팟을 탈퇴할 수 없다.")
+    @Test
+    void leaveParty_WRITER_NOT_ALLOWED() {
+        // given
+        Long writerId = 1L;
+        UserDto userDto = UserDto.createForTest(writerId, Gender.FEMALE, Role.USER, 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        Long matchId = 1L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
+                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+
+        partyJoinRepository.saveAll(
+                List.of(
+                        PartyJoin.create(writerId + 1, party, PartyJoinRequestStatus.ACCEPT, "참여 원합니다!")
+                )
+        );
+
+        // when // then
+        assertThatThrownBy(() -> partyService.leaveParty(customOAuth2User, party.getId()))
+                .isInstanceOf(PartyException.NotPartyWriterException.class)
+                .hasMessage("방장은 직관팟을 삭제해 주세요!");
+    }
+
+    @DisplayName("참여하지 않은 직관팟에 대해 탈퇴할 수 없다.")
+    @Test
+    void leaveParty_NOT_PARTICIPATED() {
+        // given
+        Long userId = 5L;
+        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        Long writerId = 1L;
+        Long matchId = 1L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
+                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+
+
+        // when // then
+        assertThatThrownBy(() -> partyService.leaveParty(customOAuth2User, party.getId()))
+                .isInstanceOf(PartyException.ApplicantNotFoundException.class)
+                .hasMessage("직관팟에 참여한 사람만 탈퇴할 수 있습니다!");
+    }
+
+    @DisplayName("대기 상태인 유저는 직관팟을 탈퇴할 수 없다.")
+    @Test
+    void leaveParty_WAIT_USER_NOT_ALLOWED() {
+        Long writerId = 1L;
+        Long userId = 5L;
+        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        Long matchId = 1L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
+                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+
+        partyJoinRepository.saveAll(
+                List.of(
+                        PartyJoin.create(userId, party, PartyJoinRequestStatus.WAIT, "참여 원합니다!")
+                )
+        );
+
+        // when // then
+        assertThatThrownBy(() -> partyService.leaveParty(customOAuth2User, party.getId()))
+                .isInstanceOf(PartyException.NotAllowedPartyJoinRequestStatusException.class)
+                .hasMessage("대기 상태인 유저는 직관팟 신청을 취소해주세요!");
+    }
+
+    @DisplayName("직관팟 참여가 거절된 유저는 직관팟을 탈퇴할 수 없다.")
+    @Test
+    void leaveParty_REFUSED_NOT_ALLOWED() {
+        Long writerId = 1L;
+        Long userId = 5L;
+        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        Long matchId = 1L;
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
+                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+
+        partyJoinRepository.saveAll(
+                List.of(
+                        PartyJoin.create(userId, party, PartyJoinRequestStatus.REFUSE, "참여 원합니다!")
+                )
+        );
+
+        // when // then
+        assertThatThrownBy(() -> partyService.leaveParty(customOAuth2User, party.getId()))
+                .isInstanceOf(PartyException.NotAllowedPartyJoinRequestStatusException.class)
+                .hasMessage("직관팟 참여가 이미 거절되었습니다!");
+    }
+
+//    @DisplayName("직관팟 참여가 최소 인원인 경우 직관팟을 탈퇴할 수 없다?")
+//    @Test
+//    void leaveParty_REFUSED_NOT_ALLOWED() {
+//        Long writerId = 1L;
+//        Long userId = 5L;
+//        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
+//        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+//        Long matchId = 1L;
+//
+//        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+//
+//        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+//                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
+//                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+//
+//        partyJoinRepository.saveAll(
+//                List.of(
+//                        PartyJoin.create(writerId + 1, party, PartyJoinRequestStatus.REFUSE, "참여 원합니다!")
+//                )
+//        );
+//
+//        // when // then
+//        assertThatThrownBy(() -> partyService.leaveParty(customOAuth2User, party.getId()))
+//                .isInstanceOf(PartyException.NotAllowedPartyJoinRequestStatusException.class)
+//                .hasMessage("직관팟 참여가 이미 거절되었습니다!");
+//    }
 }

@@ -3,6 +3,7 @@ package com.playus.twpservice.domain.party.assertion;
 import com.playus.twpservice.domain.common.security.Gender;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import org.springframework.util.Assert;
 
 import java.util.List;
@@ -40,6 +41,16 @@ public class PartyAssert extends Assert {
         // 400
         if (!partyAgeGroupList.contains(userAgeGroup)) {
             throw new NotAllowedPartyConditionException("직관팟 나이에 맞지 않습니다!");
+        }
+    }
+
+    public static void isAcceptedUser(PartyJoinRequestStatus partyJoinRequestStatus) {
+        if (partyJoinRequestStatus == PartyJoinRequestStatus.WAIT) {
+            throw new NotAllowedPartyJoinRequestStatusException("대기 상태인 유저는 직관팟 신청을 취소해주세요!");
+        }
+
+        if (partyJoinRequestStatus == PartyJoinRequestStatus.REFUSE) {
+            throw new NotAllowedPartyJoinRequestStatusException("직관팟 참여가 이미 거절되었습니다!");
         }
     }
 }

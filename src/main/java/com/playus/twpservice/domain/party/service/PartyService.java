@@ -17,6 +17,7 @@ import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.leave.PartyLeaveResponse;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -194,6 +195,24 @@ public class PartyService {
         return PartyApproveResponse.of("직관팟 가입 신청 승인 성공했습니다!");
     }
 
+    public PartyLeaveResponse leaveParty(CustomOAuth2User principal, Long partyId) {
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        Long loginUserId = principal.getId();
+        PartyAssert.isParticipatedPartyAsWriter(loginUserId, party.getWriterId(), "방장은 직관팟을 삭제해 주세요!");
+
+        PartyJoin partyJoin = partyJoinRepository.findByPartyIdAndUserId(party.getId(), loginUserId)
+                .orElseThrow(() -> new ApplicantNotFoundException("직관팟에 참여한 사람만 탈퇴할 수 있습니다!"));
+
+        PartyAssert.isAcceptedUser(partyJoin.getPartyJoinRequestStatus());
+
+        partyJoinRepository.delete(partyJoin);
+        party.decreaseCurrentMember();
+
+        return PartyLeaveResponse.of("직관팟 탈퇴에 성공하셨습니다!");
+    }
+
     private Long validateApplyCondition(CustomOAuth2User oauth2User, Long partyId, Party party) {
         Long userId = oauth2User.getId();
         Gender userGender = oauth2User.getUserDto().getGender();
@@ -265,6 +284,4 @@ public class PartyService {
                         PartyJoinRequestStatus.throwIfAlreadyAppliedToParty(partyJoinDocument.getPartyJoinRequestStatus())
                 );
     }
-
-
 }

@@ -15,6 +15,7 @@ import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.leave.PartyLeaveResponse;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -1264,6 +1265,40 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         mockMvc.perform(get("/party/" + invalidPartyStr + "/approved-applicants")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
+    @DisplayName("직관팟을 탈퇴할 수 있다.")
+    @Test
+    void leaveParty() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyLeaveResponse response = PartyLeaveResponse.of("직관팟 탈퇴에 성공하셨습니다!");
+        given(partyService.leaveParty(any(), any())).willReturn(response);
+
+        // when // then
+        mockMvc.perform(post("/party/" + partyId + "/leave")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("직관팟 탈퇴에 성공하셨습니다!"));
+    }
+
+    @DisplayName("직관팟을 탈퇴할 때 직관팟의 ID는 1 이상이여야 한다.")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void leaveParty_INVALID_PARTYID(String invalidPartyStr) throws Exception {
+        // given
+
+        // when // then
+        mockMvc.perform(post("/party/" + invalidPartyStr + "/leave")
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())
