@@ -126,20 +126,7 @@ public class PartyService {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
 
-        Long userId = oauth2User.getId();
-        Gender userGender = oauth2User.getUserDto().getGender();
-        PartyAgeGroup userAgeGroup = PartyAgeGroup.getAgeGroupByAge(oauth2User.getUserDto().getAge());
-
-        PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
-
-        throwIfAlreadyAppliedToParty(userId, partyId);
-
-        List<PartyAgeGroup> partyAgeGroupList = partyAgeReadOnlyRepository.findByPartyId(party.getId())
-                .stream()
-                .map(partyAgeDocument -> PartyAgeGroup.getAgeGroupByAge(partyAgeDocument.getAge()))
-                .toList();
-
-        PartyAssert.isAppliableParty(party, partyAgeGroupList, userGender, userAgeGroup);
+        Long userId = validateApplyCondition(oauth2User, partyId, party);
 
         partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.ACCEPT, null));
         party.increaseCurrentParticipants();
@@ -154,20 +141,7 @@ public class PartyService {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
 
-        Long userId = oauth2User.getId();
-        Gender userGender = oauth2User.getUserDto().getGender();
-        PartyAgeGroup userAgeGroup = PartyAgeGroup.getAgeGroupByAge(oauth2User.getUserDto().getAge());
-
-        PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
-
-        throwIfAlreadyAppliedToParty(userId, partyId);
-
-        List<PartyAgeGroup> partyAgeGroupList = partyAgeReadOnlyRepository.findByPartyId(party.getId())
-                .stream()
-                .map(partyAgeDocument -> PartyAgeGroup.getAgeGroupByAge(partyAgeDocument.getAge()))
-                .toList();
-
-        PartyAssert.isAppliableParty(party, partyAgeGroupList, userGender, userAgeGroup);
+        Long userId = validateApplyCondition(oauth2User, partyId, party);
 
         partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.WAIT, requireMessage));
 
@@ -220,6 +194,23 @@ public class PartyService {
         return PartyApproveResponse.of("직관팟 가입 신청 승인 성공했습니다!");
     }
 
+    private Long validateApplyCondition(CustomOAuth2User oauth2User, Long partyId, Party party) {
+        Long userId = oauth2User.getId();
+        Gender userGender = oauth2User.getUserDto().getGender();
+        PartyAgeGroup userAgeGroup = PartyAgeGroup.getAgeGroupByAge(oauth2User.getUserDto().getAge());
+
+        PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
+
+        throwIfAlreadyAppliedToParty(userId, partyId);
+
+        List<PartyAgeGroup> partyAgeGroupList = partyAgeReadOnlyRepository.findByPartyId(party.getId())
+                .stream()
+                .map(partyAgeDocument -> PartyAgeGroup.getAgeGroupByAge(partyAgeDocument.getAge()))
+                .toList();
+
+        PartyAssert.isAppliableParty(party, partyAgeGroupList, userGender, userAgeGroup);
+        return userId;
+    }
 
     private void updatePartyAgeGroup(PartyUpdateRequest updateRequest, Long partyId, Party savedParty) {
         partyAgeRepository.deleteByPartyId(partyId);
