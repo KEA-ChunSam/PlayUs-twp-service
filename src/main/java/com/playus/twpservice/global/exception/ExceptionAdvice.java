@@ -37,22 +37,16 @@ public class ExceptionAdvice {
     @ExceptionHandler({
             PartyGenderException.InvalidDescriptionException.class,
             PartyJoinMethodException.InvalidDescriptionException.class,
-            PartyAgeGroupException.InvalidDescriptionException.class
+            PartyAgeGroupException.InvalidDescriptionException.class,
+
+            PartyException.InvalidApproveRequestToPartyException.class,
+            PartyException.NotPartyWriterException.class,
+
+            PartyException.NotAllowedPartyConditionException.class
     })
-    public ErrorResponse handleInvalidDescriptionException(Exception e) {
+    public ErrorResponse handleBadRequestException(Exception e) {
         String errorMessage = e.getMessage();
         log.warn("Validation Error: {}", errorMessage);
-        return ErrorResponse.badRequestError(errorMessage);
-    }
-
-    @ResponseStatus(BAD_REQUEST)
-    @ExceptionHandler({
-            PartyException.InvalidApproveRequestToPartyException.class,
-            PartyException.NotPartyWriterException.class
-    })
-    public ErrorResponse handleInvalidApproveRequestException(Exception e) {
-        String errorMessage = e.getMessage();
-        log.warn(errorMessage);
         return ErrorResponse.badRequestError(errorMessage);
     }
 

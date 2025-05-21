@@ -37,4 +37,14 @@ public abstract class PartyException {
             super(message);
         }
     }
+
+    public static class NotAllowedPartyConditionException extends RuntimeException {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        public NotAllowedPartyConditionException(String message) {
+            super(message);
+        }
+    }
 }
