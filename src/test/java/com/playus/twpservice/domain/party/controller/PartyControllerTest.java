@@ -1244,7 +1244,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 .willReturn(List.of(PartyAppliedUserResponse.of(1L, "name", "10대", "http://image.jpg", "참여 희망합니다!")));
 
         // when // then
-        mockMvc.perform(get("/party/" + partyId + "/applied")
+        mockMvc.perform(get("/party/" + partyId + "/approved-applicants")
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())
@@ -1263,7 +1263,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
 
         // when // then
-        mockMvc.perform(get("/party/" + invalidPartyStr + "/applied")
+        mockMvc.perform(get("/party/" + invalidPartyStr + "/approved-applicants")
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())
