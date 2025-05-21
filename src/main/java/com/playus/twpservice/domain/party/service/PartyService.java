@@ -205,7 +205,7 @@ public class PartyService {
         PartyJoin partyJoin = partyJoinRepository.findByUserId(loginUserId)
                 .orElseThrow(() -> new ApplicantNotFoundException("직관팟에 참여한 사람만 탈퇴할 수 있습니다!"));
 
-        PartyAssert.isApplicantOfParty(partyJoin.getPartyJoinRequestStatus());
+        PartyAssert.isAcceptedUser(partyJoin.getPartyJoinRequestStatus());
 
         partyJoinRepository.delete(partyJoin);
         party.decreaseCurrentMember();

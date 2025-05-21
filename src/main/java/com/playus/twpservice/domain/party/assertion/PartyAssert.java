@@ -44,7 +44,7 @@ public class PartyAssert extends Assert {
         }
     }
 
-    public static void isApplicantOfParty(PartyJoinRequestStatus partyJoinRequestStatus) {
+    public static void isAcceptedUser(PartyJoinRequestStatus partyJoinRequestStatus) {
         if (partyJoinRequestStatus == PartyJoinRequestStatus.WAIT) {
             throw new NotAllowedPartyJoinRequestStatusException("대기 상태인 유저는 직관팟 신청을 취소해주세요!");
         }
