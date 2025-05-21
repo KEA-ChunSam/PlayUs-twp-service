@@ -1040,7 +1040,7 @@ class PartyControllerTest extends ControllerTestSupport {
     void applyPartyFCFS() throws Exception {
         // given
         Long partyId = 1L;
-        willDoNothing().given(partyApplyFacade).applyParty(any(Long.class), any(Long.class));
+        willDoNothing().given(partyApplyFacade).applyParty(any(CustomOAuth2User.class), any(Long.class));
 
         // when // then
         mockMvc.perform(post("/party/" + partyId + "/apply/fcfs")
@@ -1075,7 +1075,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyApproveApplyRequest request = PartyApproveApplyRequest.of("message");
         PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
-        given(partyService.applyParty(any(Long.class), any(Long.class), anyString()))
+        given(partyService.applyParty(any(CustomOAuth2User.class), any(Long.class), anyString()))
                 .willReturn(response);
 
         // when // then
@@ -1095,7 +1095,7 @@ class PartyControllerTest extends ControllerTestSupport {
         Long partyId = 1L;
         PartyApproveApplyRequest request = PartyApproveApplyRequest.of(null);
         PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
-        given(partyService.applyParty(any(Long.class), any(Long.class), any()))
+        given(partyService.applyParty(any(CustomOAuth2User.class), any(Long.class), any()))
                 .willReturn(response);
 
         // when // then
@@ -1115,7 +1115,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         PartyApproveApplyRequest request = PartyApproveApplyRequest.of(null);
         PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
-        given(partyService.applyParty(any(Long.class), any(Long.class), any()))
+        given(partyService.applyParty(any(CustomOAuth2User.class), any(Long.class), any()))
                 .willReturn(response);
 
         // when // then
