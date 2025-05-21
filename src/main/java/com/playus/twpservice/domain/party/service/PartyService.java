@@ -6,6 +6,8 @@ import com.playus.twpservice.domain.chat.exception.ChatRoomException;
 import com.playus.twpservice.domain.chat.repository.ChatMessageRepository;
 import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
 import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.common.security.Gender;
 import com.playus.twpservice.domain.party.assertion.PartyAssert;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
@@ -26,8 +28,8 @@ import com.playus.twpservice.domain.party.entity.PartyThumbnailUrl;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
-import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
+import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyAgeRepository;
@@ -60,6 +62,7 @@ public class PartyService {
 
     private final PartyReadOnlyRepository partyReadOnlyRepository;
     private final PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
+    private final PartyAgeReadOnlyRepository partyAgeReadOnlyRepository;
 
     private final S3Service s3Service;
 
@@ -119,16 +122,24 @@ public class PartyService {
         return PartyDeleteResponse.of(partyId);
     }
 
-    // user 쪽 merge 되면 나이, 성별 검증 로직 추가하기!
-    public void applyPartyFCFS(Long userId, Long partyId) {
+    public void applyPartyFCFS(CustomOAuth2User oauth2User, Long partyId) {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        Long userId = oauth2User.getId();
+        Gender userGender = oauth2User.getUserDto().getGender();
+        PartyAgeGroup userAgeGroup = PartyAgeGroup.getAgeGroupByAge(oauth2User.getUserDto().getAge());
 
         PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
 
         throwIfAlreadyAppliedToParty(userId, partyId);
 
-        PartyAssert.isAppliableParty(party);
+        List<PartyAgeGroup> partyAgeGroupList = partyAgeReadOnlyRepository.findByPartyId(party.getId())
+                .stream()
+                .map(partyAgeDocument -> PartyAgeGroup.getAgeGroupByAge(partyAgeDocument.getAge()))
+                .toList();
+
+        PartyAssert.isAppliableParty(party, partyAgeGroupList, userGender, userAgeGroup);
 
         partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.ACCEPT, null));
         party.increaseCurrentParticipants();
@@ -139,16 +150,24 @@ public class PartyService {
         chatPartRepository.save(ChatPart.create(userId, chatRoom.getId()));
     }
 
-    // user 쪽 merge 되면 나이, 성별 검증 로직 추가하기!
-    public PartyApplyResponse applyParty(Long userId, Long partyId, String requireMessage) {
+    public PartyApplyResponse applyParty(CustomOAuth2User oauth2User, Long partyId, String requireMessage) {
         Party party = partyRepository.findById(partyId)
                 .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        Long userId = oauth2User.getId();
+        Gender userGender = oauth2User.getUserDto().getGender();
+        PartyAgeGroup userAgeGroup = PartyAgeGroup.getAgeGroupByAge(oauth2User.getUserDto().getAge());
 
         PartyAssert.isParticipatedPartyAsWriter(userId, party.getWriterId(), "직관팟 작성자는 지원할 수 없습니다!");
 
         throwIfAlreadyAppliedToParty(userId, partyId);
 
-        PartyAssert.isAppliableParty(party);
+        List<PartyAgeGroup> partyAgeGroupList = partyAgeReadOnlyRepository.findByPartyId(party.getId())
+                .stream()
+                .map(partyAgeDocument -> PartyAgeGroup.getAgeGroupByAge(partyAgeDocument.getAge()))
+                .toList();
+
+        PartyAssert.isAppliableParty(party, partyAgeGroupList, userGender, userAgeGroup);
 
         partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.WAIT, requireMessage));
 
