@@ -98,8 +98,20 @@ public class Party extends BaseTimeEntity {
         this.currentParticipants++;
     }
 
+    public void decreaseCurrentMember() {
+        if (this.currentParticipants <= this.minimumParticipants) {
+            throw new InsufficientPartyParticipantsException("직관팟 정원이 부족합니다!");
+        }
+        this.currentParticipants--;
+    }
+
     public Party assignChatRoom(String chatRoomId) {
         this.chatRoomId = chatRoomId;
+        return this;
+    }
+
+    public Party setCurrentParticipantsForOnlyTest(Long currentParticipants) {
+        this.currentParticipants = currentParticipants;
         return this;
     }
 
@@ -115,10 +127,5 @@ public class Party extends BaseTimeEntity {
                 .writerId(writerId)
                 .matchId(matchId)
                 .build();
-    }
-
-    public Party setCurrentParticipantsForOnlyTest(Long currentParticipants) {
-        this.currentParticipants = currentParticipants;
-        return this;
     }
 }
