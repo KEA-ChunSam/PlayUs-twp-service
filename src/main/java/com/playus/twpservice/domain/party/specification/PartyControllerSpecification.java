@@ -6,6 +6,7 @@ import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveResponse;
+import com.playus.twpservice.domain.party.dto.cancel.PartyCancelResponse;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
@@ -2299,4 +2300,183 @@ public interface PartyControllerSpecification {
     })
     PartyLeaveResponse leaveParty(@Parameter(hidden = true) CustomOAuth2User principal,
                                   @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
+
+
+
+
+    @Tag(name = "Patch", description = "직관팟 신청 취소 API")
+    @Operation(
+            summary = "직관팟 신청 취소 API",
+            description = "직관팟 신청 후 아직 방장에게 승인받지 못한 특정 직관팟에 대한 신청을 취소할 수 있다.",
+            security = @SecurityRequirement(name = "Access"),
+            parameters = {
+                    @Parameter(
+                            name = "Access",
+                            description = "JWT Access Token (쿠키)",
+                            in = ParameterIn.COOKIE,
+                            required = true,
+                            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    ),
+                    @Parameter(
+                            name = "partyId",
+                            in = ParameterIn.PATH,
+                            description = "직관팟 ID",
+                            required = true,
+                            example = "1"
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "승인",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 신청 취소 API 응답 예시",
+                                    value = """
+                                            {
+                                              "message": "직관팟 신청 취소 성공하셨습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "선착순 직관팟에 대해 API를 호출했을 경우",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "선착순 직관팟에는 지원하지 않는 기능입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "직관팟 방장이 직관팟 신청 취소 시도할 경우",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "status": "FORBIDDEN",
+                                              "message": "방장은 직관팟을 삭제해 주세요!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "직관팟에 이미 참여된 유저가 신청 취소 시도할 경우",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "status": "FORBIDDEN",
+                                              "message": "이미 직관팟 회원입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "직관팟 참여 거절된 상태인 유저가 신청 취소 시도할 경우",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 403,
+                                              "status": "FORBIDDEN",
+                                              "message": "직관팟 참여가 이미 거절되었습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "직관팟 ID로 직관팟을 찾을 수 없는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "직관팟이 존재하지 않습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "직관팟 참여 신청하지 않은 사람이 직관팟 취소하는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "직관팟에 신청한 사람만 탈퇴할 수 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    PartyCancelResponse cancelParty(@Parameter(hidden = true) CustomOAuth2User principal,
+                                    @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
 }
