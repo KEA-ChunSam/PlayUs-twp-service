@@ -30,6 +30,7 @@ public class PartyDocument {
     private String title;
 
     @NotNull
+    @Field(name = "party_join_method")
     private PartyJoinMethod partyJoinMethod;
 
     @NotNull
