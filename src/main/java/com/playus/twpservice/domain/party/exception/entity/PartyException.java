@@ -20,10 +20,26 @@ public abstract class PartyException {
         }
     }
 
+    public static class ApplicantNotFoundException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        public ApplicantNotFoundException(String message) {
+            super(message);
+        }
+    }
+
     public static class ExceedPartyParticipantsException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
         public ExceedPartyParticipantsException(String message) {
+            super(message);
+        }
+    }
+
+    public static class InsufficientPartyParticipantsException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        public InsufficientPartyParticipantsException(String message) {
             super(message);
         }
     }
@@ -47,4 +63,16 @@ public abstract class PartyException {
             super(message);
         }
     }
+
+    public static class NotAllowedPartyJoinRequestStatusException extends RuntimeException {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        public NotAllowedPartyJoinRequestStatusException(String message) {
+            super(message);
+        }
+    }
+
+
 }
