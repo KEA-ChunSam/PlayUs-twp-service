@@ -46,4 +46,13 @@ public class UserDto {
         dto.gender = gender;
         return dto;
     }
+
+    public static UserDto createForTest(Long id, Gender gender, Role role, int age) {
+        UserDto dto = new UserDto();
+        dto.id = id;
+        dto.gender = gender;
+        dto.role = role;
+        dto.age = age;
+        return dto;
+    }
 }
