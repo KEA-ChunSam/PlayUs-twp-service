@@ -1,12 +1,17 @@
 package com.playus.twpservice.domain.party.exception.entity;
 
-import java.io.Serial;
-
 public abstract class PartyException {
 
     public static class NotPartyWriterException extends RuntimeException {
 
         public NotPartyWriterException(String message) {
+            super(message);
+        }
+    }
+
+    public static class AlreadyCreatedPartyForPerMatchException extends RuntimeException {
+
+        public AlreadyCreatedPartyForPerMatchException(String message) {
             super(message);
         }
     }

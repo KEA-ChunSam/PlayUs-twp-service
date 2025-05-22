@@ -39,7 +39,6 @@ import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
 import com.playus.twpservice.global.s3.S3Service;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +70,10 @@ public class PartyService {
 
     public PartyCreateResponse createParty(Long userId, PartyCreateRequest request) {
         ChatRoom chatRoom = initializeChatRoomAsWriter(userId, request);
+
+        if (partyReadOnlyRepository.existsByWriterId(userId)) {
+            throw new AlreadyCreatedPartyForPerMatchException("하나의 경기에 대해 하나의 직관팟만 만들 수 있습니다!");
+        }
 
         Party party = partyRepository.save(request.toPartyWith(userId).assignChatRoom(chatRoom.getId()));
 
