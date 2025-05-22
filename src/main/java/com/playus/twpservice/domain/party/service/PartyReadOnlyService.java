@@ -1,8 +1,10 @@
 package com.playus.twpservice.domain.party.service;
 
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
 import com.playus.twpservice.domain.party.assertion.PartyAssert;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
+import com.playus.twpservice.domain.party.dto.appliedparty.AppliedPartyResponse;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
@@ -63,6 +65,16 @@ public class PartyReadOnlyService {
 //        updateMatchDate(List.of(partyDetail), partyDetail.getMatchId());
 
         return partyDetail.toPartyDetailResponse();
+    }
+
+    // update method 는 msa 관련
+    public List<AppliedPartyResponse> getAppliedParties(CustomOAuth2User principal) {
+
+        List<PartyInfo> appliedParties = partyRepository.findAppliedParties(principal.getId());
+        updateWriterInfoWhenFindingAppliedParty(appliedParties);
+        return appliedParties.stream()
+                .map(PartyInfo::toAppliedPartyResponse)
+                .toList();
     }
 
     public List<PartyAppliedUserResponse> getAppliedUsers(Long userId, Long partyId) {
@@ -146,6 +158,17 @@ public class PartyReadOnlyService {
 
         IntStream.range(0, summaries.size()).forEach(i ->
                 summaries.get(i).updateWriterInfo(writerInfoList.get(i)));
+    }
+
+    private void updateWriterInfoWhenFindingAppliedParty(List<PartyInfo> summaries) {
+        List<Long> writerIds = summaries.stream()
+                .map(PartyInfo::getWriterId)
+                .toList();
+
+        List<PartyWriterInfoFeignResponse> writerInfoList = userFeignClient.getWriterInfo(writerIds);
+
+        IntStream.range(0, summaries.size()).forEach(i ->
+                summaries.get(i).updateWriterInfoWhenFindingAppliedParty(writerInfoList.get(i)));
     }
 
     private void updateMatchDate(List<PartyInfo> summaries, Long matchId) {
