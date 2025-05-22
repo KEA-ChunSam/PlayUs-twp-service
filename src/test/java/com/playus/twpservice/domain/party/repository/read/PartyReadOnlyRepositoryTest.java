@@ -20,6 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
+
 class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
@@ -147,6 +148,68 @@ class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {
 
         // when
         Optional<PartyInfo> result = partyReadOnlyRepository.findPartyDetail(notFoundPartyId);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @DisplayName("특정 유저가 지원한 직관팟 내역을 가져올 수 있다.")
+    @Test
+    void findAppliedParties() {
+        // given
+        Long userId = 1L;
+        Long matchId = 1L;
+
+        List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(
+                PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 1L,
+                        PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId + 1, matchId, "chatRoomId"), // 대상
+
+                PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 1L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, userId + 2, matchId + 1, "chatRoom2Id"), // 대상
+
+                PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L, 1L,
+                        PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, userId + 3, matchId + 2, "chatRoom3Id")
+        ));
+
+        partyAgeReadOnlyRepository.saveAll(List.of(
+                PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), 10), // 대상
+                PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), 20), // 대상
+                PartyAgeDocument.createForOnlyTest(3L, partyDocuments.get(1).getId(), 30), // 대상
+                PartyAgeDocument.createForOnlyTest(4L, partyDocuments.get(1).getId(), 40), // 대상
+                PartyAgeDocument.createForOnlyTest(5L, partyDocuments.get(2).getId(), 50)
+        ));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, userId, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null), // 대상
+                PartyJoinDocument.createForOnlyTest(2L, userId, partyDocuments.get(1).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!"), // 대상
+                PartyJoinDocument.createForOnlyTest(3L, userId + 1, partyDocuments.get(2).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!")
+        ));
+
+        partyThumbnailUrlReadOnlyRepository.saveAll(List.of(
+                PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), "thumbnailUrl1"),
+                PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), "thumbnailUrl2")
+        ));
+
+        // when
+        List<PartyInfo> result = partyReadOnlyRepository.findAppliedParties(userId);
+
+        // then
+        assertThat(result).hasSize(2)
+                .extracting("partyId", "title", "ages", "partyGender", "partyJoinRequestStatus", "writerId", "currentParticipantsCount")
+                .containsExactlyInAnyOrder(
+                     tuple(1L, "title1", List.of(10, 20), PartyGender.MALE, PartyJoinRequestStatus.ACCEPT, userId + 1, 1L),
+                     tuple(2L, "title2", List.of(30, 40), PartyGender.FEMALE, PartyJoinRequestStatus.WAIT, userId + 2, 1L)
+                );
+    }
+
+    @DisplayName("지원한 직관팟이 없을 수 있다.")
+    @Test
+    void findAppliedParties_NOT_FOUND() {
+        // given
+        Long userId = 1L;
+
+        // when
+        List<PartyInfo> result = partyReadOnlyRepository.findAppliedParties(userId);
 
         // then
         assertThat(result).isEmpty();
