@@ -3,6 +3,7 @@ package com.playus.twpservice.domain.party.controller;
 import com.playus.twpservice.ControllerTestSupport;
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
 import com.playus.twpservice.domain.common.security.Role;
+import com.playus.twpservice.domain.party.dto.appliedparty.AppliedPartyResponse;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
@@ -23,6 +24,7 @@ import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImage
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -610,13 +612,13 @@ class PartyControllerTest extends ControllerTestSupport {
 //        // given
 //        Long partyId = 1L;
 //        Long writerId = 1L;
-//        List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
+//        List<PartyAgeGroup> partyAgeGroup = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
 //        LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
 //        List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
 //        List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 //
 //        PartyDetailResponse response = PartyDetailResponse.of(1L, writerId, "title", PartyJoinMethod.RESERVATION,
-//                "explanation", partyAges, PartyGender.MALE, "ZSJ", "남성", 25, matchDate,
+//                "explanation", partyAgeGroup, PartyGender.MALE, "ZSJ", "남성", 25, matchDate,
 //                10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 //
 //        given(partyReadOnlyService.getPartyDetail(partyId))
@@ -632,8 +634,8 @@ class PartyControllerTest extends ControllerTestSupport {
 //                .andExpect(jsonPath("$.partyId").value(partyId))
 //                .andExpect(jsonPath("$.writerId").value(writerId))
 //                .andExpect(jsonPath("$.partyJoinMethod").value("승인제"))
-//                .andExpect(jsonPath("$.partyAges[0]").value("10대"))
-//                .andExpect(jsonPath("$.partyAges[1]").value("20대"))
+//                .andExpect(jsonPath("$.partyAgeGroup[0]").value("10대"))
+//                .andExpect(jsonPath("$.partyAgeGroup[1]").value("20대"))
 //                .andExpect(jsonPath("$.text").value("explanation"))
 //                .andExpect(jsonPath("$.availableGender").value("남자만"))
 //                .andExpect(jsonPath("$.authorName").value("ZSJ"))
@@ -1336,6 +1338,87 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         mockMvc.perform(patch("/party/" + invalidPartyStr + "/cancel")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
+    @DisplayName("자신이 신청한 직관팟 현황을 조회할 수 있다.")
+    @Test
+    void getAppliedParties() throws Exception {
+        // given
+        Long partyId = 1L;
+        given(partyReadOnlyService.getAppliedParties(any(), any()))
+                .willReturn(List.of(
+                        AppliedPartyResponse.of(1L, "title", List.of(17, 28), PartyGender.MALE,
+                                PartyJoinRequestStatus.WAIT, 1L, "ZSJ", "남성", 17, "http://image.jpg", 5),
+
+                        AppliedPartyResponse.of(2L, "title2", List.of(35, 47), PartyGender.FEMALE,
+                                PartyJoinRequestStatus.ACCEPT, 2L, "KIM", "여성", 35, "http://image2.jpg", 1),
+
+                        AppliedPartyResponse.of(3L, "title3", List.of(52, 65), PartyGender.NO_MATTER,
+                                PartyJoinRequestStatus.REFUSE, 3L, "JUNG", "남성", 47, "http://image3.jpg", 1)
+
+                        ));
+
+        // when // then
+        mockMvc.perform(get("/party/" + partyId + "/applied-parties")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].partyId").value(1))
+                .andExpect(jsonPath("$[0].title").value("title"))
+                .andExpect(jsonPath("$[0].partyAgeGroup[0]").value("10대"))
+                .andExpect(jsonPath("$[0].partyAgeGroup[1]").value("20대"))
+                .andExpect(jsonPath("$[0].partyGender").value("남자만"))
+                .andExpect(jsonPath("$[0].partyJoinRequestStatus").value("신청중"))
+                .andExpect(jsonPath("$[0].writerId").value(1L))
+                .andExpect(jsonPath("$[0].authorName").value("ZSJ"))
+                .andExpect(jsonPath("$[0].authorGender").value("남성"))
+                .andExpect(jsonPath("$[0].authorAge").value("10대"))
+                .andExpect(jsonPath("$[0].writerThumbnailUrl").value("http://image.jpg"))
+                .andExpect(jsonPath("$[0].currentParticipants").value(5))
+
+                .andExpect(jsonPath("$[1].partyId").value(2))
+                .andExpect(jsonPath("$[1].title").value("title2"))
+                .andExpect(jsonPath("$[1].partyAgeGroup[0]").value("30대"))
+                .andExpect(jsonPath("$[1].partyAgeGroup[1]").value("40대"))
+                .andExpect(jsonPath("$[1].partyGender").value("여자만"))
+                .andExpect(jsonPath("$[1].partyJoinRequestStatus").value("채팅방 입장!"))
+                .andExpect(jsonPath("$[1].writerId").value(2L))
+                .andExpect(jsonPath("$[1].authorName").value("KIM"))
+                .andExpect(jsonPath("$[1].authorGender").value("여성"))
+                .andExpect(jsonPath("$[1].authorAge").value("30대"))
+                .andExpect(jsonPath("$[1].writerThumbnailUrl").value("http://image2.jpg"))
+                .andExpect(jsonPath("$[1].currentParticipants").value(1))
+
+                .andExpect(jsonPath("$[2].partyId").value(3))
+                .andExpect(jsonPath("$[2].title").value("title3"))
+                .andExpect(jsonPath("$[2].partyAgeGroup[0]").value("50대"))
+                .andExpect(jsonPath("$[2].partyAgeGroup[1]").value("60대 이상"))
+                .andExpect(jsonPath("$[2].partyGender").value("상관없음"))
+                .andExpect(jsonPath("$[2].partyJoinRequestStatus").value("승인 거부됨"))
+                .andExpect(jsonPath("$[2].writerId").value(3L))
+                .andExpect(jsonPath("$[2].authorName").value("JUNG"))
+                .andExpect(jsonPath("$[2].authorGender").value("남성"))
+                .andExpect(jsonPath("$[2].authorAge").value("40대"))
+                .andExpect(jsonPath("$[2].writerThumbnailUrl").value("http://image3.jpg"))
+                .andExpect(jsonPath("$[2].currentParticipants").value(1));
+    }
+
+    @DisplayName("자신이 신청한 직관팟 현황을 조회할 때, 직관팟의 ID는 1 이상이여야 한다.")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void getAppliedParties_INVALID_PARTYID(String invalidPartyStr) throws Exception {
+        // given
+
+        // when // then
+        mockMvc.perform(get("/party/" + invalidPartyStr + "/applied-parties")
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())
