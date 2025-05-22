@@ -171,14 +171,55 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
 
+
+//    LookupOperation partyLookupOperation = lookup("party", "_id", "_id", "party");
+//    LookupOperation partyAgeLookupOperation = lookup("party_age", "party_id", "party_id", "partyAge");
+//    LookupOperation partyThumbnailLookupOperation = lookup("party_thumbnailUrl", "party_id", "party_id", "partyThumbnailUrl");
+
     @Override
     public List<PartyInfo> findAppliedParties(Long userId) {
 
-        MatchOperation matchOperation = match(new Criteria("user_id").is(userId));
+        MatchOperation matchOperation = match(new Criteria("user_id").is(userId)
+                .and("deleted_at").is(null));
 
-        LookupOperation partyLookupOperation = lookup("party", "_id", "_id", "party");
-        LookupOperation partyAgeLookupOperation = lookup("party_age", "party_id", "party_id", "partyAge");
-        LookupOperation partyThumbnailLookupOperation = lookup("party_thumbnailUrl", "party_id", "party_id", "partyThumbnailUrl");
+        AggregationOperation partyLookupOperation = context -> new Document(
+                "$lookup",
+                new Document("from", "party")
+                        .append("let", new Document("partyId", "$_id"))
+                        .append("pipeline", Arrays.asList(
+                                new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
+                                        new Document("$eq", Arrays.asList("$_id", "$$partyId")),
+                                        new Document("$eq", Arrays.asList("$deleted_at", null))
+                                ))))
+                        ))
+                        .append("as", "party")
+        );
+
+        AggregationOperation partyAgeLookupOperation = context -> new Document(
+                "$lookup",
+                new Document("from", "party_age")
+                        .append("let", new Document("partyId", "$party_id"))
+                        .append("pipeline", Arrays.asList(
+                                new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
+                                        new Document("$eq", Arrays.asList("$party_id", "$$partyId")),
+                                        new Document("$eq", Arrays.asList("$deleted_at", null))
+                                ))))
+                        ))
+                        .append("as", "partyAge")
+        );
+
+        AggregationOperation partyThumbnailLookupOperation = context -> new Document(
+                "$lookup",
+                new Document("from", "party_thumbnailUrl")
+                        .append("let", new Document("partyId", "$party_id"))
+                        .append("pipeline", Arrays.asList(
+                                new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
+                                        new Document("$eq", Arrays.asList("$party_id", "$$partyId")),
+                                        new Document("$eq", Arrays.asList("$deleted_at", null))
+                                ))))
+                        ))
+                        .append("as", "partyThumbnailUrl")
+        );
 
         ProjectionOperation projectionOperation = Aggregation.project()
                 .and("party_id").as("partyId")
