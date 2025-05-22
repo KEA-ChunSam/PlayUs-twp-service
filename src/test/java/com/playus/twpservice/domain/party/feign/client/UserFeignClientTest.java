@@ -94,8 +94,8 @@ class UserFeignClientTest extends IntegrationTestSupport {
         // given
         List<Long> writerIdList = List.of(1L, 2L);
         List<PartyWriterInfoFeignResponse> expectedResponse = List.of(
-                PartyWriterInfoFeignResponse.of(1L, "user1", "남성", "http://user1-thumb"),
-                PartyWriterInfoFeignResponse.of(2L, "user2", "여성", "http://user2-thumb")
+                PartyWriterInfoFeignResponse.of(1L, "user1", "남성", 17, "http://user1-thumb"),
+                PartyWriterInfoFeignResponse.of(2L, "user2", "여성", 26, "http://user2-thumb")
         );
 
         stubFor(post(urlEqualTo("/user/api/writers"))
@@ -111,10 +111,10 @@ class UserFeignClientTest extends IntegrationTestSupport {
 
         // then
         assertThat(result).hasSize(2)
-                .extracting("id", "writerName", "writerGender", "writerThumbnailUrl")
+                .extracting("id", "writerName", "writerGender", "writerAge", "writerThumbnailUrl")
                 .containsExactly(
-                        tuple(1L, "user1", "남성", "http://user1-thumb"),
-                        tuple(2L, "user2", "여성", "http://user2-thumb")
+                        tuple(1L, "user1", "남성", 17, "http://user1-thumb"),
+                        tuple(2L, "user2", "여성", 26, "http://user2-thumb")
                 );
     }
 
