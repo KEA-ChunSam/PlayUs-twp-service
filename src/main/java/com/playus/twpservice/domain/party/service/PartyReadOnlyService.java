@@ -38,6 +38,8 @@ public class PartyReadOnlyService {
     private final MatchFeignClient matchFeignClient;
     private final PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
 
+
+    // update method 는 msa 관련
     public List<PartyInfoResponse> getPartyInfoListByMatchId(Long matchId) {
 
         List<PartyInfo> partyInfoList = partyRepository.findPartyInfoList(matchId);
@@ -51,6 +53,7 @@ public class PartyReadOnlyService {
                 .toList();
     }
 
+    // update method 는 msa 관련
     public PartyDetailResponse getPartyDetail(Long partyId) {
         PartyInfo partyDetail = partyRepository.findPartyDetail(partyId)
                 .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
