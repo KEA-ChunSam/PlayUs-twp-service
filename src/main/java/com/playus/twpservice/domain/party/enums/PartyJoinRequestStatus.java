@@ -1,9 +1,16 @@
 package com.playus.twpservice.domain.party.enums;
 
 import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
+@AllArgsConstructor
 public enum PartyJoinRequestStatus {
-    WAIT, REFUSE, ACCEPT;
+
+    WAIT("신청중"), REFUSE("승인 거부됨"), ACCEPT("채팅방 입장!");
+
+    private String message;
 
     public static void throwIfAlreadyAppliedToParty(PartyJoinRequestStatus status) {
 
