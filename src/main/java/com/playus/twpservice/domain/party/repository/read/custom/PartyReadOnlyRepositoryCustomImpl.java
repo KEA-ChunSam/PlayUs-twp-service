@@ -14,7 +14,6 @@ import java.util.Optional;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 
-// 5/21 기준 soft delete 반영 아직 안 되엇음!!!
 @RequiredArgsConstructor
 public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositoryCustom {
 
@@ -170,6 +169,37 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
         List<PartyInfo> resultList = results.getMappedResults();
 
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
+    }
+
+    @Override
+    public List<PartyInfo> findAppliedParties(Long userId) {
+
+        MatchOperation matchOperation = match(new Criteria("user_id").is(userId));
+
+        LookupOperation partyLookupOperation = lookup("party", "_id", "_id", "party");
+        LookupOperation partyAgeLookupOperation = lookup("party_age", "party_id", "party_id", "partyAge");
+        LookupOperation partyThumbnailLookupOperation = lookup("party_thumbnailUrl", "party_id", "party_id", "partyThumbnailUrl");
+
+        ProjectionOperation projectionOperation = Aggregation.project()
+                .and("party_id").as("partyId")
+                .and("party.title").arrayElementAt(0).as("title")
+                .and("partyAge.age").as("ages")
+                .and("party.party_gender").arrayElementAt(0).as("partyGender")
+                .and("party_join_request_status").as("partyJoinRequestStatus")
+                .and("party.writer_id").arrayElementAt(0).as("writerId")
+                .and("party.current_participants").arrayElementAt(0).as("currentParticipantsCount");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+             matchOperation,
+             partyLookupOperation,
+             partyAgeLookupOperation,
+             partyThumbnailLookupOperation,
+             projectionOperation
+        );
+
+        AggregationResults<PartyInfo> results = readMongoTemplate.aggregate(aggregation, "party_join", PartyInfo.class);
+
+        return results.getMappedResults();
     }
 }
 
