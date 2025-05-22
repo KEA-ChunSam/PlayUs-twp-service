@@ -160,6 +160,24 @@ class PartyServiceTest extends IntegrationTestSupport {
                 .containsExactly(savedPartyId, savedChatRoom.getId());
     }
 
+    @DisplayName("하나의 경기에 대해 하나의 직관팟만 만들 수 있다.")
+    @Test
+    void createParty_ALREADY_CREATED_PARTY() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+        PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
+                1L, 10L, List.of("url", "url2"), 1L, "message");
+
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title2", "16일 경기 같이 보실 분~",
+                1L, 15L, 1L, PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, "TEST-CHATROOM"));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.createParty(writerId, request))
+                .isInstanceOf(PartyException.AlreadyCreatedPartyForPerMatchException.class)
+                .hasMessage("하나의 경기에 대해 하나의 직관팟만 만들 수 있습니다!");
+    }
+
     @DisplayName("썸네일 URL이 비어 있을 때에도 직관팟을 생성할 수 있다.")
     @Test
     void createParty_EMPTY_IMAGE_URL() {
@@ -211,6 +229,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(result.presignedUrl()).isEqualTo(responseUrl);
     }
 
+    // 프론트 측에서 msa 제외 수정 테스트 위해 updateThumbnailUrls() 등 서비스 코드 주석 처리해서 이 부분도 주석 처리함
 //    @DisplayName("직관팟을 수정할 수 있다.")
 //    @Test
 //    void updateParty() {
