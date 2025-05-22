@@ -1351,22 +1351,22 @@ class PartyControllerTest extends ControllerTestSupport {
     @Test
     void getAppliedParties() throws Exception {
         // given
-        Long partyId = 1L;
-        given(partyReadOnlyService.getAppliedParties(any(), any()))
+
+        given(partyReadOnlyService.getAppliedParties(any()))
                 .willReturn(List.of(
-                        AppliedPartyResponse.of(1L, "title", List.of(17, 28), PartyGender.MALE,
-                                PartyJoinRequestStatus.WAIT, 1L, "ZSJ", "남성", 17, "http://image.jpg", 5),
+                        AppliedPartyResponse.of(1L, "title", List.of("10대", "20대"), "남자만",
+                                "신청중", 1L, "ZSJ", "남성", "10대", "http://image.jpg", 5),
 
-                        AppliedPartyResponse.of(2L, "title2", List.of(35, 47), PartyGender.FEMALE,
-                                PartyJoinRequestStatus.ACCEPT, 2L, "KIM", "여성", 35, "http://image2.jpg", 1),
+                        AppliedPartyResponse.of(2L, "title2", List.of("30대", "40대"), "여자만",
+                                "채팅방 입장!", 2L, "KIM", "여성", "30대", "http://image2.jpg", 1),
 
-                        AppliedPartyResponse.of(3L, "title3", List.of(52, 65), PartyGender.NO_MATTER,
-                                PartyJoinRequestStatus.REFUSE, 3L, "JUNG", "남성", 47, "http://image3.jpg", 1)
+                        AppliedPartyResponse.of(3L, "title3", List.of("50대", "60대 이상"), "상관없음",
+                                "승인 거부됨", 3L, "JUNG", "남성", "40대", "http://image3.jpg", 1)
 
                         ));
 
         // when // then
-        mockMvc.perform(get("/party/" + partyId + "/applied-parties")
+        mockMvc.perform(get("/party/applied-parties")
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())
@@ -1409,23 +1409,6 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$[2].authorAge").value("40대"))
                 .andExpect(jsonPath("$[2].writerThumbnailUrl").value("http://image3.jpg"))
                 .andExpect(jsonPath("$[2].currentParticipants").value(1));
-    }
-
-    @DisplayName("자신이 신청한 직관팟 현황을 조회할 때, 직관팟의 ID는 1 이상이여야 한다.")
-    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
-    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
-    void getAppliedParties_INVALID_PARTYID(String invalidPartyStr) throws Exception {
-        // given
-
-        // when // then
-        mockMvc.perform(get("/party/" + invalidPartyStr + "/applied-parties")
-                        .contentType(APPLICATION_JSON)
-                        .with(authentication(token)))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("400"))
-                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
     }
 
     private void assertBadRequestOfPartyCreateRequest(PartyCreateRequest request, String requestUri, String expectedResult) throws Exception {
