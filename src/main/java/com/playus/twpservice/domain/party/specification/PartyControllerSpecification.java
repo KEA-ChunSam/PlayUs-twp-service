@@ -420,6 +420,21 @@ public interface PartyControllerSpecification {
                     )
             ),
             @ApiResponse(
+                    responseCode = "409", description = "이미 특정 경기에 대해 직관팟을 만들었을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 409,
+                                              "status": "CONFLICT",
+                                              "message": "하나의 경기에 대해 하나의 직관팟만 만들 수 있습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "500", description = "서버 내부 오류",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
