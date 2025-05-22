@@ -42,9 +42,9 @@ public class PartyReadOnlyService {
 
         List<PartyInfo> partyInfoList = partyRepository.findPartyInfoList(matchId);
 
-        updateUserThumbnailUrls(partyInfoList);
-        updateWriterInfo(partyInfoList);
-        updateMatchDate(partyInfoList, matchId);
+//        updateUserThumbnailUrls(partyInfoList);
+//        updateWriterInfo(partyInfoList);
+//        updateMatchDate(partyInfoList, matchId);
 
         return partyInfoList.stream()
                 .map(PartyInfo::toResponse)
