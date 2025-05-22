@@ -185,7 +185,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
         AggregationOperation partyLookupOperation = context -> new Document(
                 "$lookup",
                 new Document("from", "party")
-                        .append("let", new Document("partyId", "$_id"))
+                        .append("let", new Document("partyId", "$party_id"))
                         .append("pipeline", Arrays.asList(
                                 new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
                                         new Document("$eq", Arrays.asList("$_id", "$$partyId")),
