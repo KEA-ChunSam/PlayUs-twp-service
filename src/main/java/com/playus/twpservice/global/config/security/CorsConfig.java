@@ -30,11 +30,7 @@ public class CorsConfig {
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
-        configuration.addAllowedMethod(HttpMethod.GET.name());
-        configuration.addAllowedMethod(HttpMethod.POST.name());
-        configuration.addAllowedMethod(HttpMethod.PUT.name());
-        configuration.addAllowedMethod(HttpMethod.DELETE.name());
-        configuration.addAllowedMethod(HttpMethod.OPTIONS.name());
+        configuration.addAllowedMethod("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
