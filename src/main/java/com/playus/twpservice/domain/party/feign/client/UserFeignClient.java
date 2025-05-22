@@ -1,7 +1,7 @@
 package com.playus.twpservice.domain.party.feign.client;
 
 import com.playus.twpservice.domain.party.feign.fallback.UserFeignFallback;
-import com.playus.twpservice.domain.party.feign.response.PartyApplicantsInfoFeignResponse;
+import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -22,5 +22,5 @@ public interface UserFeignClient {
      List<PartyWriterInfoFeignResponse> getWriterInfo(@RequestBody List<Long> writerIdList);
 
      @PostMapping("/info")
-     List<PartyApplicantsInfoFeignResponse> getPartyApplicantsInfo(@RequestBody List<Long> userIdList);
+     List<PartyParticipantsInfoFeignResponse> getPartyApplicantsInfo(@RequestBody List<Long> userIdList);
 }

@@ -1,13 +1,10 @@
 package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.IntegrationTestSupport;
-import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
-import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
-import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
@@ -15,9 +12,7 @@ import com.playus.twpservice.domain.party.exception.document.PartyDocumentExcept
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
-import com.playus.twpservice.domain.party.feign.response.PartyApplicantsInfoFeignResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
+import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
@@ -28,8 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -215,8 +208,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         Long userId = 1L;
         Long matchId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
-                List.of(PartyApplicantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
-                        PartyApplicantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
+                List.of(PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
+                        PartyParticipantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
         ));
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
@@ -249,8 +242,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         Long userId = 1L;
         Long matchId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
-                List.of(PartyApplicantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
-                        PartyApplicantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
+                List.of(PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
+                        PartyParticipantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
                 ));
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
@@ -276,8 +269,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         Long userId = 1L;
         Long matchId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
-                List.of(PartyApplicantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
-                        PartyApplicantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
+                List.of(PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
+                        PartyParticipantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
                 ));
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,

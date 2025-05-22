@@ -2,7 +2,7 @@ package com.playus.twpservice.domain.party.feign.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.IntegrationTestSupport;
-import com.playus.twpservice.domain.party.feign.response.PartyApplicantsInfoFeignResponse;
+import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.global.response.ErrorResponse;
@@ -143,9 +143,9 @@ class UserFeignClientTest extends IntegrationTestSupport {
     void getPartyApplicantsInfo() throws JsonProcessingException {
         // given
         List<Long> userIdList = List.of(1L, 2L);
-        List<PartyApplicantsInfoFeignResponse> expectedResponse = List.of(
-                PartyApplicantsInfoFeignResponse.of(1L, "kim", 14, "http://user1-thumb"),
-                PartyApplicantsInfoFeignResponse.of(2L, "jung", 27,  "http://user2-thumb")
+        List<PartyParticipantsInfoFeignResponse> expectedResponse = List.of(
+                PartyParticipantsInfoFeignResponse.of(1L, "kim", 14, "http://user1-thumb"),
+                PartyParticipantsInfoFeignResponse.of(2L, "jung", 27,  "http://user2-thumb")
         );
 
         stubFor(post(urlEqualTo("/user/api/info"))
@@ -157,7 +157,7 @@ class UserFeignClientTest extends IntegrationTestSupport {
                 ));
 
         // when
-        List<PartyApplicantsInfoFeignResponse> result = userFeignClient.getPartyApplicantsInfo(userIdList);
+        List<PartyParticipantsInfoFeignResponse> result = userFeignClient.getPartyApplicantsInfo(userIdList);
 
         // then
         assertThat(result).hasSize(2)
