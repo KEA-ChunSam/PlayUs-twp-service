@@ -1,9 +1,12 @@
 package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.IntegrationTestSupport;
+import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
+import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
+import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
@@ -13,6 +16,8 @@ import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
+import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
+import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
@@ -23,11 +28,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
+/**
+ * 직관팟 리스트/상세 정보 불러오는 기능은 TestContainers에서 저장햇을 때 만들어지는 collection 구조와
+ * CDC 통해 만들어지는 Collection 구조가 달라 주석 처리 << 관련해서 5/22 오전 프론트에서 테스트햇을 때 성공함
+ *
+ */
 class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
     @Autowired
@@ -72,8 +84,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 //        );
 //
 //        given(userFeignClient.getWriterInfo(List.of(1L, 2L))).willReturn(List.of(
-//                PartyWriterInfoFeignResponse.of(1L, "writer1", "남성", "http://writer1-thumbnail"),
-//                PartyWriterInfoFeignResponse.of(2L, "writer2", "여성", "http://writer2-thumbnail")
+//                PartyWriterInfoFeignResponse.of(1L, "writer1", "남성", 17, "http://writer1-thumbnail"),
+//                PartyWriterInfoFeignResponse.of(2L, "writer2", "여성", 26, "http://writer2-thumbnail")
 //        ));
 //
 //        LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0);
@@ -106,14 +118,14 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 //        // then
 //        assertThat(result).hasSize(2)
 //
-//                .extracting("partyId", "writerId", "title", "partyJoinMethod", "partyAges", "availableGender", "authorName", "authorGender",
+//                .extracting("partyId", "writerId", "title", "partyJoinMethod", "partyAges", "availableGender", "authorName", "authorGender", "authorAge",
 //                        "matchDate", "currentParticipantsCount", "maximumParticipantsCount", "partyThumbnailUrls", "userThumbnailUrls")
 //
 //                .containsExactlyInAnyOrder(
-//                        tuple(1L, 1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성",
+//                        tuple(1L, 1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성", "10대",
 //                                matchDate, 3L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2"), List.of("http://writer1-thumbnail", "http://user1", "http://user2")),
 //
-//                        tuple(2L, 2L, "title2", PartyJoinMethod.RESERVATION.getDescription(), List.of("20대"), PartyGender.FEMALE.getDescription(), "writer2", "여성",
+//                        tuple(2L, 2L, "title2", PartyJoinMethod.RESERVATION.getDescription(), List.of("20대"), PartyGender.FEMALE.getDescription(), "writer2", "여성", "20대",
 //                                matchDate, 1L, 10L, List.of(), List.of("http://writer2-thumbnail"))
 //                );
 //    }
@@ -146,7 +158,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 //        );
 //
 //        given(userFeignClient.getWriterInfo(List.of(writerId))).willReturn(List.of(
-//                PartyWriterInfoFeignResponse.of(1L, "writer1", "남성", "http://writer1-thumbnail")
+//                PartyWriterInfoFeignResponse.of(1L, "writer1", "남성", 35, "http://writer1-thumbnail")
 //        ));
 //
 //        LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0);
@@ -179,11 +191,11 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 //        // then
 //        assertThat(result)
 //
-//                .extracting("partyId", "writerId", "title", "partyJoinMethod", "text", "partyAges", "availableGender", "authorName", "authorGender",
+//                .extracting("partyId", "writerId", "title", "partyJoinMethod", "text", "partyAges", "availableGender", "authorName", "authorGender", "authorAge",
 //                        "matchDate", "currentParticipantsCount", "maximumParticipantsCount", "partyThumbnailUrls", "userThumbnailUrls")
 //
 //                .containsExactly(
-//                        1L, 1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), "text1", List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성",
+//                        1L, 1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), "text1", List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성", "30대",
 //                        matchDate, 3L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2"), List.of("http://writer1-thumbnail", "http://user1", "http://user2")
 //
 //                );
