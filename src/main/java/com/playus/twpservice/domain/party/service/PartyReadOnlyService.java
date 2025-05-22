@@ -11,7 +11,7 @@ import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
-import com.playus.twpservice.domain.party.feign.response.PartyApplicantsInfoFeignResponse;
+import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
@@ -38,19 +38,22 @@ public class PartyReadOnlyService {
     private final MatchFeignClient matchFeignClient;
     private final PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
 
+
+    // update method 는 msa 관련
     public List<PartyInfoResponse> getPartyInfoListByMatchId(Long matchId) {
 
         List<PartyInfo> partyInfoList = partyRepository.findPartyInfoList(matchId);
 
-        updateUserThumbnailUrls(partyInfoList);
-        updateWriterInfo(partyInfoList);
-        updateMatchDate(partyInfoList, matchId);
+//        updateUserThumbnailUrls(partyInfoList);
+//        updateWriterInfo(partyInfoList);
+//        updateMatchDate(partyInfoList, matchId);
 
         return partyInfoList.stream()
                 .map(PartyInfo::toResponse)
                 .toList();
     }
 
+    // update method 는 msa 관련
     public PartyDetailResponse getPartyDetail(Long partyId) {
         PartyInfo partyDetail = partyRepository.findPartyDetail(partyId)
                 .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
@@ -87,7 +90,7 @@ public class PartyReadOnlyService {
                 ));
 
         // 지원자 정보 조회
-        List<PartyApplicantsInfoFeignResponse> orderedUserInfos = userFeignClient.getPartyApplicantsInfo(orderedUserIds);
+        List<PartyParticipantsInfoFeignResponse> orderedUserInfos = userFeignClient.getPartyApplicantsInfo(orderedUserIds);
 
         // 주의: Feign 클라이언트가 요청 순서를 보존한다고 가정합니다
         return returnPartyApplicantInfoList(orderedUserIds, orderedUserInfos, userRequireMessageMap);
@@ -95,7 +98,7 @@ public class PartyReadOnlyService {
 
     private static List<PartyAppliedUserResponse> returnPartyApplicantInfoList(
             List<Long> orderedUserIds,
-            List<PartyApplicantsInfoFeignResponse> orderedUserInfos,
+            List<PartyParticipantsInfoFeignResponse> orderedUserInfos,
             Map<Long, String> userRequireMessageMap) {
 
         if (orderedUserIds.isEmpty()) {
@@ -110,7 +113,7 @@ public class PartyReadOnlyService {
         return IntStream.range(0, orderedUserIds.size())
                 .mapToObj(i -> {
                     Long userId = orderedUserIds.get(i);
-                    PartyApplicantsInfoFeignResponse userInfo = orderedUserInfos.get(i);
+                    PartyParticipantsInfoFeignResponse userInfo = orderedUserInfos.get(i);
                     String requireMessage = userRequireMessageMap.get(userId);
 
                     String ageGroupDescription = PartyAgeGroup.getAgeDescriptionByAge((userInfo.age() / 10) * 10);

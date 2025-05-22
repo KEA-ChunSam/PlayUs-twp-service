@@ -2,35 +2,75 @@ package com.playus.twpservice.domain.party.repository.read.custom;
 
 import com.playus.twpservice.domain.party.vo.PartyInfo;
 import lombok.RequiredArgsConstructor;
+import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.lookup;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
+
+// 5/21 기준 soft delete 반영 아직 안 되엇음!!!
 @RequiredArgsConstructor
 public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositoryCustom {
 
     private final MongoTemplate readMongoTemplate;
 
     /**
-     *
      * field는 class field 기준이 아닌, collection field 기준!
+     *
      * @param matchId
      * @return
      */
     @Override
     public List<PartyInfo> findPartyInfoList(Long matchId) {
 
-        MatchOperation matchOperation = match(new Criteria("match_id").is(matchId));
+        MatchOperation matchOperation = match(new Criteria("match_id").is(matchId)
+                .and("deleted_at").is(null));
 
-        LookupOperation partyAgeLookupOperation = lookup("party_age", "_id", "party_id", "partyAge");
-        LookupOperation partyJoinLookupOperation = lookup("party_join", "_id", "party_id", "partyJoin");
-        LookupOperation partyThumbnailUrlLookupOperation = lookup("party_thumbnailurl", "_id", "party_id", "partyThumbnailUrl");
+        AggregationOperation partyAgeLookupOperation = context -> new Document(
+                "$lookup",
+                new Document("from", "party_age")
+                        .append("let", new Document("partyId", "$_id"))
+                        .append("pipeline", Arrays.asList(
+                                new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
+                                        new Document("$eq", Arrays.asList("$party_id", "$$partyId")),
+                                        new Document("$eq", Arrays.asList("$deleted_at", null))
+                                ))))
+                        ))
+                        .append("as", "partyAge")
+        );
+
+
+        AggregationOperation partyJoinLookupOperation = context -> new Document(
+                "$lookup",
+                new Document("from", "party_join")
+                        .append("let", new Document("partyId", "$_id"))
+                        .append("pipeline", Arrays.asList(
+                                new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
+                                        new Document("$eq", Arrays.asList("$party_id", "$$partyId")),
+                                        new Document("$eq", Arrays.asList("$deleted_at", null))
+                                ))))
+                        ))
+                        .append("as", "partyJoin")
+        );
+
+        AggregationOperation partyThumbnailUrlLookupOperation = context -> new Document(
+                "$lookup",
+                new Document("from", "party_thumbnailurl")
+                        .append("let", new Document("partyId", "$_id"))
+                        .append("pipeline", Arrays.asList(
+                                new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
+                                        new Document("$eq", Arrays.asList("$party_id", "$$partyId")),
+                                        new Document("$eq", Arrays.asList("$deleted_at", null))
+                                ))))
+                        ))
+                        .append("as", "partyThumbnailUrl")
+        );
 
         ProjectionOperation projectionOperation = Aggregation.project()
                 .and("_id").as("partyId")
@@ -39,13 +79,13 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("match_id").as("matchId")
                 .and("current_participants").as("currentParticipantsCount")
                 .and("partyJoin.user_id").as("userIdList")
-                .and("partyJoinMethod").as("partyJoinMethod")
+                .and("party_join_method").as("partyJoinMethod")
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")
                 .and("partyThumbnailUrl.thumbnailUrl").as("thumbnailUrls");
 
-        Aggregation aggregation = Aggregation.newAggregation(
+        Aggregation aggregation = newAggregation(
                 matchOperation,
                 partyAgeLookupOperation,
                 partyJoinLookupOperation,
@@ -60,11 +100,49 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
 
     @Override
     public Optional<PartyInfo> findPartyDetail(Long partyId) {
-        MatchOperation matchOperation = match(new Criteria("_id").is(partyId));
 
-        LookupOperation partyAgeLookupOperation = lookup("party_age", "_id", "party_id", "partyAge");
-        LookupOperation partyJoinLookupOperation = lookup("party_join", "_id", "party_id", "partyJoin");
-        LookupOperation partyThumbnailUrlLookupOperation = lookup("party_thumbnailurl", "_id", "party_id", "partyThumbnailUrl");
+        MatchOperation matchOperation = match(new Criteria("_id").is(partyId)
+                .and("deleted_at").is(null));
+
+        AggregationOperation partyAgeLookupOperation = context -> new Document(
+                "$lookup",
+                new Document("from", "party_age")
+                        .append("let", new Document("partyId", "$_id"))
+                        .append("pipeline", Arrays.asList(
+                                new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
+                                        new Document("$eq", Arrays.asList("$party_id", "$$partyId")),
+                                        new Document("$eq", Arrays.asList("$deleted_at", null))
+                                ))))
+                        ))
+                        .append("as", "partyAge")
+        );
+
+
+        AggregationOperation partyJoinLookupOperation = context -> new Document(
+                "$lookup",
+                new Document("from", "party_join")
+                        .append("let", new Document("partyId", "$_id"))
+                        .append("pipeline", Arrays.asList(
+                                new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
+                                        new Document("$eq", Arrays.asList("$party_id", "$$partyId")),
+                                        new Document("$eq", Arrays.asList("$deleted_at", null))
+                                ))))
+                        ))
+                        .append("as", "partyJoin")
+        );
+
+        AggregationOperation partyThumbnailUrlLookupOperation = context -> new Document(
+                "$lookup",
+                new Document("from", "party_thumbnailurl")
+                        .append("let", new Document("partyId", "$_id"))
+                        .append("pipeline", Arrays.asList(
+                                new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
+                                        new Document("$eq", Arrays.asList("$party_id", "$$partyId")),
+                                        new Document("$eq", Arrays.asList("$deleted_at", null))
+                                ))))
+                        ))
+                        .append("as", "partyThumbnailUrl")
+        );
 
         ProjectionOperation projectionOperation = Aggregation.project()
                 .and("_id").as("partyId")
@@ -74,7 +152,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("match_id").as("matchId")
                 .and("current_participants").as("currentParticipantsCount")
                 .and("partyJoin.user_id").as("userIdList")
-                .and("partyJoinMethod").as("partyJoinMethod")
+                .and("party_join_method").as("partyJoinMethod")
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")

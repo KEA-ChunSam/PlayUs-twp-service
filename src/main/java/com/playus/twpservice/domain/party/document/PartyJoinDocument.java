@@ -32,6 +32,7 @@ public class PartyJoinDocument {
     private Long partyId;
 
     @NotNull
+    @Field(name = "party_join_request_status")
     private PartyJoinRequestStatus partyJoinRequestStatus;
 
     @Field(name = "require_message")

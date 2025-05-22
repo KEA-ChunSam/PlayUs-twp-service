@@ -1,7 +1,7 @@
 package com.playus.twpservice.domain.party.feign.fallback;
 
 import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
-import com.playus.twpservice.domain.party.feign.response.PartyApplicantsInfoFeignResponse;
+import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +26,8 @@ public class UserFeignFallback implements UserFeignClient {
     }
 
     @Override
-    public List<PartyApplicantsInfoFeignResponse> getPartyApplicantsInfo(List<Long> userIdList) {
+    public List<PartyParticipantsInfoFeignResponse> getPartyApplicantsInfo(List<Long> userIdList) {
         log.error("503 happened in UserFeignClient at fetching applicants data!!!");
-        return List.of(PartyApplicantsInfoFeignResponse.withServiceUnavailable());
+        return List.of(PartyParticipantsInfoFeignResponse.withServiceUnavailable());
     }
 }

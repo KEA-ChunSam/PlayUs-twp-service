@@ -6,6 +6,7 @@ import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveResponse;
+import com.playus.twpservice.domain.party.dto.cancel.PartyCancelResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
@@ -99,6 +100,12 @@ public class PartyController implements PartyControllerSpecification {
     public PartyLeaveResponse leaveParty(@AuthenticationPrincipal CustomOAuth2User principal,
                                          @Valid PartyIdRequest idRequest) {
         return partyService.leaveParty(principal, idRequest.partyId());
+    }
+
+    @PatchMapping("/{partyId}/cancel")
+    public PartyCancelResponse cancelParty(@AuthenticationPrincipal CustomOAuth2User principal,
+                                           @Valid PartyIdRequest idRequest) {
+        return partyService.cancelParty(principal, idRequest.partyId());
     }
 
     @PostMapping("/presigned-url")

@@ -1,6 +1,5 @@
 package com.playus.twpservice.domain.party.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.ControllerTestSupport;
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
 import com.playus.twpservice.domain.common.security.Role;
@@ -9,6 +8,7 @@ import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveResponse;
+import com.playus.twpservice.domain.party.dto.cancel.PartyCancelResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
@@ -441,7 +441,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
         PartyInfoResponse response = PartyInfoResponse.of(1L, writerId, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
-                "ZSJ", "남성", matchDate,
+                "ZSJ", "남성", 15, matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
         List<PartyInfoResponse> result = List.of(response);
@@ -465,6 +465,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$[0].availableGender").value("남자만"))
                 .andExpect(jsonPath("$[0].authorName").value("ZSJ"))
                 .andExpect(jsonPath("$[0].authorGender").value("남성"))
+                .andExpect(jsonPath("$[0].authorAge").value("10대"))
                 .andExpect(jsonPath("$[0].matchDate").value("3.22(토) 오후 2:00"))
                 .andExpect(jsonPath("$[0].currentParticipantsCount").value(10))
                 .andExpect(jsonPath("$[0].maximumParticipantsCount").value(14))
@@ -485,7 +486,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
         PartyInfoResponse response = PartyInfoResponse.of(1L, 1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
-                "ZSJ", "남성", matchDate,
+                "ZSJ", "남성", 17, matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
         List<PartyInfoResponse> result = List.of(response);
@@ -532,7 +533,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
         PartyInfoResponse response = PartyInfoResponse.of(1L, 1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
-                "ZSJ", "남성", matchDate,
+                "ZSJ", "남성", 17, matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
         List<PartyInfoResponse> result = List.of(response);
@@ -564,7 +565,7 @@ class PartyControllerTest extends ControllerTestSupport {
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
         PartyInfoResponse response = PartyInfoResponse.of(1L, 1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
-                "ZSJ", "남성", matchDate,
+                "ZSJ", "남성", 17, matchDate,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
         List<PartyInfoResponse> result = List.of(response);
@@ -602,6 +603,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(status().isOk());
     }
 
+    // msa 때문에 관련해서 주석 처리
 //    @DisplayName("특정 직관팟에 대한 상세한 정보를 가져올 수 있다.")
 //    @Test
 //    void getPartyDetail() throws Exception {
@@ -614,7 +616,7 @@ class PartyControllerTest extends ControllerTestSupport {
 //        List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 //
 //        PartyDetailResponse response = PartyDetailResponse.of(1L, writerId, "title", PartyJoinMethod.RESERVATION,
-//                "explanation", partyAges, PartyGender.MALE, "ZSJ", "남성", matchDate,
+//                "explanation", partyAges, PartyGender.MALE, "ZSJ", "남성", 25, matchDate,
 //                10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 //
 //        given(partyReadOnlyService.getPartyDetail(partyId))
@@ -636,6 +638,7 @@ class PartyControllerTest extends ControllerTestSupport {
 //                .andExpect(jsonPath("$.availableGender").value("남자만"))
 //                .andExpect(jsonPath("$.authorName").value("ZSJ"))
 //                .andExpect(jsonPath("$.authorGender").value("남성"))
+//                .andExpect(jsonPath("$.authorAge").value("20대"))
 //                .andExpect(jsonPath("$.matchDate").value("3.22(토) 오후 2:00"))
 //                .andExpect(jsonPath("$.currentParticipantsCount").value(10))
 //                .andExpect(jsonPath("$.maximumParticipantsCount").value(14))
@@ -1299,6 +1302,40 @@ class PartyControllerTest extends ControllerTestSupport {
 
         // when // then
         mockMvc.perform(post("/party/" + invalidPartyStr + "/leave")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
+    @DisplayName("직관팟 신청을 취소할 수 있다.")
+    @Test
+    void cancelParty() throws Exception {
+        // given
+        Long partyId = 1L;
+        PartyCancelResponse response = PartyCancelResponse.of("직관팟 신청 취소 성공하셨습니다!");
+        given(partyService.cancelParty(any(), any())).willReturn(response);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + partyId + "/cancel")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("직관팟 신청 취소 성공하셨습니다!"));
+    }
+
+    @DisplayName("직관팟 신청을 취소할 때 직관팟의 ID는 1 이상이여야 한다.")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void cancelParty_INVALID_PARTYID(String invalidPartyStr) throws Exception {
+        // given
+
+        // when // then
+        mockMvc.perform(patch("/party/" + invalidPartyStr + "/cancel")
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())

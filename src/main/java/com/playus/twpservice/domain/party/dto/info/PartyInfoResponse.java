@@ -19,6 +19,7 @@ public record PartyInfoResponse(
         String availableGender,
         String authorName,
         String authorGender,
+        String authorAge,
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "M.d(E) a h:mm", timezone = "Asia/Seoul")
         LocalDateTime matchDate, // BE 기준 match entity에서 LocalDateTime 으로 저장
@@ -39,6 +40,7 @@ public record PartyInfoResponse(
             PartyGender availableGender,
             String authorName,
             String authorGender,
+            int authorAge,
             LocalDateTime matchDate,
             Long currentParticipantsCount,
             Long maximumParticipantsCount,
@@ -54,6 +56,7 @@ public record PartyInfoResponse(
                 .availableGender(availableGender.getDescription())
                 .authorName(authorName)
                 .authorGender(authorGender)
+                .authorAge(PartyAgeGroup.getAgeDescriptionByAge((authorAge / 10) * 10))
                 .matchDate(matchDate)
                 .currentParticipantsCount(currentParticipantsCount)
                 .maximumParticipantsCount(maximumParticipantsCount)

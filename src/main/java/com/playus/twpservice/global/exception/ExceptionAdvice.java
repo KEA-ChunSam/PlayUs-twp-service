@@ -40,6 +40,7 @@ public class ExceptionAdvice {
             PartyAgeGroupException.InvalidDescriptionException.class,
 
             PartyException.InvalidApproveRequestToPartyException.class,
+            PartyException.NotAllowedToFirstComePartyException.class
     })
     public ErrorResponse handleBadRequestException(Exception e) {
         String errorMessage = e.getMessage();
@@ -52,7 +53,7 @@ public class ExceptionAdvice {
             PartyJoinDocumentException.RefusedApplyUserException.class,
             PartyException.NotPartyWriterException.class,
             PartyException.NotAllowedPartyConditionException.class,
-            PartyException.NotAllowedPartyJoinRequestStatusException.class
+            PartyException.NotAllowedPartyJoinRequestStatusException.class,
     })
     public ErrorResponse handleForbiddenException(Exception e) {
         String errorMessage = e.getMessage();
@@ -76,7 +77,8 @@ public class ExceptionAdvice {
     @ExceptionHandler({
             PartyException.ExceedPartyParticipantsException.class,
             PartyException.InsufficientPartyParticipantsException.class,
-            PartyJoinDocumentException.DuplicateApplyException.class
+            PartyJoinDocumentException.DuplicateApplyException.class,
+            PartyException.AlreadyCreatedPartyForPerMatchException.class
     })
     public ErrorResponse handleConflictException(Exception e) {
         String errorMessage = e.getMessage();

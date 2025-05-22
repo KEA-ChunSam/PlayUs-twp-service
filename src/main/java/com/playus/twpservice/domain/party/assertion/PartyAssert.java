@@ -53,4 +53,14 @@ public class PartyAssert extends Assert {
             throw new NotAllowedPartyJoinRequestStatusException("직관팟 참여가 이미 거절되었습니다!");
         }
     }
+
+    public static void isWaitingUser(PartyJoinRequestStatus partyJoinRequestStatus) {
+        if (partyJoinRequestStatus == PartyJoinRequestStatus.ACCEPT) {
+            throw new NotAllowedPartyJoinRequestStatusException("이미 직관팟 회원입니다!");
+        }
+
+        if (partyJoinRequestStatus == PartyJoinRequestStatus.REFUSE) {
+            throw new NotAllowedPartyJoinRequestStatusException("직관팟 참여가 이미 거절되었습니다!");
+        }
+    }
 }
