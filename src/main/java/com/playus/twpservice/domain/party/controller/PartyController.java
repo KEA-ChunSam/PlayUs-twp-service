@@ -109,10 +109,9 @@ public class PartyController implements PartyControllerSpecification {
         return partyService.cancelParty(principal, idRequest.partyId());
     }
 
-    @GetMapping("/{partyId}/applied-parties")
-    public List<AppliedPartyResponse> getAppliedParties(@AuthenticationPrincipal CustomOAuth2User principal,
-                                                        @Valid PartyIdRequest idRequest) {
-        return partyReadOnlyService.getAppliedParties(principal, idRequest.partyId());
+    @GetMapping("/applied-parties")
+    public List<AppliedPartyResponse> getAppliedParties(@AuthenticationPrincipal CustomOAuth2User principal) {
+        return partyReadOnlyService.getAppliedParties(principal);
     }
 
     @PostMapping("/presigned-url")
