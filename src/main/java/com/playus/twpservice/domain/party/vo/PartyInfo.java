@@ -52,6 +52,13 @@ public class PartyInfo {
         this.userThumbnailUrls.add(0, partyWriterInfoFeignResponse.writerThumbnailUrl());
     }
 
+    public void updateWriterInfoWhenUpdatingWriterThumbnailOnly(PartyWriterInfoFeignResponse partyWriterInfoFeignResponse) {
+        this.writerName = partyWriterInfoFeignResponse.writerName();
+        this.writerGender = partyWriterInfoFeignResponse.writerGender();
+        this.writerAge = partyWriterInfoFeignResponse.writerAge();
+        this.writerThumbnailUrl = partyWriterInfoFeignResponse.writerThumbnailUrl();
+    }
+
     public void updateMatchDate(LocalDateTime matchDate) {
         this.matchDate = matchDate;
     }
@@ -108,7 +115,7 @@ public class PartyInfo {
                 writerGender,
                 PartyAgeGroup.getAgeDescriptionByAge(writerAge),
                 writerThumbnailUrl,
-                currentParticipantsCount.intValue()
+                currentParticipantsCount
         );
     }
 }

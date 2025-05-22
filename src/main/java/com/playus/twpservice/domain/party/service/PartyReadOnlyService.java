@@ -168,7 +168,7 @@ public class PartyReadOnlyService {
         List<PartyWriterInfoFeignResponse> writerInfoList = userFeignClient.getWriterInfo(writerIds);
 
         IntStream.range(0, summaries.size()).forEach(i ->
-                summaries.get(i).updateWriterInfoWhenFindingAppliedParty(writerInfoList.get(i)));
+                summaries.get(i).updateWriterInfoWhenUpdatingWriterThumbnailOnly(writerInfoList.get(i)));
     }
 
     private void updateMatchDate(List<PartyInfo> summaries, Long matchId) {
