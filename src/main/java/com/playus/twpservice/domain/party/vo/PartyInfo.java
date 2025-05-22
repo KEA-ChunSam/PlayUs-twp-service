@@ -33,6 +33,7 @@ public class PartyInfo {
     private String writerName;
     private String writerGender;
     private String writerThumbnailUrl;
+    private int writerAge;
 
     private List<String> userThumbnailUrls;
     private LocalDateTime matchDate;
@@ -44,6 +45,7 @@ public class PartyInfo {
     public void updateWriterInfo(PartyWriterInfoFeignResponse partyWriterInfoFeignResponse) {
          this.writerName = partyWriterInfoFeignResponse.writerName();
          this.writerGender = partyWriterInfoFeignResponse.writerGender();
+         this.writerAge = partyWriterInfoFeignResponse.writerAge();
          this.userThumbnailUrls.add(0, partyWriterInfoFeignResponse.writerThumbnailUrl());
     }
 
@@ -61,6 +63,7 @@ public class PartyInfo {
                 partyGender,
                 writerName,
                 writerGender,
+                writerAge,
                 matchDate,
                 currentParticipantsCount,
                 maximumParticipants,
@@ -80,6 +83,7 @@ public class PartyInfo {
                 partyGender,
                 writerName,
                 writerGender,
+                writerAge,
                 matchDate,
                 currentParticipantsCount,
                 maximumParticipants,
