@@ -1355,13 +1355,13 @@ class PartyControllerTest extends ControllerTestSupport {
         given(partyReadOnlyService.getAppliedParties(any()))
                 .willReturn(List.of(
                         AppliedPartyResponse.of(1L, "title", List.of("10대", "20대"), "남자만",
-                                "신청중", 1L, "ZSJ", "남성", "10대", "http://image.jpg", 5),
+                                "신청중", 1L, "ZSJ", "남성", "10대", "http://image.jpg", 5L),
 
                         AppliedPartyResponse.of(2L, "title2", List.of("30대", "40대"), "여자만",
-                                "채팅방 입장!", 2L, "KIM", "여성", "30대", "http://image2.jpg", 1),
+                                "채팅방 입장!", 2L, "KIM", "여성", "30대", "http://image2.jpg", 1L),
 
                         AppliedPartyResponse.of(3L, "title3", List.of("50대", "60대 이상"), "상관없음",
-                                "승인 거부됨", 3L, "JUNG", "남성", "40대", "http://image3.jpg", 1)
+                                "승인 거부됨", 3L, "JUNG", "남성", "40대", "http://image3.jpg", 1L)
 
                         ));
 
