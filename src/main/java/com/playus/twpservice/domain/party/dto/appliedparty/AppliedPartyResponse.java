@@ -17,12 +17,12 @@ public record AppliedPartyResponse(
         String authorGender,
         String authorAge,
         String writerThumbnailUrl,
-        int currentParticipants
+        Long currentParticipants
 ) {
 
     public static AppliedPartyResponse of(Long partyId, String title, List<String> partyAges,
                                           String partyGender, String partyJoinRequestStatus,
-                                          Long writerId, String authorName, String authorGender, String authorAge, String writerThumbnailUrl, int currentParticipants) {
+                                          Long writerId, String authorName, String authorGender, String authorAge, String writerThumbnailUrl, Long currentParticipants) {
         return AppliedPartyResponse.builder()
                 .partyId(partyId)
                 .title(title)
