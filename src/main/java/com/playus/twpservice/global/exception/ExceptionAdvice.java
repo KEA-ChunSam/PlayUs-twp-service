@@ -77,7 +77,8 @@ public class ExceptionAdvice {
     @ExceptionHandler({
             PartyException.ExceedPartyParticipantsException.class,
             PartyException.InsufficientPartyParticipantsException.class,
-            PartyJoinDocumentException.DuplicateApplyException.class
+            PartyJoinDocumentException.DuplicateApplyException.class,
+            PartyException.AlreadyCreatedPartyForPerMatchException.class
     })
     public ErrorResponse handleConflictException(Exception e) {
         String errorMessage = e.getMessage();
