@@ -1,10 +1,12 @@
 package com.playus.twpservice.domain.party.vo;
 
+import com.playus.twpservice.domain.party.dto.appliedparty.AppliedPartyResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
+import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +27,7 @@ public class PartyInfo {
     private List<Long> userIdList;
     private PartyJoinMethod partyJoinMethod;
     private PartyGender partyGender;
+    private PartyJoinRequestStatus partyJoinRequestStatus;
     private List<Integer> ages;
     private Long currentParticipantsCount;
     private Long maximumParticipants;
@@ -43,10 +46,17 @@ public class PartyInfo {
     }
 
     public void updateWriterInfo(PartyWriterInfoFeignResponse partyWriterInfoFeignResponse) {
-         this.writerName = partyWriterInfoFeignResponse.writerName();
-         this.writerGender = partyWriterInfoFeignResponse.writerGender();
-         this.writerAge = partyWriterInfoFeignResponse.writerAge();
-         this.userThumbnailUrls.add(0, partyWriterInfoFeignResponse.writerThumbnailUrl());
+        this.writerName = partyWriterInfoFeignResponse.writerName();
+        this.writerGender = partyWriterInfoFeignResponse.writerGender();
+        this.writerAge = partyWriterInfoFeignResponse.writerAge();
+        this.userThumbnailUrls.add(0, partyWriterInfoFeignResponse.writerThumbnailUrl());
+    }
+
+    public void updateWriterInfoWhenUpdatingWriterThumbnailOnly(PartyWriterInfoFeignResponse partyWriterInfoFeignResponse) {
+        this.writerName = partyWriterInfoFeignResponse.writerName();
+        this.writerGender = partyWriterInfoFeignResponse.writerGender();
+        this.writerAge = partyWriterInfoFeignResponse.writerAge();
+        this.writerThumbnailUrl = partyWriterInfoFeignResponse.writerThumbnailUrl();
     }
 
     public void updateMatchDate(LocalDateTime matchDate) {
@@ -89,6 +99,23 @@ public class PartyInfo {
                 maximumParticipants,
                 thumbnailUrls,
                 userThumbnailUrls
+        );
+    }
+
+    // 타 서비스 없이 테스트할 시 writer 관련 주석화하기
+    public AppliedPartyResponse toAppliedPartyResponse() {
+        return AppliedPartyResponse.of(
+                partyId,
+                title,
+                ages.stream().map(PartyAgeGroup::getAgeDescriptionByAge).toList(),
+                partyGender.getDescription(),
+                partyJoinRequestStatus.getMessage(),
+                writerId,
+                writerName,
+                writerGender,
+                PartyAgeGroup.getAgeDescriptionByAge(writerAge),
+                writerThumbnailUrl,
+                currentParticipantsCount
         );
     }
 }

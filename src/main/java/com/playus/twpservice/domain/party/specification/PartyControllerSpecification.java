@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.specification;
 
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.party.dto.appliedparty.AppliedPartyResponse;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
@@ -2494,4 +2495,126 @@ public interface PartyControllerSpecification {
     })
     PartyCancelResponse cancelParty(@Parameter(hidden = true) CustomOAuth2User principal,
                                     @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
+
+
+    @Tag(name = "Get", description = "신청한 직관팟 현황 조회 API")
+    @Operation(
+            summary = "신청한 직관팟 현황 조회 API",
+            description = "본인이 신청한 직관팟 현황을 조회합니다.",
+            security = @SecurityRequirement(name = "Access"),
+            parameters = {
+                    @Parameter(
+                            name = "Access",
+                            description = "JWT Access Token (쿠키)",
+                            in = ParameterIn.COOKIE,
+                            required = true,
+                            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "조회 성공",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 조회 응답 예시",
+                                    value = """
+                                                                    [
+                                                                       {
+                                                                             "partyId": 1,
+                                                                             "title": "야구 직관팟",
+                                                                             "partyAgeGroup": ["10대", "20대"],
+                                                                             "partyGender": "남자만",
+                                                                             "partyJoinRequestStatus": "신청중",
+                                                                             "writerId": 2,
+                                                                             "authorName": "ZSJ",
+                                                                             "authorGender": "MALE",
+                                                                             "authorAge": "20대",
+                                                                             "writerThumbnailUrl": "https://example.com/profile.jpg",
+                                                                             "currentParticipants": 5
+                                                                        }, 
+                                            
+                                                                        {
+                                                                             "partyId": 3,
+                                                                             "title": "축구 직관팟",
+                                                                             "partyAgeGroup": ["30대", "40대"],
+                                                                             "partyGender": "여자만",
+                                                                             "partyJoinRequestStatus": "승인 거부됨",
+                                                                             "writerId": 4,
+                                                                             "authorName": "ABC",
+                                                                             "authorGender": "FEMALE",
+                                                                             "authorAge": "30대",
+                                                                             "writerThumbnailUrl": "https://example.com/profile.jpg",
+                                                                             "currentParticipants": 10
+                                                                        }
+                                                                     ]
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "경기 ID가 없을 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "경기 ID는 필수입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    List<AppliedPartyResponse> getAppliedParties(@Parameter(hidden = true) CustomOAuth2User principal);
+
+
 }

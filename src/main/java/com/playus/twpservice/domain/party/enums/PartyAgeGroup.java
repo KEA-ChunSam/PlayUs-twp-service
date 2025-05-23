@@ -35,6 +35,7 @@ public enum PartyAgeGroup implements Describable {
     }
 
     public static PartyAgeGroup getAgeGroupByAge(int age) {
+        age = (age / 10) * 10;
         for (PartyAgeGroup group : PartyAgeGroup.values()) {
             if (group.getAge() == age) {
                 return group;
@@ -44,6 +45,7 @@ public enum PartyAgeGroup implements Describable {
     }
 
     public static String getAgeDescriptionByAge(int age) {
+        age = (age / 10) * 10;
         for (PartyAgeGroup group : PartyAgeGroup.values()) {
             if (group.getAge() == age) {
                 return group.getDescription();

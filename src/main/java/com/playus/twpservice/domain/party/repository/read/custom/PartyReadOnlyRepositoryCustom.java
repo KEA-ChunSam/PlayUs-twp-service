@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface PartyReadOnlyRepositoryCustom {
     List<PartyInfo> findPartyInfoList(Long matchId);
     Optional<PartyInfo> findPartyDetail(Long partyId);
+    List<PartyInfo> findAppliedParties(Long userId);
 }

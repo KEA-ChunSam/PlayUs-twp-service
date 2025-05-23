@@ -1,12 +1,16 @@
 package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.IntegrationTestSupport;
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.common.security.Gender;
+import com.playus.twpservice.domain.common.security.Role;
+import com.playus.twpservice.domain.common.security.UserDto;
 import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
 import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
+import com.playus.twpservice.domain.party.dto.appliedparty.AppliedPartyResponse;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
-import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
@@ -38,7 +42,6 @@ import static org.mockito.BDDMockito.*;
 /**
  * 직관팟 리스트/상세 정보 불러오는 기능은 TestContainers에서 저장햇을 때 만들어지는 collection 구조와
  * CDC 통해 만들어지는 Collection 구조가 달라 주석 처리 << 관련해서 5/22 오전 프론트에서 테스트햇을 때 성공함
- *
  */
 class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
@@ -222,7 +225,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
                 List.of(PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
                         PartyParticipantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
-        ));
+                ));
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
                 PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, "chatRoomId"));
@@ -321,4 +324,63 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         // then
         assertThat(response).hasSize(0);
     }
+
+//    @DisplayName("자신이 지원한 직관팟 정보를 가져올 수 있다.")
+//    @Test
+//    void getAppliedParties() {
+//
+//        // given
+//        Long userId = 1L;
+//        Long matchId = 1L;
+//
+//        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
+//        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+//
+//        given(userFeignClient.getWriterInfo(List.of(userId + 1, userId + 2))).willReturn(List.of(
+//                PartyWriterInfoFeignResponse.of(userId + 1, "writer1", "남성", 17, "http://writer1-thumbnail"),
+//                PartyWriterInfoFeignResponse.of(userId + 2, "writer2", "여성", 26, "http://writer2-thumbnail")
+//        ));
+//
+//        List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(
+//                PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 1L,
+//                        PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId + 1, matchId, "chatRoomId"), // 대상
+//
+//                PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 1L,
+//                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, userId + 2, matchId + 1, "chatRoom2Id"), // 대상
+//
+//                PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L, 1L,
+//                        PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, userId + 3, matchId + 2, "chatRoom3Id")
+//        ));
+//
+//        partyAgeReadOnlyRepository.saveAll(List.of(
+//                PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), 10), // 대상
+//                PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), 20), // 대상
+//                PartyAgeDocument.createForOnlyTest(3L, partyDocuments.get(1).getId(), 30), // 대상
+//                PartyAgeDocument.createForOnlyTest(4L, partyDocuments.get(1).getId(), 40), // 대상
+//                PartyAgeDocument.createForOnlyTest(5L, partyDocuments.get(2).getId(), 50)
+//        ));
+//
+//        partyJoinReadOnlyRepository.saveAll(List.of(
+//                PartyJoinDocument.createForOnlyTest(1L, userId, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null), // 대상
+//                PartyJoinDocument.createForOnlyTest(2L, userId, partyDocuments.get(1).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!"), // 대상
+//                PartyJoinDocument.createForOnlyTest(3L, userId + 1, partyDocuments.get(2).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!")
+//        ));
+//
+//        partyThumbnailUrlReadOnlyRepository.saveAll(List.of(
+//                PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), "thumbnailUrl1"),
+//                PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), "thumbnailUrl2")
+//        ));
+//
+//        // when
+//        List<AppliedPartyResponse> result = partyReadOnlyService.getAppliedParties(customOAuth2User);
+//
+//        // then
+//        assertThat(result).hasSize(2)
+//                .extracting("partyId", "title", "partyAgeGroup", "partyGender", "partyJoinRequestStatus",
+//                        "writerId", "authorName", "authorGender", "authorAge", "writerThumbnailUrl", "currentParticipants")
+//                .containsExactlyInAnyOrder(
+//                        tuple(1L, "title1", List.of("10대", "20대"), "남자만", "채팅방 입장!", userId + 1, "writer1", "남성", "10대", "http://writer1-thumbnail", 1L),
+//                        tuple(2L, "title2", List.of("30대", "40대"), "여자만", "신청중", userId + 2, "writer2", "여성", "20대", "http://writer2-thumbnail", 1L)
+//                );
+//    }
 }

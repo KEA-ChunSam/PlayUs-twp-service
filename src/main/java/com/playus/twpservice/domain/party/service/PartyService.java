@@ -31,6 +31,8 @@ import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
+import com.playus.twpservice.domain.party.feign.client.NotificationFeignClient;
+import com.playus.twpservice.domain.party.feign.event.PartyNotificationEvent;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
@@ -66,6 +68,7 @@ public class PartyService {
     private final PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
     private final PartyAgeReadOnlyRepository partyAgeReadOnlyRepository;
 
+    private final NotificationFeignClient notificationFeignClient;
     private final S3Service s3Service;
 
     public PartyCreateResponse createParty(Long userId, PartyCreateRequest request) {
@@ -137,6 +140,10 @@ public class PartyService {
         partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.ACCEPT, null));
         party.increaseCurrentParticipants();
 
+        notificationFeignClient.notifyParty(PartyNotificationEvent.joined(
+                party.getId(), party.getTitle(), party.getWriterId(), userId
+        ));
+
         ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoomId())
                 .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
 
@@ -150,6 +157,10 @@ public class PartyService {
         Long userId = validateApplyCondition(oauth2User, partyId, party);
 
         partyJoinRepository.save(PartyJoin.create(userId, party, PartyJoinRequestStatus.WAIT, requireMessage));
+
+        notificationFeignClient.notifyParty(PartyNotificationEvent.request(
+                partyId, party.getTitle(), party.getWriterId(), userId, PartyJoinRequestStatus.WAIT.getMessage(), requireMessage
+        ));
 
         return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
     }
@@ -185,9 +196,15 @@ public class PartyService {
             party.increaseCurrentParticipants();
             partyJoin.approve();
             partyJoinRepository.save(partyJoin);
+            notificationFeignClient.notifyParty(PartyNotificationEvent.approveResult(
+                    partyId, party.getTitle(), loginUserId, writerId, true)
+            );
         } else {
             partyJoin.refuse();
             partyJoinRepository.save(partyJoin);
+            notificationFeignClient.notifyParty(PartyNotificationEvent.approveResult(
+                    partyId, party.getTitle(), loginUserId, writerId, false)
+            );
             return PartyApproveResponse.of("직관팟 가입 신청 거절 성공했습니다!");
         }
 

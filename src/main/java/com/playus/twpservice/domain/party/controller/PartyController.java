@@ -1,6 +1,7 @@
 package com.playus.twpservice.domain.party.controller;
 
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.party.dto.appliedparty.AppliedPartyResponse;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApplyResponse;
 import com.playus.twpservice.domain.party.dto.apply.PartyApproveApplyRequest;
@@ -106,6 +107,11 @@ public class PartyController implements PartyControllerSpecification {
     public PartyCancelResponse cancelParty(@AuthenticationPrincipal CustomOAuth2User principal,
                                            @Valid PartyIdRequest idRequest) {
         return partyService.cancelParty(principal, idRequest.partyId());
+    }
+
+    @GetMapping("/applied-parties")
+    public List<AppliedPartyResponse> getAppliedParties(@AuthenticationPrincipal CustomOAuth2User principal) {
+        return partyReadOnlyService.getAppliedParties(principal);
     }
 
     @PostMapping("/presigned-url")
