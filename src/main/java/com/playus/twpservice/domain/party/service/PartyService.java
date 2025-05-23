@@ -1,11 +1,14 @@
 package com.playus.twpservice.domain.party.service;
 
-import com.playus.twpservice.domain.chat.entity.ChatPart;
+import com.playus.twpservice.domain.chat.document.ChatParticipantDocument;
+import com.playus.twpservice.domain.chat.entity.ChatParticipant;
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
-import com.playus.twpservice.domain.chat.exception.ChatRoomException;
-import com.playus.twpservice.domain.chat.repository.ChatMessageRepository;
-import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
-import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
+import com.playus.twpservice.domain.chat.exception.entity.ChatRoomException;
+import com.playus.twpservice.domain.chat.repository.message.ChatMessageRepository;
+import com.playus.twpservice.domain.chat.repository.read.ChatParticipantReadOnlyRepository;
+import com.playus.twpservice.domain.chat.repository.write.ChatParticipantRepository;
+import com.playus.twpservice.domain.chat.repository.write.ChatRoomRepository;
+import com.playus.twpservice.domain.chat.service.ChatRoomService;
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
 import com.playus.twpservice.domain.common.security.Gender;
 import com.playus.twpservice.domain.party.assertion.PartyAssert;
@@ -61,8 +64,10 @@ public class PartyService {
     private final PartyThumbnailUrlRepository partyThumbnailUrlRepository;
 
     private final ChatRoomRepository chatRoomRepository;
-    private final ChatPartRepository chatPartRepository;
+    private final ChatParticipantRepository chatParticipantRepository;
+    private final ChatParticipantReadOnlyRepository chatParticipantReadOnlyRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatRoomService chatRoomService;
 
     private final PartyReadOnlyRepository partyReadOnlyRepository;
     private final PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
@@ -72,13 +77,13 @@ public class PartyService {
     private final S3Service s3Service;
 
     public PartyCreateResponse createParty(Long userId, PartyCreateRequest request) {
-        ChatRoom chatRoom = initializeChatRoomAsWriter(userId, request);
+        ChatRoom chatRoom = initializeChatRoomAsWriter(userId);
 
         if (partyReadOnlyRepository.existsByWriterId(userId)) {
             throw new AlreadyCreatedPartyForPerMatchException("하나의 경기에 대해 하나의 직관팟만 만들 수 있습니다!");
         }
 
-        Party party = partyRepository.save(request.toPartyWith(userId).assignChatRoom(chatRoom.getId()));
+        Party party = partyRepository.save(request.toPartyWith(userId).assignChatRoom(chatRoom));
 
         List<PartyAge> partyAgeList = toPartyAgeEntity(request, party);
         partyAgeRepository.saveAll(partyAgeList);
@@ -117,15 +122,15 @@ public class PartyService {
         partyJoinRepository.deleteByPartyId(partyId);
         partyRepository.deleteById(partyId);
 
-        String chatRoomId = partyDocument.getChatRoomId();
+        Long chatRoomId = partyDocument.getChatRoomId();
 
-        List<ChatPart> chatParts = chatPartRepository.findByChatRoomId(chatRoomId);
-        List<String> chatPartIds = chatParts.stream()
-                .map(ChatPart::getId)
+        List<ChatParticipantDocument> chatParticipants = chatParticipantReadOnlyRepository.findByChatRoomId(chatRoomId);
+        List<Long> chatParticipantIds = chatParticipants.stream()
+                .map(ChatParticipantDocument::getId)
                 .toList();
 
-        chatMessageRepository.deleteAllByChatPartIds(chatPartIds);
-        chatPartRepository.deleteByChatRoomId(chatRoomId);
+        chatMessageRepository.deleteAllByChatParticipantIds(chatParticipantIds);
+        chatParticipantRepository.deleteByChatRoomId(chatRoomId);
         chatRoomRepository.deleteById(chatRoomId);
 
         return PartyDeleteResponse.of(partyId);
@@ -144,10 +149,10 @@ public class PartyService {
                 party.getId(), party.getTitle(), party.getWriterId(), userId
         ));
 
-        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoomId())
+        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoom().getId())
                 .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
 
-        chatPartRepository.save(ChatPart.create(userId, chatRoom.getId()));
+        chatParticipantRepository.save(ChatParticipant.of(chatRoom, userId));
     }
 
     public PartyApplyResponse applyParty(CustomOAuth2User oauth2User, Long partyId, String requireMessage) {
@@ -209,9 +214,9 @@ public class PartyService {
         }
 
         // 5. partyId와 user 가진 ChatPart 저장
-        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoomId())
+        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoom().getId())
                 .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
-        chatPartRepository.save(ChatPart.create(applicantUserId, chatRoom.getId()));
+        chatParticipantRepository.save(ChatParticipant.of(chatRoom, applicantUserId));
 
         // 6. response return
         return PartyApproveResponse.of("직관팟 가입 신청 승인 성공했습니다!");
@@ -228,6 +233,8 @@ public class PartyService {
                 .orElseThrow(() -> new ApplicantNotFoundException("직관팟에 참여한 사람만 탈퇴할 수 있습니다!"));
 
         PartyAssert.isAcceptedUser(partyJoin.getPartyJoinRequestStatus());
+
+        chatRoomService.exitChatRoom(party.getChatRoom().getId(), loginUserId);
 
         partyJoinRepository.delete(partyJoin);
         party.decreaseCurrentMember();
@@ -293,9 +300,9 @@ public class PartyService {
         );
     }
 
-    private ChatRoom initializeChatRoomAsWriter(Long userId, PartyCreateRequest request) {
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create(request.title()));
-        chatPartRepository.save(ChatPart.create(userId, chatRoom.getId()));
+    private ChatRoom initializeChatRoomAsWriter(Long userId) {
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
+        chatParticipantRepository.save(ChatParticipant.of(chatRoom, userId));
         return chatRoom;
     }
 
