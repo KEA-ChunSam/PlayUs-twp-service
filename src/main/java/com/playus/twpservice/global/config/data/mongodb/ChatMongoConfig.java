@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @Configuration
 @EnableMongoRepositories(
-        basePackages = "com.playus.twpservice.domain.chat.repository",
+        basePackages = "com.playus.twpservice.domain.chat.repository.message",
         mongoTemplateRef = "chatMongoTemplate"
 )
 public class ChatMongoConfig {
