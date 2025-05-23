@@ -86,8 +86,8 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
 	// Sentry
-	implementation("io.sentry:sentry-logback:7.17.0")
-	implementation("com.github.maricn:logback-slack-appender:1.6.1")
+	implementation 'io.sentry:sentry-logback:7.17.0'
+	implementation 'com.github.maricn:logback-slack-appender:1.6.1'
 }
 
 dependencyManagement {
