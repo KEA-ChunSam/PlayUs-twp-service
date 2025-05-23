@@ -32,6 +32,8 @@ import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
+import com.playus.twpservice.domain.party.feign.client.NotificationFeignClient;
+import com.playus.twpservice.domain.party.feign.event.PartyNotificationEvent;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
@@ -45,6 +47,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -86,6 +89,9 @@ class PartyServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private ChatMessageRepository chatMessageRepository;
+
+    @MockitoBean
+    private NotificationFeignClient notificationFeignClient;
 
     @AfterEach
     void tearDown() {
@@ -458,6 +464,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         partyService.applyPartyFCFS(customOAuth2User, party.getId());
 
         // then
+        verify(notificationFeignClient).notifyParty(PartyNotificationEvent.joined(party.getId(), "title", writerId, userId));
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
         assertThat(chatPartRepository.count()).isEqualTo(1);
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(5);
@@ -655,6 +662,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         partyService.applyParty(customOAuth2User, party.getId(), "참여 희망합니다!");
 
         // then
+        verify(notificationFeignClient).notifyParty(PartyNotificationEvent.request(party.getId(), "title", writerId, userId, PartyJoinRequestStatus.WAIT.getMessage(), "참여 희망합니다!"));
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
         assertThat(chatPartRepository.count()).isEqualTo(0);
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(1);
@@ -848,6 +856,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         PartyApproveResponse response = partyService.approveParty(loginUserId, partyId, request);
 
         // then
+        verify(notificationFeignClient).notifyParty(PartyNotificationEvent.approveResult(
+                partyId, party.getTitle(), loginUserId, party.getWriterId(), true)
+        );
         assertThat(response.message()).isEqualTo("직관팟 가입 신청 승인 성공했습니다!");
         assertThat(partyJoinRepository.findAll().get(0))
                 .extracting("partyJoinRequestStatus", "requireMessage")
@@ -878,6 +889,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         PartyApproveResponse response = partyService.approveParty(loginUserId, partyId, request);
 
         // then
+        verify(notificationFeignClient).notifyParty(PartyNotificationEvent.approveResult(
+                partyId, party.getTitle(), loginUserId, party.getWriterId(), false)
+        );
         assertThat(response.message()).isEqualTo("직관팟 가입 신청 거절 성공했습니다!");
         assertThat(partyJoinRepository.findAll().get(0))
                 .extracting("partyJoinRequestStatus", "requireMessage")
