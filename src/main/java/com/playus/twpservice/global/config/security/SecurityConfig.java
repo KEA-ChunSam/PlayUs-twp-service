@@ -3,7 +3,6 @@ package com.playus.twpservice.global.config.security;
 import com.playus.twpservice.global.jwt.JwtFilter;
 import com.playus.twpservice.global.jwt.JwtUtil;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
-
-
 
 
 @Configuration
@@ -46,6 +43,7 @@ public class SecurityConfig {
                 "/login/oauth2/code/naver",
                 "/api/v1/auth/reissue",
                 "/api/v1/auth/logout",
+                "/ws/**",
         };
     }
 
