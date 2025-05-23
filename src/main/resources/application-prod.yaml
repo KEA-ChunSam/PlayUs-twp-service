@@ -23,6 +23,27 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      retries: ${KAFKA_PRODUCER_RETRIES}
+      acks: ${KAFKA_PRODUCER_ACKS}
+      properties:
+        enable.idempotence: ${KAFKA_PRODUCER_ENABLE_IDEMPOTENCE}
+        max.in.flight.requests.per.connection: ${KAFKA_PRODUCER_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
+      chat-group-id: ${KAFKA_CHAT_CONSUMER_GROUP_ID}
+      auto-offset-reset: ${KAFKA_CONSUMER_AUTO_OFFSET_RESET}
+      enable-auto-commit: ${KAFKA_CONSUMER_ENABLE_AUTO_COMMIT}
+    admin:
+      properties:
+        client.id: ${KAFKA_ADMIN_CLIENT_ID}
+    topics:
+      chat-room: ${KAFKA_TOPIC_CHAT_ROOM}
+    partition-count: ${KAFKA_PARTITION_COUNT}
+    replication-factor: ${KAFKA_REPLICATION_FACTOR}
+
   jpa:
     show-sql: false
     hibernate:
