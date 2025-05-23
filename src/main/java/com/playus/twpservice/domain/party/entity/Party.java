@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.party.entity;
 
+import com.playus.twpservice.domain.chat.entity.ChatRoom;
 import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
@@ -60,8 +61,9 @@ public class Party extends BaseTimeEntity {
     @Column(nullable = false, name = "match_id")
     private Long matchId;
 
-    @Column(nullable = false, name = "chatroom_id")
-    private String chatRoomId;
+    @ManyToOne
+    @JoinColumn(name = "chat_room_id")
+    private ChatRoom chatRoom;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String text;
@@ -105,8 +107,8 @@ public class Party extends BaseTimeEntity {
         this.currentParticipants--;
     }
 
-    public Party assignChatRoom(String chatRoomId) {
-        this.chatRoomId = chatRoomId;
+    public Party assignChatRoom(ChatRoom chatRoom) {
+        this.chatRoom = chatRoom;
         return this;
     }
 
