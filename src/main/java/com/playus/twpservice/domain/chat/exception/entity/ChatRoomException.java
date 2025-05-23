@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.chat.exception;
+package com.playus.twpservice.domain.chat.exception.entity;
 
 public abstract class ChatRoomException {
 
@@ -10,6 +10,4 @@ public abstract class ChatRoomException {
             super(message);
         }
     }
-
-
 }
