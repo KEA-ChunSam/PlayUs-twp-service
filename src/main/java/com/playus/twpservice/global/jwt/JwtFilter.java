@@ -68,7 +68,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     String gender = jwtUtil.getGender(token);
 
                     CustomOAuth2User principal = new CustomOAuth2User(
-                            UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role), age, Gender.valueOf(gender))
+                            UserDto.fromJwt(Long.parseLong(userId), Role.valueOf(role), age, Gender.valueOf(gender)), token
                     );
                     Authentication auth = new UsernamePasswordAuthenticationToken(
                             principal, null, principal.getAuthorities()

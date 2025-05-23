@@ -13,9 +13,11 @@ import java.util.Map;
 public class CustomOAuth2User implements OAuth2User {
 
     private final UserDto userDto;
+    private final String accessToken;
 
-    public CustomOAuth2User(UserDto userDto) {
+    public CustomOAuth2User(UserDto userDto , String accessToken) {
         this.userDto = userDto;
+        this.accessToken = accessToken;
     }
 
     @Override
