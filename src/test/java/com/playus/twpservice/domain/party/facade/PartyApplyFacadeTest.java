@@ -15,6 +15,7 @@ import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
+import com.playus.twpservice.domain.party.feign.client.NotificationFeignClient;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -53,6 +55,9 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
 
     @Autowired
     private ChatPartRepository chatPartRepository;
+
+    @MockitoBean
+    private NotificationFeignClient notificationFeignClient;
 
     @AfterEach
     void tearDown() {
