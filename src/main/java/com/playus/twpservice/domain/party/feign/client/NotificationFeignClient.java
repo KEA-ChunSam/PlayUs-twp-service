@@ -5,10 +5,10 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "notificationClient", url  = "${feign.user.url}", path = "/user/notifications/parties")
+@FeignClient(name = "notificationClient", url  = "${feign.user.url}", path = "/user/api")
 public interface NotificationFeignClient {
 
-    @PostMapping
+    @PostMapping("/notifications/party")
     void notifyParty(@RequestBody PartyNotificationEvent event);
 
 }
