@@ -1,43 +1,38 @@
 package com.playus.twpservice.domain.chat.entity;
 
-import com.playus.twpservice.domain.common.data.BaseMongoTimeEntity;
+import com.playus.twpservice.domain.chat.entity.enums.ChatStatus;
 import com.playus.twpservice.domain.common.data.BaseTimeEntity;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-
-import java.time.LocalDateTime;
 
 @Getter
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Document(collection = "chat_room")
-public class ChatRoom extends BaseMongoTimeEntity {
+@Table(name = "chat_rooms")
+public class ChatRoom extends BaseTimeEntity {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @NotNull
-    @Size(min = 1, max = 255)
-    private String roomName;
-
-    @Field(name = "is_deleted")
-    private Boolean isDeleted = false;
-
-    @Field(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    @Enumerated(EnumType.STRING)
+    private ChatStatus status;
 
     @Builder
-    private ChatRoom(String roomName) {
-        this.roomName = roomName;
+    private ChatRoom (ChatStatus status) {
+        this.status = status;
     }
 
-    public static ChatRoom create(String roomName) {
-        return new ChatRoom(roomName);
+    public static ChatRoom create() {
+        return ChatRoom.builder()
+                .status(ChatStatus.ACTIVE)
+                .build();
+    }
+
+    public void delete() {
+        status = ChatStatus.INACTIVE;
     }
 }
