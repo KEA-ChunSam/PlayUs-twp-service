@@ -60,7 +60,7 @@ public class PartyDocument {
 
     @NotNull
     @Field(name = "chatroom_id")
-    private String chatRoomId;
+    private Long chatRoomId;
 
     @NotNull
     private String text;
@@ -73,7 +73,7 @@ public class PartyDocument {
 
     @Builder
     private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, Long currentParticipants,
-                          PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, String chatRoomId) {
+                          PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, Long chatRoomId) {
         this.id = id;
         this.title = title;
         this.text = text;
@@ -89,7 +89,7 @@ public class PartyDocument {
 
     public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants,
                                                   Long maximumParticipants, Long currentParticipantsCount, PartyGender partyGender, PartyJoinMethod partyJoinMethod,
-                                                  Long writerId, Long matchId, String chatRoomId) {
+                                                  Long writerId, Long matchId, Long chatRoomId) {
         return PartyDocument.builder()
                 .id(id)
                 .title(title)

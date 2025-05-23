@@ -5,10 +5,10 @@ import lombok.Builder;
 @Builder
 public record PartyCreateResponse (
       Long partyId,
-      String chatRoomId
+      Long chatRoomId
 ) {
 
-    public static PartyCreateResponse of(Long partyId, String chatRoomId) {
+    public static PartyCreateResponse of(Long partyId, Long chatRoomId) {
         return PartyCreateResponse.builder()
                 .partyId(partyId)
                 .chatRoomId(chatRoomId)
