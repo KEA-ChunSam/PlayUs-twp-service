@@ -13,17 +13,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-
-
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import java.util.Collections;
-import java.util.List;
+
 
 
 @Configuration
@@ -35,13 +30,13 @@ public class SecurityConfig {
     private final RedisTemplate<String, String> redisTemplate;
     private final CorsConfigurationSource corsConfigurationSource;
 
-
-
     private String [] getWhiteList() {
         return new String[] {
+                "/error",
                 "/swagger",
                 "/swagger-ui.html",
                 "/swagger-ui/**",
+                "/webjars/**",
                 "/api-docs",
                 "/api-docs/**",
                 "/v3/api-docs/**",
@@ -56,9 +51,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable())
+        http.csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
                 .addFilterBefore(

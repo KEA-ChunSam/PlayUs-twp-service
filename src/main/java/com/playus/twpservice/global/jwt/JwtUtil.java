@@ -64,7 +64,8 @@ public class JwtUtil {
     }
 
     public int getAge(String token) {
-        return extractPayload(token).get("age", Integer.class);
+        Claims claims = extractPayload(token);
+        return claims.get("age", Integer.class);
     }
 
     public String getGender(String token) {
