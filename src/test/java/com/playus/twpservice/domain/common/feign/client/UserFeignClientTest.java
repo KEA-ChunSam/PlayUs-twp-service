@@ -1,8 +1,7 @@
-package com.playus.twpservice.domain.commom.feign.client;
+package com.playus.twpservice.domain.common.feign.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.IntegrationTestSupport;
-import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.common.feign.response.PartyWriterInfoFeignResponse;

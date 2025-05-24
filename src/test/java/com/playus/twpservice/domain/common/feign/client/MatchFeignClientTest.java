@@ -1,7 +1,6 @@
-package com.playus.twpservice.domain.commom.feign.client;
+package com.playus.twpservice.domain.common.feign.client;
 
 import com.playus.twpservice.IntegrationTestSupport;
-import com.playus.twpservice.domain.common.feign.client.MatchFeignClient;
 import com.playus.twpservice.global.response.ErrorResponse;
 import feign.FeignException;
 import org.junit.jupiter.api.DisplayName;
