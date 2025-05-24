@@ -11,8 +11,8 @@ import java.util.List;
 
 public interface ChatMessageRepository extends BaseMongoRepository<ChatMessage, String> {
 
-    @Query("{ 'chatpart_id' : {$in :  ?0} }")
-    void deleteAllByChatParticipantIds(List<Long> chatParticipantIds);
+
+    void deleteAllByChatRoomId(Long chatRoomId);
 
     Slice<ChatMessage> findAllByChatRoomIdAndLastReadAtAfterOrderByLastReadAtDesc(Long chatRoomId, LocalDateTime joinedAt, Pageable pageable);
 

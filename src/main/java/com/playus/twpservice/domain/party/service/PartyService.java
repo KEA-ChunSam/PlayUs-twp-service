@@ -124,12 +124,7 @@ public class PartyService {
 
         Long chatRoomId = partyDocument.getChatRoomId();
 
-        List<ChatParticipantDocument> chatParticipants = chatParticipantReadOnlyRepository.findByChatRoomId(chatRoomId);
-        List<Long> chatParticipantIds = chatParticipants.stream()
-                .map(ChatParticipantDocument::getId)
-                .toList();
-
-        chatMessageRepository.deleteAllByChatParticipantIds(chatParticipantIds);
+        chatMessageRepository.deleteAllByChatRoomId(chatRoomId);
         chatParticipantRepository.deleteByChatRoomId(chatRoomId);
         chatRoomRepository.deleteById(chatRoomId);
 
