@@ -8,6 +8,8 @@ import com.playus.twpservice.domain.chat.service.ChattingService;
 import com.playus.twpservice.domain.chat.specification.ChatControllerSpecification;
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +32,8 @@ public class ChatController implements ChatControllerSpecification {
     @GetMapping("/chat/{roomId}")
     public ResponseEntity<ChatResponse> getChatMessages(@AuthenticationPrincipal CustomOAuth2User principal,
                                                         @PathVariable Long roomId,
-                                                        @RequestParam int pageNumber,
-                                                        @RequestParam int pageSize,
+                                                        @RequestParam @Min(0) int pageNumber,
+                                                        @RequestParam @Min(0) @Max(100) int pageSize,
                                                         @RequestParam(required = false) LocalDateTime lastMessageTimeStamp) {
         ChatResponse response = chattingService.getMessage(roomId, principal.getId(), pageNumber, pageSize, lastMessageTimeStamp);
 
