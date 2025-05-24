@@ -3,6 +3,7 @@ package com.playus.twpservice.global.config;
 import com.playus.twpservice.domain.chat.stomp.CustomChannelInterceptor;
 import com.playus.twpservice.global.exception.StompExceptionHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -19,12 +20,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final CustomChannelInterceptor customChannelInterceptor;
     private final StompExceptionHandler stompExceptionHandler;
 
+    @Value("${websocket.allowed-origin}")
+    private String allowedOrigin;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
                 .setErrorHandler(stompExceptionHandler)
                 .addEndpoint("/ws")
-                .setAllowedOriginPatterns("http://localhost:3000")
+                .setAllowedOriginPatterns(allowedOrigin)
                 .withSockJS();
     }
 
