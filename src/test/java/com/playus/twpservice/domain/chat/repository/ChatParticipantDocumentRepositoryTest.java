@@ -36,9 +36,9 @@ class ChatParticipantDocumentRepositoryTest extends IntegrationTestSupport {
         chatRoomRepository.deleteAll();
     }
 
-    @DisplayName("채팅방에 따라 chatPart를 찾을 수 있다.")
+    @DisplayName("사용자 ID에 따라 참여중인 채팅방 목록을 찾을 수 있다.")
     @Test
-    void findByChatRoomId() {
+    void findAllByUserId() {
         // given
         Long userId = 1L;
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
