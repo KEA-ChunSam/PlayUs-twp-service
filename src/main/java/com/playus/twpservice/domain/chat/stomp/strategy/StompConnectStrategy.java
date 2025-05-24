@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StompConnectStrategy implements StompCommandStrategy {
 
+    private static final String ACCESS_COOKIE_NAME = "Access";
     public static final String CHAT_USER_ID = "CHAT_USER_ID";
 
     private final JwtUtil jwtUtil;
@@ -28,10 +29,13 @@ public class StompConnectStrategy implements StompCommandStrategy {
         String cookieHeader = accessor.getFirstNativeHeader("Cookie");
 
         if (cookieHeader != null) {
-            String[] cookies = cookieHeader.split("; ");
+            String[] cookies = cookieHeader.split(";\\s*");
+
             for (String cookie : cookies) {
-                if (cookie.startsWith("Access=")) {
-                    jwtToken = cookie.substring("Access=".length());
+                String[] cookieParts = cookie.split("=", 2);
+
+                if (cookieParts.length == 2 && ACCESS_COOKIE_NAME.equals(cookieParts[0].trim())) {
+                    jwtToken = cookieParts[1].trim();
                     break;
                 }
             }
