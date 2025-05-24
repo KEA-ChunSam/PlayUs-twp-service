@@ -17,7 +17,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
-class ChatParticipantDocumentRepositoryTest extends IntegrationTestSupport {
+class ChatParticipantRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
     ChatParticipantRepository chatParticipantRepository;
