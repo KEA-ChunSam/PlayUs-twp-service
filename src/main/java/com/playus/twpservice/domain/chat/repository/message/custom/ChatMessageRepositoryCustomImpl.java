@@ -29,10 +29,9 @@ public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCus
 
         Update update = new Update().inc("unread_count", -1);
 
-        Pair<String, String> range = getUpdatedMessageRange(chatRoomId, lastReadAt, senderId);
         chatMongoTemplate.updateMulti(query, update, ChatMessage.class);
 
-        return range;
+        return getUpdatedMessageRange(chatRoomId, lastReadAt, senderId);
     }
 
     private Pair<String, String> getUpdatedMessageRange(Long chatRoomId, LocalDateTime lastReadAt, Long senderId) {
