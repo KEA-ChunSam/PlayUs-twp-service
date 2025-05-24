@@ -37,11 +37,11 @@ public class KafkaChatSubscriber {
             simpMessageSendingOperations.convertAndSend(CHAT_ROOM_PREFIX + chattingMessage.chatRoomId(), chattingMessage);
             acknowledgment.acknowledge();
         } catch (MessagingException e) {
-            throw new WebSocketException.CustomMessagingException("STOMP 메시지 전송에 실패했습니다" + e.getMessage());
+            throw new WebSocketException.CustomMessagingException("STOMP 메시지 전송에 실패했습니다: " + e.getMessage());
         } catch (SerializationException e) {
-            throw new SubscribeException.CustomSerializationException("[Kafka] 데이터 직렬화에 실패했습니다" + e.getMessage());
+            throw new SubscribeException.CustomSerializationException("[Kafka] 데이터 직렬화에 실패했습니다: " + e.getMessage());
         } catch (Exception e) {
-            throw new SubscribeException.RedisSubscribeException("[Kafka] 메시지 전송에 실패했습니다" + e.getMessage());
+            throw new SubscribeException.RedisSubscribeException("[Kafka] 메시지 전송에 실패했습니다: " + e.getMessage());
         }
     }
 }
