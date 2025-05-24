@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.feign.client;
+package com.playus.twpservice.domain.commom.feign.client;
 
 import com.playus.twpservice.IntegrationTestSupport;
 import com.playus.twpservice.domain.common.feign.client.MatchFeignClient;

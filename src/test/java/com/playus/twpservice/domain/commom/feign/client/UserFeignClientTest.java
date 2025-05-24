@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.feign.client;
+package com.playus.twpservice.domain.commom.feign.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.IntegrationTestSupport;
