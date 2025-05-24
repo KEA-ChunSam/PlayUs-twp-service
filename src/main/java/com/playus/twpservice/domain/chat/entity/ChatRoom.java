@@ -7,9 +7,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
+@SQLDelete(sql = "UPDATE chat_rooms SET status = 'INACTIVE' WHERE id = ?")
+@SQLRestriction("status != 'INACTIVE'")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "chat_rooms")
 public class ChatRoom extends BaseTimeEntity {
@@ -30,9 +34,5 @@ public class ChatRoom extends BaseTimeEntity {
         return ChatRoom.builder()
                 .status(ChatStatus.ACTIVE)
                 .build();
-    }
-
-    public void delete() {
-        status = ChatStatus.INACTIVE;
     }
 }
