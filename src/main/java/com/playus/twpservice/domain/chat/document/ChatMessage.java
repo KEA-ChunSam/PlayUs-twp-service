@@ -3,6 +3,8 @@ package com.playus.twpservice.domain.chat.document;
 import com.playus.twpservice.domain.chat.dto.request.ChatMessageRequest;
 import com.playus.twpservice.domain.chat.entity.enums.MessageType;
 import com.playus.twpservice.domain.common.data.BaseMongoTimeEntity;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
 import jakarta.validation.constraints.NotBlank;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Document(collection = "chat_messages")
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChatMessage extends BaseMongoTimeEntity {
 
     @Id
