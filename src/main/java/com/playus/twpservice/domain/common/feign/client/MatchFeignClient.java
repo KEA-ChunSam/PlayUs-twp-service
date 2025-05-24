@@ -1,6 +1,6 @@
-package com.playus.twpservice.domain.party.feign.client;
+package com.playus.twpservice.domain.common.feign.client;
 
-import com.playus.twpservice.domain.party.feign.fallback.MatchFeignFallback;
+import com.playus.twpservice.domain.common.feign.fallback.MatchFeignFallback;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -10,7 +10,7 @@ import com.playus.twpservice.domain.chat.exception.entity.ChatParticipantExcepti
 import com.playus.twpservice.domain.chat.repository.read.ChatParticipantReadOnlyRepository;
 import com.playus.twpservice.domain.chat.repository.write.ChatParticipantRepository;
 import com.playus.twpservice.domain.chat.repository.message.custom.ChatMessageRepositoryCustom;
-import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
+import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.chat.kafka.KafkaChatPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;

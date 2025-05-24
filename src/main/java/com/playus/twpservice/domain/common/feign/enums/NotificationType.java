@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.feign.enums;
+package com.playus.twpservice.domain.common.feign.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

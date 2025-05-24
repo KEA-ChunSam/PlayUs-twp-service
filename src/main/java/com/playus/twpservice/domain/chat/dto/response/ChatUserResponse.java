@@ -1,6 +1,6 @@
 package com.playus.twpservice.domain.chat.dto.response;
 
-import com.playus.twpservice.domain.party.feign.response.UserInfoResponse;
+import com.playus.twpservice.domain.common.feign.response.UserInfoResponse;
 import lombok.Builder;
 
 @Builder

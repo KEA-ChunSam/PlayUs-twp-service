@@ -1,6 +1,6 @@
-package com.playus.twpservice.domain.party.feign.event;
+package com.playus.twpservice.domain.common.feign.event;
 
-import com.playus.twpservice.domain.party.feign.enums.NotificationType;
+import com.playus.twpservice.domain.common.feign.enums.NotificationType;
 import lombok.Builder;
 
 @Builder

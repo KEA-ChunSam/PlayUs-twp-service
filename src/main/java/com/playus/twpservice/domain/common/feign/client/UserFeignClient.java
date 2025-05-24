@@ -1,10 +1,10 @@
-package com.playus.twpservice.domain.party.feign.client;
+package com.playus.twpservice.domain.common.feign.client;
 
-import com.playus.twpservice.domain.party.feign.fallback.UserFeignFallback;
-import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
-import com.playus.twpservice.domain.party.feign.response.UserInfoResponse;
+import com.playus.twpservice.domain.common.feign.fallback.UserFeignFallback;
+import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
+import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
+import com.playus.twpservice.domain.common.feign.response.PartyWriterInfoFeignResponse;
+import com.playus.twpservice.domain.common.feign.response.UserInfoResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

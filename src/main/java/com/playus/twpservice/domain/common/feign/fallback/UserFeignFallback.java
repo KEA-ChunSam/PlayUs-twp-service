@@ -1,10 +1,10 @@
-package com.playus.twpservice.domain.party.feign.fallback;
+package com.playus.twpservice.domain.common.feign.fallback;
 
-import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
-import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
-import com.playus.twpservice.domain.party.feign.response.UserInfoResponse;
+import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
+import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
+import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
+import com.playus.twpservice.domain.common.feign.response.PartyWriterInfoFeignResponse;
+import com.playus.twpservice.domain.common.feign.response.UserInfoResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

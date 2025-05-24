@@ -1,6 +1,6 @@
-package com.playus.twpservice.domain.party.feign.client;
+package com.playus.twpservice.domain.common.feign.client;
 
-import com.playus.twpservice.domain.party.feign.event.PartyNotificationEvent;
+import com.playus.twpservice.domain.common.feign.event.PartyNotificationEvent;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

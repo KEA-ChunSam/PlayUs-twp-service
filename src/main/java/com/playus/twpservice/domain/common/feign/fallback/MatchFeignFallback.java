@@ -1,6 +1,6 @@
-package com.playus.twpservice.domain.party.feign.fallback;
+package com.playus.twpservice.domain.common.feign.fallback;
 
-import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
+import com.playus.twpservice.domain.common.feign.client.MatchFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

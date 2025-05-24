@@ -1,4 +1,4 @@
-package com.playus.twpservice.domain.party.feign.response;
+package com.playus.twpservice.domain.common.feign.response;
 
 import lombok.Builder;
 
