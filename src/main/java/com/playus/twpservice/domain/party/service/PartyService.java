@@ -144,10 +144,7 @@ public class PartyService {
                 party.getId(), party.getTitle(), party.getWriterId(), userId
         ));
 
-        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoom().getId())
-                .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
-
-        chatParticipantRepository.save(ChatParticipant.of(chatRoom, userId));
+        chatParticipantRepository.save(ChatParticipant.of(party.getChatRoom(), userId));
     }
 
     public PartyApplyResponse applyParty(CustomOAuth2User oauth2User, Long partyId, String requireMessage) {
@@ -209,9 +206,7 @@ public class PartyService {
         }
 
         // 5. partyId와 user 가진 ChatPart 저장
-        ChatRoom chatRoom = chatRoomRepository.findById(party.getChatRoom().getId())
-                .orElseThrow(() -> new ChatRoomException.NotFoundException("채팅방이 존재하지 않습니다!"));
-        chatParticipantRepository.save(ChatParticipant.of(chatRoom, applicantUserId));
+        chatParticipantRepository.save(ChatParticipant.of(party.getChatRoom(), applicantUserId));
 
         // 6. response return
         return PartyApproveResponse.of("직관팟 가입 신청 승인 성공했습니다!");
