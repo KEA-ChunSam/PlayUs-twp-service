@@ -55,10 +55,10 @@ public class WebSocketEventHandler {
         long userId = (long) accessor.getSessionAttributes().get(CHAT_USER_ID);
 
         try {
-            ChatParticipant chattingParticipant = chatParticipantService.find(roomId, userId);
+            ChatParticipant chatParticipant = chatParticipantService.find(roomId, userId);
 
             if (chatRedisService.isActive(roomId, userId)) {
-                chattingParticipant.unsubscribe();
+                chatParticipant.unsubscribe();
                 chatRedisService.removeSubscribeMember(roomId, userId);
             }
         } catch (ChatParticipantException.NotFoundException e) {
