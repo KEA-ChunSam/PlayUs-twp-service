@@ -50,7 +50,7 @@ class ChatParticipantDocumentRepositoryTest extends IntegrationTestSupport {
         ));
 
         // when
-        List<ChatParticipant> result = chatParticipantRepository.findByChatRoom(chatRoom);
+        List<ChatParticipant> result = chatParticipantRepository.findAllByUserId(userId);
 
         // then
         assertThat(result).hasSize(2);
