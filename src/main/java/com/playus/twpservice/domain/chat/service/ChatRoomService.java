@@ -94,13 +94,11 @@ public class ChatRoomService {
 
         accessor.getSessionAttributes().put(CHAT_USER_NAME, userInfo.nickname());
 
-        if (chatParticipantService.checkSubscription(chatRoom, senderId)) {
-            chatRedisService.saveSubscribeMember(roomId, senderId, userInfo.profileImageUrl());
+        chatRedisService.saveSubscribeMember(roomId, senderId, userInfo.profileImageUrl());
 
+        if (chatParticipantService.checkSubscription(chatRoom, senderId)) {
             return;
         }
-
-        chatRedisService.saveSubscribeMember(roomId, senderId, userInfo.profileImageUrl());
 
         ChatParticipant newParticipant = ChatParticipant.of(chatRoom, senderId);
         chatParticipantService.save(newParticipant);
