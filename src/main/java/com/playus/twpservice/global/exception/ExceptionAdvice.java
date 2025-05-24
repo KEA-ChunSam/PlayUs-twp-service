@@ -65,7 +65,8 @@ public class ExceptionAdvice {
 
     @ResponseStatus(UNAUTHORIZED)
     @ExceptionHandler({
-            WebSocketException.TokenNotExistException.class
+            WebSocketException.TokenNotExistException.class,
+            WebSocketException.TokenExpiredException.class
     })
     public ErrorResponse handleUnauthorizedException(Exception e) {
         String errorMessage = e.getMessage();

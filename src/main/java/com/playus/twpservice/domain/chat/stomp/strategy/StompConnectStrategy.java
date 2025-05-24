@@ -45,6 +45,10 @@ public class StompConnectStrategy implements StompCommandStrategy {
             throw new WebSocketException.TokenNotExistException("쿠키에 인증 토큰이 존재하지 않습니다");
         }
 
+        if (jwtUtil.isExpired(jwtToken)) {
+            throw new WebSocketException.TokenExpiredException("만료된 토큰입니다");
+        }
+
         Long userId = Long.parseLong(jwtUtil.getUserId(jwtToken));
         accessor.getSessionAttributes().put(CHAT_USER_ID, userId);
 
