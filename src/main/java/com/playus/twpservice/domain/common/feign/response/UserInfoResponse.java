@@ -14,4 +14,11 @@ public record UserInfoResponse(
                 .profileImageUrl(null)
                 .build();
     }
+
+    public static UserInfoResponse createForTest(String nickname, String profileImageUrl) {
+        return UserInfoResponse.builder()
+                .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
+                .build();
+    }
 }
