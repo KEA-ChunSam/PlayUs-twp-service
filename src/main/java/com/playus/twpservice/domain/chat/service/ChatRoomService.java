@@ -74,7 +74,7 @@ public class ChatRoomService {
 
         List<ChatParticipantDocument> chatParticipants = chatParticipantReadOnlyRepository.findAllByChatRoomId(chatRoomId);
         List<ChatUserResponse> participants = chatParticipants
-                .stream()
+                .parallelStream()
                 .map(participant ->
                         ChatUserResponse.of(participant.getUserId(), userFeignClient.getUserInfo(participant.getUserId())))
                 .toList();
