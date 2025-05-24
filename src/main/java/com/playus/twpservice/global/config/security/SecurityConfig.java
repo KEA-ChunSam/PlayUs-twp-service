@@ -37,12 +37,6 @@ public class SecurityConfig {
                 "/api-docs",
                 "/api-docs/**",
                 "/v3/api-docs/**",
-                "/oauth2/authorization/kakao",
-                "/login/oauth2/code/kakao",
-                "/oauth2/authorization/naver",
-                "/login/oauth2/code/naver",
-                "/api/v1/auth/reissue",
-                "/api/v1/auth/logout",
                 "/ws/**",
         };
     }
