@@ -32,7 +32,7 @@ public class KafkaConsumerConfig {
 
     JsonDeserializer<ChattingMessage> jsonDeserializer =
             new JsonDeserializer<>(ChattingMessage.class);
-    jsonDeserializer.addTrustedPackages("com.playus.twpservice.domain.chat.dto");
+    jsonDeserializer.addTrustedPackages("com.playus.twpservice.domain.chat.dto.request");
 
     return new DefaultKafkaConsumerFactory<>(configs, new StringDeserializer(), jsonDeserializer);
   }
