@@ -32,11 +32,9 @@ public class ChatParticipant extends BaseTimeEntity {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
-    @CreatedDate
     @Column(updatable = false)
     private LocalDateTime joinedAt;
 
-    @CreatedDate
     private LocalDateTime lastReadAt;
 
     private LocalDateTime disconnectedAt;
@@ -44,11 +42,10 @@ public class ChatParticipant extends BaseTimeEntity {
     private boolean isDeleted;
 
     @Builder
-    private ChatParticipant(Long userId, ChatRoom chatRoom, LocalDateTime lastReadAt, LocalDateTime disconnectedAt) {
+    private ChatParticipant(Long userId, ChatRoom chatRoom) {
         this.userId = userId;
         this.chatRoom = chatRoom;
-        this.lastReadAt = lastReadAt;
-        this.disconnectedAt = disconnectedAt;
+        this.lastReadAt = LocalDateTime.now();
         this.joinedAt = LocalDateTime.now();
         this.isDeleted = false;
     }
