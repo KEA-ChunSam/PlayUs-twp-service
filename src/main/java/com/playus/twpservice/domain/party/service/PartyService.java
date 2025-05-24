@@ -1,11 +1,8 @@
 package com.playus.twpservice.domain.party.service;
 
-import com.playus.twpservice.domain.chat.document.ChatParticipantDocument;
 import com.playus.twpservice.domain.chat.entity.ChatParticipant;
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
-import com.playus.twpservice.domain.chat.exception.entity.ChatRoomException;
 import com.playus.twpservice.domain.chat.repository.message.ChatMessageRepository;
-import com.playus.twpservice.domain.chat.repository.read.ChatParticipantReadOnlyRepository;
 import com.playus.twpservice.domain.chat.repository.write.ChatParticipantRepository;
 import com.playus.twpservice.domain.chat.repository.write.ChatRoomRepository;
 import com.playus.twpservice.domain.chat.service.ChatRoomService;
@@ -65,7 +62,6 @@ public class PartyService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatParticipantRepository chatParticipantRepository;
-    private final ChatParticipantReadOnlyRepository chatParticipantReadOnlyRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomService chatRoomService;
 
@@ -83,7 +79,7 @@ public class PartyService {
             throw new AlreadyCreatedPartyForPerMatchException("하나의 경기에 대해 하나의 직관팟만 만들 수 있습니다!");
         }
 
-        Party party = partyRepository.save(request.toPartyWith(userId).assignChatRoom(chatRoom));
+        Party party = partyRepository.save(request.toPartyWith(userId, chatRoom));
 
         List<PartyAge> partyAgeList = toPartyAgeEntity(request, party);
         partyAgeRepository.saveAll(partyAgeList);

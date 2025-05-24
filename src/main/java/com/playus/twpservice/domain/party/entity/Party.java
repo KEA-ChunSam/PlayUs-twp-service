@@ -71,7 +71,7 @@ public class Party extends BaseTimeEntity {
     private LocalDateTime deletedAt;
 
     @Builder
-    private Party(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId){
+    private Party(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, ChatRoom chatRoom) {
         this.id = id;
         this.title = title;
         this.text = text;
@@ -81,6 +81,7 @@ public class Party extends BaseTimeEntity {
         this.partyJoinMethod = partyJoinMethod;
         this.writerId = writerId;
         this.matchId = matchId;
+        this.chatRoom = chatRoom;
     }
 
     // setter
@@ -107,18 +108,13 @@ public class Party extends BaseTimeEntity {
         this.currentParticipants--;
     }
 
-    public Party assignChatRoom(ChatRoom chatRoom) {
-        this.chatRoom = chatRoom;
-        return this;
-    }
-
     public Party setCurrentParticipantsForOnlyTest(Long currentParticipants) {
         this.currentParticipants = currentParticipants;
         return this;
     }
 
     public static Party create(String title, String text, Long minimumParticipants, Long maximumParticipants,
-                               PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId){
+                               PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, ChatRoom chatRoom) {
         return Party.builder()
                 .title(title)
                 .text(text)
@@ -128,6 +124,7 @@ public class Party extends BaseTimeEntity {
                 .partyJoinMethod(partyJoinMethod)
                 .writerId(writerId)
                 .matchId(matchId)
+                .chatRoom(chatRoom)
                 .build();
     }
 }
