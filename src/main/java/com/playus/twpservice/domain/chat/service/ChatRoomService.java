@@ -1,5 +1,6 @@
 package com.playus.twpservice.domain.chat.service;
 
+import com.playus.twpservice.domain.chat.document.ChatParticipantDocument;
 import com.playus.twpservice.domain.chat.dto.request.ChattingMessage;
 import com.playus.twpservice.domain.chat.dto.response.ChatUserResponse;
 import com.playus.twpservice.domain.chat.dto.response.ChatUserInfoResponse;
@@ -71,13 +72,14 @@ public class ChatRoomService {
         UserInfoResponse writer = userFeignClient.getUserInfo(writerId);
         ChatUserResponse writerInfo = ChatUserResponse.of(writerId, writer);
 
-        List<ChatUserResponse> participants = chatParticipantReadOnlyRepository.findAllByChatRoomId(chatRoomId)
+        List<ChatParticipantDocument> chatParticipants = chatParticipantReadOnlyRepository.findAllByChatRoomId(chatRoomId);
+        List<ChatUserResponse> participants = chatParticipants
                 .stream()
                 .map(participant ->
                         ChatUserResponse.of(participant.getUserId(), userFeignClient.getUserInfo(participant.getUserId())))
                 .toList();
 
-        Long count = chatParticipantService.getParticipantCount(chatRoomId);
+        long count = chatParticipants.size();
 
         return ChatUserInfoResponse.of(chatRoomId, count, writerInfo, participants);
     }
