@@ -51,6 +51,27 @@ spring:
   jwt:
     secret: "secretkeysecretkeysecretkeysecretkeysecretkeysecretkeysecretkey"
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      retries: 1
+      acks: all
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 1
+    consumer:
+      group-id: KAFKA_CONSUMER_GROUP_ID
+      chat-group-id: KAFKA_CHAT_CONSUMER_GROUP_ID
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    admin:
+      properties:
+        client.id: KAFKA_ADMIN_CLIENT_ID
+    topics:
+      chat-room: KAFKA_TOPIC_CHAT_ROOM
+    partition-count: 1
+    replication-factor: 1
+
 logging:
   level:
     org:
@@ -84,4 +105,3 @@ resilience4j:
     instances:
       circuit:
         base-config: default
-
