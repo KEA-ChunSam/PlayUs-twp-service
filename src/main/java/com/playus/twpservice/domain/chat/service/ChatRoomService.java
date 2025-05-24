@@ -71,7 +71,7 @@ public class ChatRoomService {
         UserInfoResponse writer = userFeignClient.getUserInfo(writerId);
         ChatUserResponse writerInfo = ChatUserResponse.of(writerId, writer);
 
-        List<ChatUserResponse> participants = chatParticipantReadOnlyRepository.findByChatRoomId(chatRoomId)
+        List<ChatUserResponse> participants = chatParticipantReadOnlyRepository.findAllByChatRoomId(chatRoomId)
                 .stream()
                 .map(participant ->
                         ChatUserResponse.of(participant.getUserId(), userFeignClient.getUserInfo(participant.getUserId())))

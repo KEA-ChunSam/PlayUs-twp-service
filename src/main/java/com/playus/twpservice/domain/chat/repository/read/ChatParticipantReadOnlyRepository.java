@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ChatParticipantReadOnlyRepository extends BaseMongoRepository<ChatParticipantDocument, Long> {
 
-    List<ChatParticipantDocument> findByChatRoomId(long chatRoomId);
+    List<ChatParticipantDocument> findAllByChatRoomId(long chatRoomId);
 
     long countByChatRoomId(long chatRoomId);
 }
