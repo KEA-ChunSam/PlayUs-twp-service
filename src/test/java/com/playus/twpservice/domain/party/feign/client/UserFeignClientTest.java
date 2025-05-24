@@ -2,9 +2,10 @@ package com.playus.twpservice.domain.party.feign.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.IntegrationTestSupport;
-import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
+import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
+import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
+import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
+import com.playus.twpservice.domain.common.feign.response.PartyWriterInfoFeignResponse;
 import com.playus.twpservice.global.response.ErrorResponse;
 import feign.FeignException;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +30,10 @@ class UserFeignClientTest extends IntegrationTestSupport {
     void getPartyUserThumbnailUrls() throws JsonProcessingException {
         // given
         List<Long> userIdList = List.of(1L, 2L);
-        PartyUserThumbnailUrlListResponse expectedResponse = PartyUserThumbnailUrlListResponse.of(List.of("http://user-thumb", "http://user2-thumb"));
+        PartyUserThumbnailUrlListResponse expectedResponse = PartyUserThumbnailUrlListResponse.of(List.of(
+                "http://user-thumb",
+                "http://user2-thumb"
+                ));
         stubFor(post(urlEqualTo("/user/api/thumbnails"))
                 .withRequestBody(equalToJson(objectMapper.writeValueAsString(userIdList)))
                 .willReturn(aResponse()
@@ -63,7 +67,7 @@ class UserFeignClientTest extends IntegrationTestSupport {
 
         // when // then
         assertThatThrownBy(() -> userFeignClient.getPartyUserThumbnailUrls(userIdList))
-                .isInstanceOf(FeignException.class)
+                .isInstanceOf(FeignException.NotFound.class)
                 .hasMessageContaining("사용자가 존재하지 않습니다!");
     }
 
@@ -186,6 +190,26 @@ class UserFeignClientTest extends IntegrationTestSupport {
         // when // then
         assertThatThrownBy(() -> userFeignClient.getPartyApplicantsInfo(userIdList))
                 .isInstanceOf(FeignException.class)
+                .hasMessageContaining("사용자가 존재하지 않습니다!");
+    }
+
+    @DisplayName("존재하지 않는 사용자의 정보를 가져올 수 없다.")
+    @Test
+    void getUserInfo_INVALID_PK() throws JsonProcessingException {
+        // given
+        Long userId = 5L;
+        ErrorResponse errorResponse = ErrorResponse.notFoundError("사용자가 존재하지 않습니다!");
+
+        stubFor(get(urlEqualTo("/user/api/simple-profile/" + userId))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.NOT_FOUND.value())
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(objectMapper.writeValueAsString(errorResponse))
+                ));
+
+        // when // then
+        assertThatThrownBy(() -> userFeignClient.getUserInfo(userId))
+                .isInstanceOf(FeignException.NotFound.class)
                 .hasMessageContaining("사용자가 존재하지 않습니다!");
     }
 

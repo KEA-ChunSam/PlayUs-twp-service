@@ -1,10 +1,10 @@
 package com.playus.twpservice.domain.party.facade;
 
 import com.playus.twpservice.IntegrationTestSupport;
-import com.playus.twpservice.domain.chat.entity.ChatPart;
+import com.playus.twpservice.domain.chat.entity.ChatParticipant;
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
-import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
-import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
+import com.playus.twpservice.domain.chat.repository.write.ChatParticipantRepository;
+import com.playus.twpservice.domain.chat.repository.write.ChatRoomRepository;
 import com.playus.twpservice.domain.common.security.CustomOAuth2User;
 import com.playus.twpservice.domain.common.security.Gender;
 import com.playus.twpservice.domain.common.security.Role;
@@ -15,7 +15,7 @@ import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
-import com.playus.twpservice.domain.party.feign.client.NotificationFeignClient;
+import com.playus.twpservice.domain.common.feign.client.NotificationFeignClient;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
@@ -54,7 +54,7 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
     private ChatRoomRepository chatRoomRepository;
 
     @Autowired
-    private ChatPartRepository chatPartRepository;
+    private ChatParticipantRepository chatParticipantRepository;
 
     @MockitoBean
     private NotificationFeignClient notificationFeignClient;
@@ -64,11 +64,11 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
         partyJoinRepository.deleteAll();
         partyRepository.deleteAll();
 
-        partyJoinReadOnlyRepository.deleteAll();
-        partyAgeReadOnlyRepository.deleteAll();
-
+        chatParticipantRepository.deleteAll();
         chatRoomRepository.deleteAll();
-        chatPartRepository.deleteAll();
+
+        partyAgeReadOnlyRepository.deleteAll();
+        partyJoinReadOnlyRepository.deleteAll();
     }
 
     @DisplayName("동시에 직관팟을 신청할 수 있다.")
@@ -76,23 +76,25 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
     void applyPart() throws InterruptedException {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "accessToken");
         Long writerId = 1L;
         Long matchId = 1L;
 
         Long maximumParticipants = 10L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        chatPartRepository.saveAll(List.of(ChatPart.create(userId, chatRoom.getId())));
-
-        Party party = partyRepository.save(Party.create("title", "설명", 1L, maximumParticipants,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
+        chatParticipantRepository.save(ChatParticipant.of(chatRoom, userId));
+        Party party = partyRepository.save(Party.create(
+                "title", "설명", 1L, maximumParticipants,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom
+        ));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
                 PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
-                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
+                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)
+        ));
 
         partyAgeReadOnlyRepository.saveAll(List.of(
                 PartyAgeDocument.createForOnlyTest(1L, party.getId(), 10),
@@ -104,7 +106,7 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
         CountDownLatch latch = new CountDownLatch(threadCount); // 타 스레드 작업 완료될 때까지 대기중
 
         // when
-        for (int i=0;i<threadCount;i++) {
+        for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
                     partyApplyFacade.applyParty(customOAuth2User, party.getId());
@@ -120,6 +122,6 @@ class PartyApplyFacadeTest extends IntegrationTestSupport {
         Party afterParty = partyRepository.findAll().get(0);
         assertThat(afterParty.getCurrentParticipants()).isEqualTo(afterParty.getMaximumParticipants());
         assertThat(partyJoinRepository.count()).isEqualTo(maximumParticipants - 1); // 직관팟 작성자는 PartyJoin에 들어가지 않음
-        assertThat(chatPartRepository.count()).isEqualTo(maximumParticipants);
+        assertThat(chatParticipantRepository.count()).isEqualTo(maximumParticipants);
     }
 }

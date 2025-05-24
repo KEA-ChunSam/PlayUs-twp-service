@@ -1,6 +1,8 @@
 package com.playus.twpservice.domain.party.repository.write;
 
 import com.playus.twpservice.IntegrationTestSupport;
+import com.playus.twpservice.domain.chat.entity.ChatRoom;
+import com.playus.twpservice.domain.chat.repository.write.ChatRoomRepository;
 import com.playus.twpservice.domain.party.entity.Party;
 import com.playus.twpservice.domain.party.entity.PartyJoin;
 import com.playus.twpservice.domain.party.enums.PartyGender;
@@ -24,6 +26,8 @@ class PartyJoinRepositoryTest extends IntegrationTestSupport {
 
     @Autowired
     PartyJoinRepository partyJoinRepository;
+    @Autowired
+    private ChatRoomRepository chatRoomRepository;
 
     @AfterEach
     void tearDown() {
@@ -37,15 +41,26 @@ class PartyJoinRepositoryTest extends IntegrationTestSupport {
         // given
         Long writerId = 1L;
         Long matchId = 1L;
-        Party party = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
+        Long matchId2 = 2L;
+        ChatRoom chatRoom = ChatRoom.create();
+        ChatRoom chatRoom1 = ChatRoom.create();
 
-        Party otherParty = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
+        chatRoomRepository.saveAll(List.of(chatRoom, chatRoom1));
 
-        partyJoinRepository.saveAll(List.of(PartyJoin.create(1L, party, PartyJoinRequestStatus.WAIT, null),
+        Party party = partyRepository.save(Party.create(
+                "title2", "16일 경기 같이 보실 분~", 1L, 15L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom)
+        );
+
+        Party otherParty = partyRepository.save(Party.create(
+                "title2", "16일 경기 같이 보실 분~", 1L, 15L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId2, chatRoom1)
+        );
+
+        partyJoinRepository.saveAll(List.of(
                 PartyJoin.create(1L, party, PartyJoinRequestStatus.WAIT, null),
-                PartyJoin.create(2L, otherParty, PartyJoinRequestStatus.ACCEPT, "잘 부탁드려요!")));
+                PartyJoin.create(2L, otherParty, PartyJoinRequestStatus.ACCEPT, "잘 부탁드려요!")
+        ));
 
         // when
         partyJoinRepository.deleteByPartyId(party.getId());

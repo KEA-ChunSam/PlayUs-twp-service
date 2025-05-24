@@ -1,13 +1,16 @@
 package com.playus.twpservice.domain.party.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.IntegrationTestSupport;
-import com.playus.twpservice.domain.chat.entity.ChatMessage;
-import com.playus.twpservice.domain.chat.entity.ChatPart;
 import com.playus.twpservice.domain.chat.entity.ChatRoom;
-import com.playus.twpservice.domain.chat.exception.ChatRoomException;
-import com.playus.twpservice.domain.chat.repository.ChatMessageRepository;
-import com.playus.twpservice.domain.chat.repository.ChatPartRepository;
-import com.playus.twpservice.domain.chat.repository.ChatRoomRepository;
+import com.playus.twpservice.domain.chat.entity.ChatParticipant;
+import com.playus.twpservice.domain.chat.document.ChatMessage;
+import com.playus.twpservice.domain.chat.entity.enums.MessageType;
+import com.playus.twpservice.domain.chat.repository.message.ChatMessageRepository;
+import com.playus.twpservice.domain.chat.repository.write.ChatParticipantRepository;
+import com.playus.twpservice.domain.chat.repository.write.ChatRoomRepository;
+import com.playus.twpservice.domain.chat.kafka.KafkaChatPublisher;
+import com.playus.twpservice.domain.common.feign.response.UserInfoResponse;
 import com.playus.twpservice.domain.common.security.*;
 import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyDocument;
@@ -32,8 +35,8 @@ import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
-import com.playus.twpservice.domain.party.feign.client.NotificationFeignClient;
-import com.playus.twpservice.domain.party.feign.event.PartyNotificationEvent;
+import com.playus.twpservice.domain.common.feign.client.NotificationFeignClient;
+import com.playus.twpservice.domain.common.feign.event.PartyNotificationEvent;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
@@ -47,10 +50,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.*;
@@ -85,10 +92,13 @@ class PartyServiceTest extends IntegrationTestSupport {
     private ChatRoomRepository chatRoomRepository;
 
     @Autowired
-    private ChatPartRepository chatPartRepository;
+    private ChatParticipantRepository chatParticipantRepository;
 
     @Autowired
     private ChatMessageRepository chatMessageRepository;
+
+    @MockitoBean
+    private KafkaChatPublisher kafkaChatPublisher;
 
     @MockitoBean
     private NotificationFeignClient notificationFeignClient;
@@ -100,13 +110,13 @@ class PartyServiceTest extends IntegrationTestSupport {
         partyJoinRepository.deleteAll();
         partyRepository.deleteAll();
 
-        partyReadOnlyRepository.deleteAll();
-        partyJoinReadOnlyRepository.deleteAll();
-        partyAgeRepository.deleteAll();
-
+        chatParticipantRepository.deleteAll();
         chatRoomRepository.deleteAll();
+
+        partyJoinReadOnlyRepository.deleteAll();
+        partyAgeReadOnlyRepository.deleteAll();
+        partyReadOnlyRepository.deleteAll();
         chatMessageRepository.deleteAll();
-        chatPartRepository.deleteAll();
     }
 
     @DisplayName("직관팟을 생성할 수 있다.")
@@ -125,15 +135,13 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(partyJoinRepository.count()).isZero();
         assertThat(partyThumbnailUrlRepository.count()).isEqualTo(2);
         assertThat(chatRoomRepository.count()).isEqualTo(1);
-        assertThat(chatPartRepository.count()).isEqualTo(1);
+        assertThat(chatParticipantRepository.count()).isEqualTo(1);
 
         ChatRoom savedChatRoom = chatRoomRepository.findAll().get(0);
         assertThat(savedChatRoom.getId()).isEqualTo(result.chatRoomId());
-        assertThat(savedChatRoom.getRoomName()).isEqualTo("title");
 
-        ChatPart savedChatPart = chatPartRepository.findAll().get(0);
+        ChatParticipant savedChatPart = chatParticipantRepository.findAll().get(0);
         assertThat(savedChatPart.getUserId()).isEqualTo(userId);
-        assertThat(savedChatPart.getChatRoomId()).isEqualTo(savedChatRoom.getId());
 
         Party savedParty = partyRepository.findAll().get(0);
         assertThat(savedParty.getTitle()).isEqualTo("title");
@@ -143,7 +151,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(savedParty.getPartyGender()).isEqualTo(PartyGender.MALE);
         assertThat(savedParty.getPartyJoinMethod()).isEqualTo(PartyJoinMethod.FIRST_COME);
         assertThat(savedParty.getWriterId()).isEqualTo(userId);
-        assertThat(savedParty.getChatRoomId()).isEqualTo(savedChatRoom.getId());
+        assertThat(savedParty.getChatRoom().getId()).isEqualTo(savedChatRoom.getId());
 
         List<PartyThumbnailUrl> savedUrl = partyThumbnailUrlRepository.findAll();
         assertThat(savedUrl).hasSize(2);
@@ -175,8 +183,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         PartyCreateRequest request = PartyCreateRequest.of("title", "선착순", "남자만", List.of("10대", "20대"),
                 1L, 10L, List.of("url", "url2"), 1L, "message");
 
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title2", "16일 경기 같이 보실 분~",
-                1L, 15L, 1L, PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, "TEST-CHATROOM"));
+                1L, 15L, 1L, PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
 
         // when // then
         assertThatThrownBy(() -> partyService.createParty(writerId, request))
@@ -244,8 +253,9 @@ class PartyServiceTest extends IntegrationTestSupport {
 //        Long writerId = 1L;
 //        Long matchId = 1L;
 //
+//        ChatRoom chatRoomForUpdate = chatRoomRepository.save(ChatRoom.create());
 //        Party party = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
-//                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
+//                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoomForUpdate));
 //
 //        Long partyId = party.getId();
 //        PartyIdRequest idRequest = PartyIdRequest.of(partyId);
@@ -285,8 +295,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long userId = 1L;
         Long writerId = 2L;
         Long matchId = 1L;
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         Party party = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
 
         PartyIdRequest idRequest = PartyIdRequest.of(party.getId());
         PartyUpdateRequest updateRequest = PartyUpdateRequest.of("title2", writerId, "선착순", "남자만", List.of("10대", "20대"),
@@ -311,8 +322,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         PartyUpdateRequest updateRequest = PartyUpdateRequest.of("title2", writerId, "선착순", "남자만", List.of("10대", "20대"),
                 1L, 10L, List.of("url"), "message");
 
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         Party party = partyRepository.save(Party.create("title2", "16일 경기 같이 보실 분~", 1L, 15L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom("TEST-CHATROOM"));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"), PartyThumbnailUrl.create(party, "url2")));
@@ -333,15 +345,14 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        List<ChatPart> chatParts = chatPartRepository.saveAll(List.of(
-                ChatPart.create(userId, chatRoom.getId()), ChatPart.create(userId + 1, chatRoom.getId())));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
+        chatParticipantRepository.saveAll(List.of(ChatParticipant.of(chatRoom, userId), ChatParticipant.of(chatRoom, userId + 1)));
         chatMessageRepository.saveAll(List.of(
-                ChatMessage.create(chatParts.get(0).getId(), "안녕하세요!", false),
-                ChatMessage.create(chatParts.get(1).getId(), "반가워요!", false)));
+                ChatMessage.of(chatRoom.getId(), userId, "sender", "안녕하세요!", MessageType.MESSAGE),
+                ChatMessage.of(chatRoom.getId(), userId + 1, "sender", "반가워요!", MessageType.MESSAGE)));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
         Long partyId = party.getId();
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
@@ -362,9 +373,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(partyThumbnailUrlRepository.count()).isZero();
         assertThat(partyJoinRepository.count()).isZero();
         assertThat(partyAgeRepository.count()).isZero();
-        assertThat(partyReadOnlyRepository.count()).isEqualTo(1l);
+        assertThat(partyReadOnlyRepository.count()).isEqualTo(1L);
 
-        assertThat(chatPartRepository.count()).isZero();
+        assertThat(chatParticipantRepository.count()).isZero();
         assertThat(chatRoomRepository.count()).isZero();
         assertThat(chatMessageRepository.count()).isZero();
     }
@@ -377,15 +388,17 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        List<ChatPart> chatParts = chatPartRepository.saveAll(List.of(
-                ChatPart.create(userId, chatRoom.getId()), ChatPart.create(userId + 1, chatRoom.getId())));
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
+        chatParticipantRepository.saveAll(List.of(
+                ChatParticipant.of(chatRoom, userId),
+                ChatParticipant.of(chatRoom, userId + 1)));
         chatMessageRepository.saveAll(List.of(
-                ChatMessage.create(chatParts.get(0).getId(), "안녕하세요!", false),
-                ChatMessage.create(chatParts.get(1).getId(), "반가워요!", false)));
+                ChatMessage.of(chatRoom.getId(), userId, "sender", "안녕하세요!", MessageType.MESSAGE),
+                ChatMessage.of(chatRoom.getId(), userId + 1, "sender", "반가워요!", MessageType.MESSAGE)));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
         Long partyId = party.getId();
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
@@ -410,15 +423,16 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long matchId = 1L;
         Long invalidPartyId = 9999L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-        List<ChatPart> chatParts = chatPartRepository.saveAll(List.of(
-                ChatPart.create(userId, chatRoom.getId()), ChatPart.create(userId + 1, chatRoom.getId())));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
+        chatParticipantRepository.saveAll(List.of(
+                ChatParticipant.of(chatRoom, userId),
+                ChatParticipant.of(chatRoom, userId + 1)));
         chatMessageRepository.saveAll(List.of(
-                ChatMessage.create(chatParts.get(0).getId(), "안녕하세요!", false),
-                ChatMessage.create(chatParts.get(1).getId(), "반가워요!", false)));
+                ChatMessage.of(chatRoom.getId(), userId, "sender", "안녕하세요!", MessageType.MESSAGE),
+                ChatMessage.of(chatRoom.getId(), userId + 1, "sender", "반가워요!", MessageType.MESSAGE)));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
         Long partyId = party.getId();
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
@@ -439,15 +453,14 @@ class PartyServiceTest extends IntegrationTestSupport {
     void applyPartyFCFS() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId).assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(4L));
+                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(4L));
 
         // partyJoinDocument 통한 상태 검증 로직으로 넣음
         partyJoinReadOnlyRepository.saveAll(List.of(
@@ -466,7 +479,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // then
         verify(notificationFeignClient).notifyParty(PartyNotificationEvent.joined(party.getId(), "title", writerId, userId));
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatPartRepository.count()).isEqualTo(1);
+        assertThat(chatParticipantRepository.count()).isEqualTo(1);
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(5);
     }
 
@@ -476,13 +489,13 @@ class PartyServiceTest extends IntegrationTestSupport {
         // given
         Long writerId = 1L;
         Long matchId = 1L;
-        UserDto userDto = UserDto.createForTest(writerId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(writerId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId, chatRoom));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
@@ -500,15 +513,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void applyPartyFCFS_Duplicate_APPLY() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId, chatRoom));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, userId, party.getId(), PartyJoinRequestStatus.ACCEPT, null), // usreId 대상
@@ -526,15 +539,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void applyPartyFCFS_REFUSED_APPLY() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId, chatRoom));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, userId, party.getId(), PartyJoinRequestStatus.REFUSE, null), // 대상
@@ -553,15 +566,15 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId).assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(4L));
+                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(4L));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
@@ -580,15 +593,14 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(10L));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
@@ -601,52 +613,20 @@ class PartyServiceTest extends IntegrationTestSupport {
                 .hasMessage("직관팟 정원이 초과되었습니다!");
     }
 
-    @DisplayName("존재하지 않는 채팅방에는 들어갈 수 없다.")
-    @Test
-    void applyPartyFCFS_INVALID_CHATROOM() {
-
-        // given
-        Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
-        Long writerId = 1L;
-        Long matchId = 1L;
-
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
-
-        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId).assignChatRoom(chatRoom.getId() + "a"));
-
-        partyJoinReadOnlyRepository.saveAll(List.of(
-                PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
-                PartyJoinDocument.createForOnlyTest(2L, 3L, party.getId(), PartyJoinRequestStatus.WAIT, null),
-                PartyJoinDocument.createForOnlyTest(3L, 4L, party.getId(), PartyJoinRequestStatus.REFUSE, null)));
-
-        partyAgeReadOnlyRepository.saveAll(List.of(
-                PartyAgeDocument.createForOnlyTest(1L, party.getId(), 10),
-                PartyAgeDocument.createForOnlyTest(2L, party.getId(), 20)
-        ));
-
-        // when // then
-        assertThatThrownBy(() -> partyService.applyPartyFCFS(customOAuth2User, party.getId()))
-                .isInstanceOf(ChatRoomException.NotFoundException.class)
-                .hasMessage("채팅방이 존재하지 않습니다!");
-    }
-
     @DisplayName("승인제 직관팟에 가입할 수 있다.")
     @Test
     void applyParty() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
@@ -664,7 +644,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // then
         verify(notificationFeignClient).notifyParty(PartyNotificationEvent.request(party.getId(), "title", writerId, userId, PartyJoinRequestStatus.WAIT.getMessage(), "참여 희망합니다!"));
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatPartRepository.count()).isEqualTo(0);
+        assertThat(chatParticipantRepository.count()).isEqualTo(0);
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(1);
 
         assertThat(partyJoinRepository.findAll().get(0))
@@ -678,13 +658,13 @@ class PartyServiceTest extends IntegrationTestSupport {
         // given
         Long writerId = 1L;
         Long matchId = 1L;
-        UserDto userDto = UserDto.createForTest(writerId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(writerId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
@@ -702,16 +682,16 @@ class PartyServiceTest extends IntegrationTestSupport {
     void applyParty_Duplicate_APPLY() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, userId, party.getId(), PartyJoinRequestStatus.ACCEPT, null), // usreId 대상
@@ -729,15 +709,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void applyParty_REFUSED_APPLY() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, userId, party.getId(), PartyJoinRequestStatus.REFUSE, null), // 대상
@@ -756,15 +736,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void applyParty_without_requiremessage(String emptyRequireMessage) {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, 2L, party.getId(), PartyJoinRequestStatus.ACCEPT, null),
@@ -781,7 +761,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatPartRepository.count()).isEqualTo(0);
+        assertThat(chatParticipantRepository.count()).isEqualTo(0);
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(1);
 
         assertThat(partyJoinRepository.findAll().get(0))
@@ -795,15 +775,15 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId).assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
 
 
         // when // then
@@ -818,16 +798,15 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(10L));
 
         // when // then
         assertThatThrownBy(() -> partyService.applyParty(customOAuth2User, party.getId(), "참여 희망합니다!"))
@@ -843,9 +822,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long applicantUserId = 2L;
         PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L, chatRoom));
         Long partyId = party.getId();
 
         partyJoinRepository.saveAll(List.of(
@@ -863,9 +842,10 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(partyJoinRepository.findAll().get(0))
                 .extracting("partyJoinRequestStatus", "requireMessage")
                 .containsExactly(PartyJoinRequestStatus.ACCEPT, "참여 희망합니다!");
-        assertThat(chatPartRepository.findAll().get(0))
-                .extracting("userId", "chatRoomId")
-                .containsExactly(applicantUserId, chatRoom.getId());
+
+        ChatParticipant savedParticipant = chatParticipantRepository.findAll().get(0);
+        assertThat(savedParticipant.getUserId()).isEqualTo(applicantUserId);
+        assertThat(savedParticipant.getChatRoom().getId()).isEqualTo(chatRoom.getId());
     }
 
     @DisplayName("승인제 직관팟에 대한 참여 요청을 거절할 수 있다.")
@@ -876,9 +856,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long applicantUserId = 2L;
         PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, false);
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L, chatRoom));
         Long partyId = party.getId();
 
         partyJoinRepository.saveAll(List.of(
@@ -896,7 +876,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(partyJoinRepository.findAll().get(0))
                 .extracting("partyJoinRequestStatus", "requireMessage")
                 .containsExactly(PartyJoinRequestStatus.REFUSE, "참여 희망합니다!");
-        assertThat(chatPartRepository.count()).isZero();
+        assertThat(chatParticipantRepository.count()).isZero();
     }
 
     @DisplayName("존재하지 않는 승인제 직관팟에 대해서는 승인 요청을 날릴 수 없다..")
@@ -907,9 +887,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long applicantUserId = 2L;
         PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L, chatRoom));
         partyJoinRepository.saveAll(List.of(
                 PartyJoin.create(applicantUserId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")
         ));
@@ -928,9 +908,9 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long applicantUserId = 2L;
         PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, loginUserId, 1L, chatRoom));
         Long partyId = party.getId();
 
         partyJoinRepository.saveAll(List.of(
@@ -947,13 +927,13 @@ class PartyServiceTest extends IntegrationTestSupport {
     @Test
     void approveParty_ONLY_WRITER_CAN_APPROVE() {
         // given
-        Long loginUserId = 1L;
+        long loginUserId = 1L;
         Long applicantUserId = 2L;
         PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId + 1, 1L).assignChatRoom(chatRoom.getId()));
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId + 1, 1L, chatRoom));
         Long partyId = party.getId();
 
         partyJoinRepository.saveAll(List.of(
@@ -971,12 +951,12 @@ class PartyServiceTest extends IntegrationTestSupport {
     void approveParty_NOT_APPLICANT() {
         // given
         Long loginUserId = 1L;
-        Long applicantUserId = 2L;
+        long applicantUserId = 2L;
         PartyApproveRequest request = PartyApproveRequest.of(applicantUserId, true);
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L).assignChatRoom(chatRoom.getId()));
+                PartyGender.MALE, PartyJoinMethod.RESERVATION, loginUserId, 1L, chatRoom));
         Long partyId = party.getId();
 
         partyJoinRepository.saveAll(List.of(
@@ -991,19 +971,26 @@ class PartyServiceTest extends IntegrationTestSupport {
 
     @DisplayName("직관팟을 탈퇴할 수 있다.")
     @Test
-    void leaveParty() {
+    void leaveParty() throws JsonProcessingException {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "accessToken");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
+
+        UserInfoResponse expectedResponse = UserInfoResponse.createForTest("test", "http://test.test");
+        stubFor(get(urlEqualTo("/user/api/simple-profile/" + userId))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(objectMapper.writeValueAsString(expectedResponse))
+                ));
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(2L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(2L));
 
         partyJoinRepository.saveAll(
                 List.of(
@@ -1012,6 +999,15 @@ class PartyServiceTest extends IntegrationTestSupport {
                 )
         );
 
+        chatParticipantRepository.saveAll(
+                List.of(
+                        ChatParticipant.of(chatRoom, userId),
+                        ChatParticipant.of(chatRoom, userId + 1)
+                )
+        );
+
+        doNothing().when(kafkaChatPublisher).publish(any());
+
         // when
         PartyLeaveResponse response = partyService.leaveParty(customOAuth2User, party.getId());
 
@@ -1019,6 +1015,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThat(response.message()).isEqualTo("직관팟 탈퇴에 성공하셨습니다!");
         assertThat(partyJoinRepository.count()).isEqualTo(1);
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(1);
+        verify(kafkaChatPublisher, times(1)).publish(any());
     }
 
     @DisplayName("존재하지 않는 직관팟에 대해 탈퇴할 수 없다.")
@@ -1027,15 +1024,14 @@ class PartyServiceTest extends IntegrationTestSupport {
         // given
         Long writerId = 1L;
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(2L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(2L));
 
         partyJoinRepository.saveAll(
                 List.of(
@@ -1054,15 +1050,14 @@ class PartyServiceTest extends IntegrationTestSupport {
     void leaveParty_WRITER_NOT_ALLOWED() {
         // given
         Long writerId = 1L;
-        UserDto userDto = UserDto.createForTest(writerId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(writerId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(10L));
 
         partyJoinRepository.saveAll(
                 List.of(
@@ -1081,16 +1076,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void leaveParty_NOT_PARTICIPATED() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(10L));
 
 
         // when // then
@@ -1104,15 +1098,14 @@ class PartyServiceTest extends IntegrationTestSupport {
     void leaveParty_WAIT_USER_NOT_ALLOWED() {
         Long writerId = 1L;
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(10L));
 
         partyJoinRepository.saveAll(
                 List.of(
@@ -1131,15 +1124,14 @@ class PartyServiceTest extends IntegrationTestSupport {
     void leaveParty_REFUSED_NOT_ALLOWED() {
         Long writerId = 1L;
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(10L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(10L));
 
         partyJoinRepository.saveAll(
                 List.of(
@@ -1158,8 +1150,8 @@ class PartyServiceTest extends IntegrationTestSupport {
 //    void leaveParty_REFUSED_NOT_ALLOWED() {
 //        Long writerId = 1L;
 //        Long userId = 5L;
-//        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-//        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+//        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+//        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
 //        Long matchId = 1L;
 //
 //        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
@@ -1185,16 +1177,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void cancelParty() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(1L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(1L));
 
         partyJoinRepository.saveAll(
                 List.of(
@@ -1217,16 +1208,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void cancelParty_PARTY_NOT_FOUND() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
 
         partyJoinRepository.saveAll(
                 List.of(
@@ -1246,16 +1236,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void cancelParty_FCFS() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(1L));
+                PartyGender.FEMALE, PartyJoinMethod.FIRST_COME, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(1L));
 
         partyJoinRepository.saveAll(
                 List.of(
@@ -1275,15 +1264,14 @@ class PartyServiceTest extends IntegrationTestSupport {
     void cancelParty_NOT_ALLOWED_TO_WRITER() {
         // given
         Long writerId = 1L;
-        UserDto userDto = UserDto.createForTest(writerId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(writerId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(1L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(1L));
 
         partyJoinRepository.saveAll(
                 List.of(
@@ -1302,16 +1290,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void cancelParty_APPLICANT_NOT_FOUND() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(1L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(1L));
 
 
         // when // then
@@ -1326,21 +1313,20 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(1L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(1L));
 
         partyJoinRepository.saveAll(
                 List.of(
                         PartyJoin.create(userId, party, PartyJoinRequestStatus.ACCEPT, "참여 희망합니다!")
-                        )
+                )
         );
 
         // when // then
@@ -1355,16 +1341,15 @@ class PartyServiceTest extends IntegrationTestSupport {
     void cancelParty_REFUSED_NOT_ALLOWED() {
         // given
         Long userId = 5L;
-        UserDto userDto = UserDto.createForTest(userId, Gender.FEMALE, Role.USER, 20);
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto);
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
         Long writerId = 1L;
         Long matchId = 1L;
 
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create("CHATROOM-1"));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
 
         Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId)
-                .assignChatRoom(chatRoom.getId()).setCurrentParticipantsForOnlyTest(1L));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).setCurrentParticipantsForOnlyTest(1L));
 
         partyJoinRepository.saveAll(
                 List.of(
