@@ -40,8 +40,11 @@ public class ChatRedisService {
 
     public long getSubscriberCount(long roomId) {
         String key = getKey(roomId);
-
-        return chatRoomRedisTemplate.opsForHash().size(key);
+        try {
+            return chatRoomRedisTemplate.opsForHash().size(key);
+        } catch (Exception e) {
+            throw new SubscribeException.RedisSubscribeException("채팅방 구독자 수 조회 중 오류가 발생하였습니다.");
+        }
     }
 
     public String getProfileImageUrl(long roomId, long senderId) {

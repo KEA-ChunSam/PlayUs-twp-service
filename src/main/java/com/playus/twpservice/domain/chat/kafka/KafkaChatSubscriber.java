@@ -5,7 +5,6 @@ import com.playus.twpservice.domain.chat.exception.common.SubscribeException;
 import com.playus.twpservice.domain.chat.exception.common.WebSocketException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.MessagingException;
