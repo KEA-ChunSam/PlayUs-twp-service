@@ -82,7 +82,7 @@ public class ChattingService {
             return loadInitialMessage(roomId, chatParticipant, pageSize);
         }
 
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "last_read_at"));
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "lastReadAt"));
         return chatMessageRepository.findAllByRoomIdAndLastReadAtAfterAndLastReadAtBeforeOrderByLastReadAtDesc(roomId, chatParticipant.getJoinedAt(), lastMessageTimeStamp, pageable);
     }
 
@@ -90,7 +90,7 @@ public class ChattingService {
         int chattingCount = chatMessageRepository.countAllByChatRoomIdAndLastReadAtAfterOrderByLastReadAtDesc(roomId, chatParticipant.getDisconnectedAt());
 
         int effectivePageSize = Math.max(chattingCount, pageSize);
-        Pageable pageable = PageRequest.of(0, effectivePageSize, Sort.by(Sort.Direction.DESC, "last_read_at"));
+        Pageable pageable = PageRequest.of(0, effectivePageSize, Sort.by(Sort.Direction.DESC, "lastReadAt"));
 
         return chatMessageRepository.findAllByChatRoomIdAndLastReadAtAfterOrderByLastReadAtDesc(roomId, chatParticipant.getJoinedAt(), pageable);
     }
