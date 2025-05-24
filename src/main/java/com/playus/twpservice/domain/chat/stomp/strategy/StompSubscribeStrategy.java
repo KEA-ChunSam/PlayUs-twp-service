@@ -28,9 +28,20 @@ public class StompSubscribeStrategy implements StompCommandStrategy {
     public Message<?> preSend(Message<?> message, StompHeaderAccessor accessor, MessageChannel channel) {
         String destination = accessor.getDestination();
 
+        if (destination == null) {
+            throw new StompException.ChatSubscribeException("구독 경로가 존재하지 않습니다.");
+        }
+
         if (destination.startsWith(SUB_END_POINT)) {
-            Long roomId = Long.valueOf(destination.replace(SUB_END_POINT, ""));
-            accessor.getSessionAttributes().put(CHAT_ROOM_ID, roomId);
+            String roomIdStr = destination.replace(SUB_END_POINT, "");
+            try {
+                Long roomId = Long.valueOf(roomIdStr);
+                accessor.getSessionAttributes().put(CHAT_ROOM_ID, roomId);
+            } catch (NumberFormatException e) {
+                throw new StompException.ChatSubscribeException("올바르지 않은 채팅방 ID입니다: " + roomIdStr);
+            } catch (NullPointerException e) {
+                throw new StompException.ChatSubscribeException("채팅방 ID가 존재하지 않습니다.");
+            }
 
             return message;
         }
