@@ -12,10 +12,12 @@ import com.playus.twpservice.domain.chat.repository.write.ChatParticipantReposit
 import com.playus.twpservice.domain.chat.repository.message.custom.ChatMessageRepositoryCustom;
 import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.chat.kafka.KafkaChatPublisher;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -43,21 +45,22 @@ public class ChatParticipantService {
                 .orElseThrow(() -> new ChatParticipantException.NotFoundException("존재하지 않는 채팅 참여자 입니다."));
     }
 
+    @Transactional
     public boolean checkSubscription(ChatRoom chatRoom, Long userId) {
         Optional<ChatParticipant> optionalParticipant = chatParticipantRepository.findByChatRoomAndUserId(chatRoom, userId);
 
         if (optionalParticipant.isPresent()) {
-            ChatParticipant chattingParticipant = optionalParticipant.get();
+            ChatParticipant chatParticipant = optionalParticipant.get();
 
             checkDuplicateSubscription(chatRoom.getId(), userId);
 
-            Pair<String, String> pair = chatMessageRepository.updateUnreadCount(chatRoom.getId(), chattingParticipant.getLastReadAt(), userId);
+            ReadMessageRange messageRange = updateUnreadMessages(chatRoom.getId(), chatParticipant.getLastReadAt(), userId);
 
             String nickname = userFeignClient.getUserInfo(userId).nickname();
 
-            reEnterEvent(chatRoom.getId(), userId, nickname, ReadMessageRange.from(pair));
+            reEnterEvent(chatRoom.getId(), userId, nickname, messageRange);
 
-            chattingParticipant.reSubscribe();
+            chatParticipant.reSubscribe();
 
             return true;
         }
@@ -77,6 +80,11 @@ public class ChatParticipantService {
         if (chatRedisService.isActive(roomId, memberId)) {
             throw new SubscribeException.DuplicateSubscribeException("같은 채팅방을 중복으로 구독했습니다.");
         }
+    }
+
+    private ReadMessageRange updateUnreadMessages(Long roomId, LocalDateTime lastReadAt, Long userId) {
+        Pair<String, String> pair = chatMessageRepository.updateUnreadCount(roomId, lastReadAt, userId);
+        return ReadMessageRange.from(pair);
     }
 
     private void reEnterEvent(long chatRoomId, long senderId, String senderName, ReadMessageRange range) {
