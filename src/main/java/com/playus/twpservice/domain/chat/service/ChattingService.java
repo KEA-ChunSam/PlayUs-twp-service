@@ -105,6 +105,6 @@ public class ChattingService {
         long totalCount = chatParticipantService.getParticipantCount(roomId);
         long nowCount = chatRedisService.getSubscriberCount(roomId);
 
-        return totalCount - nowCount;
+        return Math.max(0, totalCount - nowCount);
     }
 }
