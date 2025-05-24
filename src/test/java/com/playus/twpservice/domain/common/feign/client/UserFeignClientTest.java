@@ -136,7 +136,7 @@ class UserFeignClientTest extends IntegrationTestSupport {
 
         // when // then
         assertThatThrownBy(() -> userFeignClient.getWriterInfo(writerIdList))
-                .isInstanceOf(FeignException.class)
+                .isInstanceOf(FeignException.NotFound.class)
                 .hasMessageContaining("사용자가 존재하지 않습니다!");
     }
 
@@ -187,7 +187,7 @@ class UserFeignClientTest extends IntegrationTestSupport {
 
         // when // then
         assertThatThrownBy(() -> userFeignClient.getPartyApplicantsInfo(userIdList))
-                .isInstanceOf(FeignException.class)
+                .isInstanceOf(FeignException.NotFound.class)
                 .hasMessageContaining("사용자가 존재하지 않습니다!");
     }
 
