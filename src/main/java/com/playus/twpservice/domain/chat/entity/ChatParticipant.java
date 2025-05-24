@@ -7,12 +7,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@SQLDelete(sql = "UPDATE chat_participants SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "chat_participants")
 public class ChatParticipant extends BaseTimeEntity {
@@ -37,6 +41,8 @@ public class ChatParticipant extends BaseTimeEntity {
 
     private LocalDateTime disconnectedAt;
 
+    private boolean isDeleted;
+
     @Builder
     private ChatParticipant(Long userId, ChatRoom chatRoom, LocalDateTime lastReadAt, LocalDateTime disconnectedAt) {
         this.userId = userId;
@@ -44,6 +50,7 @@ public class ChatParticipant extends BaseTimeEntity {
         this.lastReadAt = lastReadAt;
         this.disconnectedAt = disconnectedAt;
         this.joinedAt = LocalDateTime.now();
+        this.isDeleted = false;
     }
 
     public static ChatParticipant of(ChatRoom chatRoom, Long userId) {
