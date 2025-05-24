@@ -3,6 +3,7 @@ package com.playus.twpservice.domain.chat.document;
 import com.playus.twpservice.domain.chat.dto.request.ChatMessageRequest;
 import com.playus.twpservice.domain.chat.entity.enums.MessageType;
 import com.playus.twpservice.domain.common.data.BaseMongoTimeEntity;
+import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -46,6 +47,7 @@ public class ChatMessage extends BaseMongoTimeEntity {
     private String message;
 
     @NotNull
+    @Min(0)
     @Field(name = "unread_count")
     private Long unreadCount;
 
@@ -89,6 +91,7 @@ public class ChatMessage extends BaseMongoTimeEntity {
                 .chatRoomId(chatRoomId)
                 .message(message)
                 .messageType(messageType)
+                .unreadCount(0L)
                 .lastReadAt(LocalDateTime.now())
                 .build();
     }
