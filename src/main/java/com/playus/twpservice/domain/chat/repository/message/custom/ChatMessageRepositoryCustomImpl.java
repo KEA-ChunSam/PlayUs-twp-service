@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Repository
 public class ChatMessageRepositoryCustomImpl implements ChatMessageRepositoryCustom {
 
-    private static final String COLLECTION = "chatting_messages";
+    private static final String COLLECTION = "chat_messages";
     private static final String EMPTY_READ_MESSAGE = "NO_MESSAGES";
 
     private final MongoTemplate chatMongoTemplate;
