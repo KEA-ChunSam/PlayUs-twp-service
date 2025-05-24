@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.assertj.core.api.Assertions.*;
 
 class UserFeignClientTest extends IntegrationTestSupport {

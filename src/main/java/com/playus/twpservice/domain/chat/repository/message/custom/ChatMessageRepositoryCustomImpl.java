@@ -1,7 +1,6 @@
 package com.playus.twpservice.domain.chat.repository.message.custom;
 
 import com.playus.twpservice.domain.chat.document.ChatMessage;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;

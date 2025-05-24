@@ -34,7 +34,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -594,7 +593,7 @@ public interface PartyControllerSpecification {
                                                                            "http://user-thumbnailUrl",
                                                                            "http://user2-thumbnailUrl"
                                                                          ]
-                                                                       }, 
+                                                                       },
                                             
                                                                           {
                                                                              "partyId": 2,
@@ -2061,7 +2060,7 @@ public interface PartyControllerSpecification {
                                                                          "ageGroup": "20대",
                                                                          "thumbnailUrl" : "http://thumbnailUrl",
                                                                          "requireMessage" : "참여 희망합니다!"
-                                                                       }, 
+                                                                       },
                                             
                                                                        {
                                                                          "userId": 2,
@@ -2069,7 +2068,7 @@ public interface PartyControllerSpecification {
                                                                          "ageGroup": "30대",
                                                                          "thumbnailUrl" : "http://thumbnailUrl2",
                                                                          "requireMessage" : "같이 즐겨봐요!"
-                                                                       }, 
+                                                                       },
                                                                      ]
                                             """
                             )
@@ -2533,7 +2532,7 @@ public interface PartyControllerSpecification {
                                                                              "authorAge": "20대",
                                                                              "writerThumbnailUrl": "https://example.com/profile.jpg",
                                                                              "currentParticipants": 5
-                                                                        }, 
+                                                                        },
                                             
                                                                         {
                                                                              "partyId": 3,

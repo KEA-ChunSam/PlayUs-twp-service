@@ -3,7 +3,6 @@ package com.playus.twpservice.domain.chat.stomp.strategy;
 import com.playus.twpservice.domain.chat.exception.stomp.StompException;
 import com.playus.twpservice.domain.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;

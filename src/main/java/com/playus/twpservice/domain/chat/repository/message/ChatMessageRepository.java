@@ -7,7 +7,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface ChatMessageRepository extends BaseMongoRepository<ChatMessage, String> {
 
