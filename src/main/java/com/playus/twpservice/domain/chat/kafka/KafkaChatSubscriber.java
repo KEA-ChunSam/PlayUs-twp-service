@@ -26,6 +26,12 @@ public class KafkaChatSubscriber {
     @KafkaListener(topics = "${spring.kafka.topics.chat-room}", groupId = "${spring.kafka.consumer.chat-group-id}", containerFactory = "chatMessageListenerFactory")
     public void consumeChatMessage(@Payload ChattingMessage chattingMessage, Acknowledgment acknowledgment) {
         try {
+            if (chattingMessage == null || chattingMessage.chatRoomId() == null) {
+                log.warn("🚨 유효하지 않은 채팅 메시지를 받았습니다: {}", chattingMessage);
+                acknowledgment.acknowledge();
+                return;
+            }
+
             log.info("📤 Kafka 채팅 메시지 읽기 성공: {}", chattingMessage);
 
             simpMessageSendingOperations.convertAndSend(CHAT_ROOM_PREFIX + chattingMessage.chatRoomId(), chattingMessage);
