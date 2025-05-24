@@ -69,8 +69,8 @@ public class ChatParticipantService {
         chatParticipantRepository.delete(chattingParticipant);
     }
 
-    public long getParticipantCount(Long charRoomId) {
-        return chatParticipantReadOnlyRepository.countByChatRoomId(charRoomId);
+    public long getParticipantCount(Long chatRoomId) {
+        return chatParticipantReadOnlyRepository.countByChatRoomId(chatRoomId);
     }
 
     private void checkDuplicateSubscription(long roomId, long memberId) {
