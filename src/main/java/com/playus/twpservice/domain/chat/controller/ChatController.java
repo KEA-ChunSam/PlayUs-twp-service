@@ -28,11 +28,11 @@ public class ChatController implements ChatControllerSpecification {
 
     @Override
     @GetMapping("/chat/{roomId}")
-    public ResponseEntity<ChatResponse> getChattingMessages(@AuthenticationPrincipal CustomOAuth2User principal,
-                                                          @PathVariable Long roomId,
-                                                          @RequestParam int pageNumber,
-                                                          @RequestParam int pageSize,
-                                                          @RequestParam(required = false) LocalDateTime lastMessageTimeStamp) {
+    public ResponseEntity<ChatResponse> getChatMessages(@AuthenticationPrincipal CustomOAuth2User principal,
+                                                        @PathVariable Long roomId,
+                                                        @RequestParam int pageNumber,
+                                                        @RequestParam int pageSize,
+                                                        @RequestParam(required = false) LocalDateTime lastMessageTimeStamp) {
         ChatResponse response = chattingService.getMessage(roomId, principal.getId(), pageNumber, pageSize, lastMessageTimeStamp);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -40,8 +40,8 @@ public class ChatController implements ChatControllerSpecification {
 
     @Override
     @GetMapping("/chat/count/{roomId}")
-    public ResponseEntity<ChatUserInfoResponse> getChattingMessageCount(@AuthenticationPrincipal CustomOAuth2User principal,
-                                                                      @PathVariable Long roomId) {
+    public ResponseEntity<ChatUserInfoResponse> getChatParticipants(@AuthenticationPrincipal CustomOAuth2User principal,
+                                                                    @PathVariable Long roomId) {
         ChatUserInfoResponse response = chattingRoomService.getCount(principal.getId(), roomId);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -49,8 +49,8 @@ public class ChatController implements ChatControllerSpecification {
 
     @Override
     @DeleteMapping("/chat/{roomId}")
-    public ResponseEntity<Void> exitChattingRoom(@AuthenticationPrincipal CustomOAuth2User principal,
-                                               @PathVariable Long roomId) {
+    public ResponseEntity<Void> exitChatRoom(@AuthenticationPrincipal CustomOAuth2User principal,
+                                             @PathVariable Long roomId) {
         chattingRoomService.exitChatRoom(roomId, principal.getId());
 
         return ResponseEntity.status(HttpStatus.OK).build();

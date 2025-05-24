@@ -130,11 +130,11 @@ public interface ChatControllerSpecification {
                     )
             )
     )
-    ResponseEntity<ChatResponse> getChattingMessages(@Parameter(hidden = true) CustomOAuth2User principal,
-                                                    @Valid @Parameter(description = "채팅방 ID", required = true) Long roomId,
-                                                    @Valid @Parameter(description = "페이지 번호", required = true) int pageNumber,
-                                                    @Valid @Parameter(description = "페이지 크기", required = true) int pageSize,
-                                                    @Valid @Parameter(description = "마지막 메시지 타임스탬프") LocalDateTime lastMessageTimeStamp);
+    ResponseEntity<ChatResponse> getChatMessages(@Parameter(hidden = true) CustomOAuth2User principal,
+                                                 @Valid @Parameter(description = "채팅방 ID", required = true) Long roomId,
+                                                 @Valid @Parameter(description = "페이지 번호", required = true) int pageNumber,
+                                                 @Valid @Parameter(description = "페이지 크기", required = true) int pageSize,
+                                                 @Valid @Parameter(description = "마지막 메시지 타임스탬프") LocalDateTime lastMessageTimeStamp);
 
     @Tag(name = "Chat Get", description = "채팅방 참여자 정보 조회 API")
     @Operation(
@@ -224,8 +224,8 @@ public interface ChatControllerSpecification {
                     )
             )
     )
-    ResponseEntity<ChatUserInfoResponse> getChattingMessageCount(@Parameter(hidden = true) CustomOAuth2User principal,
-                                                               @Valid @Parameter(description = "채팅방 ID", required = true) Long roomId);
+    ResponseEntity<ChatUserInfoResponse> getChatParticipants(@Parameter(hidden = true) CustomOAuth2User principal,
+                                                             @Valid @Parameter(description = "채팅방 ID", required = true) Long roomId);
 
     @Tag(name = "Chat Delete", description = "채팅방 퇴장 API")
     @Operation(
@@ -297,8 +297,8 @@ public interface ChatControllerSpecification {
                     )
             )
     )
-    ResponseEntity<Void> exitChattingRoom(@Parameter(hidden = true) CustomOAuth2User principal,
-                                        @Valid @Parameter(description = "채팅방 ID", required = true) Long roomId);
+    ResponseEntity<Void> exitChatRoom(@Parameter(hidden = true) CustomOAuth2User principal,
+                                      @Valid @Parameter(description = "채팅방 ID", required = true) Long roomId);
 
     void message(@Valid ChatMessageRequest request, SimpMessageHeaderAccessor headerAccessor);
 } 
