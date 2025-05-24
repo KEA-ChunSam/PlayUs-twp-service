@@ -23,6 +23,7 @@ public class ChatParticipantDocument {
     @Field(name = "user_id")
     private Long userId;
 
+    @NotNull
     @Field(name = "chat_room_id")
     private Long chatRoomId;
 
@@ -34,7 +35,6 @@ public class ChatParticipantDocument {
     @Field(name = "last_read_at")
     private LocalDateTime lastReadAt;
 
-    @NotNull
     @Field(name = "disconnected_at")
     private LocalDateTime disconnectedAt;
 
