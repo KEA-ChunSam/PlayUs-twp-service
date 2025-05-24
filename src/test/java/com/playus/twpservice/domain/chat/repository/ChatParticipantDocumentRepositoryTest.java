@@ -49,10 +49,6 @@ class ChatParticipantDocumentRepositoryTest extends IntegrationTestSupport {
                 ChatParticipant.of(chatRoom1, userId)
         ));
 
-        chatParticipantRepository.save(
-                ChatParticipant.of(chatRoom, userId)
-        );
-
         // when
         List<ChatParticipant> result = chatParticipantRepository.findByChatRoom(chatRoom);
 
