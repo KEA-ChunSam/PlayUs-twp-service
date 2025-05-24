@@ -76,6 +76,9 @@ logging:
 slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
 
+websocket:
+  allowed-origin: {WEBSOCKET_ALLOWED_ORIGIN}
+
 springdoc:
   swagger-ui:
     enabled: false

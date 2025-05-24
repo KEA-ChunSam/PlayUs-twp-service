@@ -122,3 +122,6 @@ logging:
   level:
     org.springframework.messaging: debug
     org.springframework.web.socket: debug
+
+websocket:
+  allowed-origin: "http://localhost:3000"

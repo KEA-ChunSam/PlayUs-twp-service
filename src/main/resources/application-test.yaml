@@ -105,3 +105,6 @@ resilience4j:
     instances:
       circuit:
         base-config: default
+
+websocket:
+  allowed-origin: "http://localhost:3000"

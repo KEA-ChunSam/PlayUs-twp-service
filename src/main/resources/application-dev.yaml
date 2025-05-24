@@ -150,3 +150,6 @@ management:
   endpoint:
     health:
       show-details: never
+
+websocket:
+  allowed-origin: {WEBSOCKET_ALLOWED_ORIGIN}
