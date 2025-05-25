@@ -1,7 +1,10 @@
 package com.playus.twpservice.global.exception;
 
-import com.playus.twpservice.domain.chat.exception.ChatRoomException;
-import com.playus.twpservice.domain.party.controller.PartyController;
+import com.playus.twpservice.domain.chat.exception.common.SubscribeException;
+import com.playus.twpservice.domain.chat.exception.common.WebSocketException;
+import com.playus.twpservice.domain.chat.exception.entity.ChatMessageException;
+import com.playus.twpservice.domain.chat.exception.entity.ChatParticipantException;
+import com.playus.twpservice.domain.chat.exception.entity.ChatRoomException;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.exception.document.PartyJoinDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
@@ -20,9 +23,7 @@ import software.amazon.awssdk.core.exception.SdkException;
 import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
-@RestControllerAdvice(assignableTypes = {
-        PartyController.class
-})
+@RestControllerAdvice
 public class ExceptionAdvice {
 
     @ResponseStatus(BAD_REQUEST)
@@ -38,8 +39,10 @@ public class ExceptionAdvice {
             PartyGenderException.InvalidDescriptionException.class,
             PartyJoinMethodException.InvalidDescriptionException.class,
             PartyAgeGroupException.InvalidDescriptionException.class,
-
             PartyException.InvalidApproveRequestToPartyException.class,
+            SubscribeException.DuplicateSubscribeException.class,
+            SubscribeException.UnSubscriptionException.class,
+            ChatMessageException.ChatSendEndPointException.class,
             PartyException.NotAllowedToFirstComePartyException.class
     })
     public ErrorResponse handleBadRequestException(Exception e) {
@@ -60,12 +63,25 @@ public class ExceptionAdvice {
         return ErrorResponse.forbiddenError(errorMessage);
     }
 
+    @ResponseStatus(UNAUTHORIZED)
+    @ExceptionHandler({
+            WebSocketException.TokenNotExistException.class,
+            WebSocketException.TokenExpiredException.class
+    })
+    public ErrorResponse handleUnauthorizedException(Exception e) {
+        String errorMessage = e.getMessage();
+        log.error("unauthorizedError Error: {}", errorMessage);
+        return ErrorResponse.unauthorizedError(errorMessage);
+    }
+
     @ResponseStatus(NOT_FOUND)
     @ExceptionHandler({
             PartyException.NotFoundException.class,
             PartyDocumentException.NotFoundException.class,
             ChatRoomException.NotFoundException.class,
-            PartyException.ApplicantNotFoundException.class
+            ChatMessageException.NotFoundException.class,
+            ChatParticipantException.NotFoundException.class,
+            PartyException.ApplicantNotFoundException.class,
     })
     public ErrorResponse handleNotFoundException(Exception e) {
         String errorMessage = e.getMessage();

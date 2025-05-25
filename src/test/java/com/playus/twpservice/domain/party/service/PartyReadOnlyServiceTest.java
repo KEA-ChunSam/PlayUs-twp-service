@@ -1,15 +1,8 @@
 package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.IntegrationTestSupport;
-import com.playus.twpservice.domain.common.security.CustomOAuth2User;
-import com.playus.twpservice.domain.common.security.Gender;
-import com.playus.twpservice.domain.common.security.Role;
-import com.playus.twpservice.domain.common.security.UserDto;
-import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
-import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
-import com.playus.twpservice.domain.party.dto.appliedparty.AppliedPartyResponse;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.enums.PartyGender;
@@ -17,11 +10,9 @@ import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
-import com.playus.twpservice.domain.party.feign.client.MatchFeignClient;
-import com.playus.twpservice.domain.party.feign.client.UserFeignClient;
-import com.playus.twpservice.domain.party.feign.response.PartyParticipantsInfoFeignResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyUserThumbnailUrlListResponse;
-import com.playus.twpservice.domain.party.feign.response.PartyWriterInfoFeignResponse;
+import com.playus.twpservice.domain.common.feign.client.MatchFeignClient;
+import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
+import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
@@ -32,8 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -220,15 +209,20 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
     @Test
     void getAppliedUsers() {
         // given
-        Long userId = 1L;
+        long userId = 1L;
         Long matchId = 1L;
+        Long chatRoomId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
-                List.of(PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
+                List.of(
+                        PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
                         PartyParticipantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
-                ));
+                )
+        );
 
-        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, "chatRoomId"));
+        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(
+                1L, "title1", "text1", 1L, 10L, 3L,
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, chatRoomId)
+        );
 
         partyJoinReadOnlyRepository.saveAll(
                 List.of(
@@ -254,23 +248,26 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
     @Test
     void getAppliedUsers_INVALID_PARTY() {
         // given
-        Long userId = 1L;
+        long userId = 1L;
         Long matchId = 1L;
+        Long chatRoomId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
-                List.of(PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
-                        PartyParticipantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
-                ));
-
-        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, "chatRoomId"));
-
-        partyJoinReadOnlyRepository.saveAll(
                 List.of(
-                        PartyJoinDocument.createForOnlyTest(1L, userId + 1, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망"),
-                        PartyJoinDocument.createForOnlyTest(2L, userId + 2, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망2"),
-                        PartyJoinDocument.createForOnlyTest(3L, userId + 3, p1.getId(), PartyJoinRequestStatus.REFUSE, "참여 희망3")
+                        PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
+                        PartyParticipantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
                 )
         );
+
+        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(
+                1L, "title1", "text1", 1L, 10L, 3L,
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, chatRoomId)
+        );
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, userId + 1, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망"),
+                PartyJoinDocument.createForOnlyTest(2L, userId + 2, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망2"),
+                PartyJoinDocument.createForOnlyTest(3L, userId + 3, p1.getId(), PartyJoinRequestStatus.REFUSE, "참여 희망3")
+        ));
 
         // when // then
         assertThatThrownBy(() -> partyReadOnlyService.getAppliedUsers(userId, p1.getId() + 1))
@@ -281,23 +278,26 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
     @DisplayName("직관팟 방장이 아니면 신청 유저 목록을 가져올 수 없다.")
     @Test
     void getAppliedUsers_NOT_WRITER() {
-        Long userId = 1L;
+        long userId = 1L;
         Long matchId = 1L;
+        Long chatRoomId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
-                List.of(PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
-                        PartyParticipantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
-                ));
-
-        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId + 1, matchId, "chatRoomId"));
-
-        partyJoinReadOnlyRepository.saveAll(
                 List.of(
-                        PartyJoinDocument.createForOnlyTest(1L, userId + 1, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망"),
-                        PartyJoinDocument.createForOnlyTest(2L, userId + 2, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망2"),
-                        PartyJoinDocument.createForOnlyTest(3L, userId + 3, p1.getId(), PartyJoinRequestStatus.REFUSE, "참여 희망3")
+                        PartyParticipantsInfoFeignResponse.of(userId + 1, "kim", 14, "http://user1.jpg"),
+                        PartyParticipantsInfoFeignResponse.of(userId + 2, "jung", 27, "http://user2.jpg")
                 )
         );
+
+        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(
+                1L, "title1", "text1", 1L, 10L, 3L,
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId + 1, matchId, chatRoomId)
+        );
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+                PartyJoinDocument.createForOnlyTest(1L, userId + 1, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망"),
+                PartyJoinDocument.createForOnlyTest(2L, userId + 2, p1.getId(), PartyJoinRequestStatus.WAIT, "참여 희망2"),
+                PartyJoinDocument.createForOnlyTest(3L, userId + 3, p1.getId(), PartyJoinRequestStatus.REFUSE, "참여 희망3")
+        ));
 
         // when // then
         assertThatThrownBy(() -> partyReadOnlyService.getAppliedUsers(userId, p1.getId()))
@@ -309,14 +309,17 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
     @Test
     void getAppliedUsers_EMPTY_APPLICANTS() {
         // given
-        Long userId = 1L;
+        long userId = 1L;
         Long matchId = 1L;
+        Long chatRoomId = 1L;
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(
                 List.of()
         );
 
-        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, "chatRoomId"));
+        PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(
+                1L, "title1", "text1", 1L, 10L, 3L,
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, chatRoomId)
+        );
 
         // when
         List<PartyAppliedUserResponse> response = partyReadOnlyService.getAppliedUsers(userId, p1.getId());

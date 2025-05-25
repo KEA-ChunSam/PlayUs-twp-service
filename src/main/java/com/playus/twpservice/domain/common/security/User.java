@@ -1,8 +1,6 @@
 package com.playus.twpservice.domain.common.security;
 
-import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

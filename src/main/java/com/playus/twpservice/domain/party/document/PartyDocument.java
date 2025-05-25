@@ -1,6 +1,5 @@
 package com.playus.twpservice.domain.party.document;
 
-import com.playus.twpservice.domain.common.data.BaseTimeEntity;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import org.springframework.data.annotation.Id;
@@ -10,7 +9,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -60,7 +58,7 @@ public class PartyDocument {
 
     @NotNull
     @Field(name = "chatroom_id")
-    private String chatRoomId;
+    private Long chatRoomId;
 
     @NotNull
     private String text;
@@ -73,7 +71,7 @@ public class PartyDocument {
 
     @Builder
     private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, Long currentParticipants,
-                          PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, String chatRoomId) {
+                          PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, Long chatRoomId) {
         this.id = id;
         this.title = title;
         this.text = text;
@@ -89,7 +87,7 @@ public class PartyDocument {
 
     public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants,
                                                   Long maximumParticipants, Long currentParticipantsCount, PartyGender partyGender, PartyJoinMethod partyJoinMethod,
-                                                  Long writerId, Long matchId, String chatRoomId) {
+                                                  Long writerId, Long matchId, Long chatRoomId) {
         return PartyDocument.builder()
                 .id(id)
                 .title(title)

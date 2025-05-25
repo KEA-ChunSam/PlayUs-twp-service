@@ -47,11 +47,13 @@ public class UserDto {
         return dto;
     }
 
-    public static UserDto createForTest(Long id, Gender gender, Role role, int age) {
+    public static UserDto createForTest(Long id, String nickname, Gender gender, Role role, String thumbnailURL, int age) {
         UserDto dto = new UserDto();
         dto.id = id;
+        dto.nickname = nickname;
         dto.gender = gender;
         dto.role = role;
+        dto.thumbnailURL = thumbnailURL;
         dto.age = age;
         return dto;
     }

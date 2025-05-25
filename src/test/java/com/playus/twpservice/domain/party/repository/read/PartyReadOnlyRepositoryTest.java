@@ -1,13 +1,6 @@
 package com.playus.twpservice.domain.party.repository.read;
 
 import com.playus.twpservice.IntegrationTestSupport;
-import com.playus.twpservice.domain.party.document.PartyAgeDocument;
-import com.playus.twpservice.domain.party.document.PartyDocument;
-import com.playus.twpservice.domain.party.document.PartyJoinDocument;
-import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
-import com.playus.twpservice.domain.party.enums.PartyGender;
-import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
-import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.vo.PartyInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 
 class PartyReadOnlyRepositoryTest extends IntegrationTestSupport {

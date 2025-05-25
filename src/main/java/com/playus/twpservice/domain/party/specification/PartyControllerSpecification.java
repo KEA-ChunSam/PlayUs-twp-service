@@ -34,7 +34,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -43,7 +42,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public interface PartyControllerSpecification {
 
 
-    @Tag(name = "Post", description = "직관팟 생성 API")
+    @Tag(name = "Party Post", description = "직관팟 생성 API")
     @Operation(
             summary = "직관팟 생성",
             description = "로그인한 사용자가 작성자로서 직관팟을 생성합니다.",
@@ -454,7 +453,7 @@ public interface PartyControllerSpecification {
     ResponseEntity<PartyCreateResponse> createParty(@Parameter(hidden = true) CustomOAuth2User principal,
                                                     @Valid @Parameter(description = "직관팟 생성 요청", required = true) PartyCreateRequest request);
 
-    @Tag(name = "Post", description = "Presigned URL 발급 API")
+    @Tag(name = "Party Post", description = "Presigned URL 발급 API")
     @Operation(
             summary = "Presigned URL 발급",
             description = "프론트에서 이미지를 직접 저장하기 위한 Presigned URL을 생성 및 반환합니다. (버킷에 저장할 때는 PUT으로)",
@@ -545,7 +544,7 @@ public interface PartyControllerSpecification {
     PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(@Valid @Parameter(description = "Presigned URL 발급 요청", required = true)
                                                                       PresignedUrlForSaveImageRequest request);
 
-    @Tag(name = "Get", description = "직관팟 조회 API")
+    @Tag(name = "Party Get", description = "직관팟 조회 API")
     @Operation(
             summary = "직관팟 조회 API",
             description = "특정 경기에 대한 모든 직관팟을 조회합니다.",
@@ -594,7 +593,7 @@ public interface PartyControllerSpecification {
                                                                            "http://user-thumbnailUrl",
                                                                            "http://user2-thumbnailUrl"
                                                                          ]
-                                                                       }, 
+                                                                       },
                                             
                                                                           {
                                                                              "partyId": 2,
@@ -682,7 +681,7 @@ public interface PartyControllerSpecification {
     })
     List<PartyInfoResponse> getPartiesByMatchId(@Valid @Parameter(description = "직관팟 리스트 요청", required = true) PartyInfoRequest request);
 
-    @Tag(name = "Get", description = "직관팟 상세정보 조회 API")
+    @Tag(name = "Party Get", description = "직관팟 상세정보 조회 API")
     @Operation(
             summary = "직관팟 상세정보 조회 API",
             description = "특정 직관팟에 대한 자세한 정보를 조회합니다.",
@@ -803,7 +802,7 @@ public interface PartyControllerSpecification {
     PartyDetailResponse getPartyDetail(@Valid @Parameter(description = "직관팟 상세정보 요청", required = true) PartyDetailRequest request);
 
 
-    @Tag(name = "Put", description = "직관팟 수정 API")
+    @Tag(name = "Party Put", description = "직관팟 수정 API")
     @Operation(
             summary = "직관팟 수정",
             description = "직관팟 작성자인 로그인한 유저가 직관팟을 수정합니다.",
@@ -1236,7 +1235,7 @@ public interface PartyControllerSpecification {
                                     @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest,
                                     @Valid @Parameter(description = "직관팟 수정 요청", required = true) PartyUpdateRequest request);
 
-    @Tag(name = "Patch", description = "직관팟 삭제 API")
+    @Tag(name = "Party Patch", description = "직관팟 삭제 API")
     @Operation(
             summary = "직관팟 삭제",
             description = "직관팟 작성자인 로그인한 유저가 직관팟을 삭제합니다.",
@@ -1353,7 +1352,7 @@ public interface PartyControllerSpecification {
                                     @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
 
 
-    @Tag(name = "Post", description = "직관팟 선착순 신청 API")
+    @Tag(name = "Party Post", description = "직관팟 선착순 신청 API")
     @Operation(
             summary = "직관팟 선착순 신청",
             description = "선착순 승인제인 직관팟에 신청합니다.",
@@ -1530,7 +1529,7 @@ public interface PartyControllerSpecification {
                                       @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
 
 
-    @Tag(name = "Post", description = "승인제 직관팟 신청 API")
+    @Tag(name = "Party Post", description = "승인제 직관팟 신청 API")
     @Operation(
             summary = "직관팟 승인제 신청",
             description = "승인제 직관팟에 신청합니다.",
@@ -1722,7 +1721,7 @@ public interface PartyControllerSpecification {
                                   @Valid @Parameter(description = "직관팟 신청 시 방장에게 보여줄 requireMessage 작성") PartyApproveApplyRequest request);
 
 
-    @Tag(name = "Patch", description = "방장으로서 승인제 직관팟 신청 유저 승인 API")
+    @Tag(name = "Party Patch", description = "방장으로서 승인제 직관팟 신청 유저 승인 API")
     @Operation(
             summary = "승인제 직관팟 신청 승인/거절",
             description = "직관팟 신청자에 대해 승인 여부를 결정합니다.",
@@ -2024,7 +2023,7 @@ public interface PartyControllerSpecification {
                                       @Valid @Parameter(description = "방장이 승인할 userId와 승인 여부 작성") PartyApproveRequest request);
 
 
-    @Tag(name = "Get", description = "직관팟 신청 유저 조회 API")
+    @Tag(name = "Party Get", description = "직관팟 신청 유저 조회 API")
     @Operation(
             summary = "직관팟 신청 유저 조회 API",
             description = "특정 승인제 직관팟에 대해 신청한 모든 유저를 조회합니다",
@@ -2061,7 +2060,7 @@ public interface PartyControllerSpecification {
                                                                          "ageGroup": "20대",
                                                                          "thumbnailUrl" : "http://thumbnailUrl",
                                                                          "requireMessage" : "참여 희망합니다!"
-                                                                       }, 
+                                                                       },
                                             
                                                                        {
                                                                          "userId": 2,
@@ -2069,7 +2068,7 @@ public interface PartyControllerSpecification {
                                                                          "ageGroup": "30대",
                                                                          "thumbnailUrl" : "http://thumbnailUrl2",
                                                                          "requireMessage" : "같이 즐겨봐요!"
-                                                                       }, 
+                                                                       },
                                                                      ]
                                             """
                             )
@@ -2156,7 +2155,7 @@ public interface PartyControllerSpecification {
 
 
 
-    @Tag(name = "Post", description = "직관팟 탈퇴 API")
+    @Tag(name = "Party Post", description = "직관팟 탈퇴 API")
     @Operation(
             summary = "직관팟 탈퇴 API",
             description = "직관팟 인원 (방장 X) 으로서 참여하고 있는 특정 직관팟에 탈퇴할 수 있다.",
@@ -2320,7 +2319,7 @@ public interface PartyControllerSpecification {
 
 
 
-    @Tag(name = "Patch", description = "직관팟 신청 취소 API")
+    @Tag(name = "Party Patch", description = "직관팟 신청 취소 API")
     @Operation(
             summary = "직관팟 신청 취소 API",
             description = "직관팟 신청 후 아직 방장에게 승인받지 못한 특정 직관팟에 대한 신청을 취소할 수 있다.",
@@ -2497,7 +2496,7 @@ public interface PartyControllerSpecification {
                                     @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
 
 
-    @Tag(name = "Get", description = "신청한 직관팟 현황 조회 API")
+    @Tag(name = "Party Get", description = "신청한 직관팟 현황 조회 API")
     @Operation(
             summary = "신청한 직관팟 현황 조회 API",
             description = "본인이 신청한 직관팟 현황을 조회합니다.",
@@ -2533,7 +2532,7 @@ public interface PartyControllerSpecification {
                                                                              "authorAge": "20대",
                                                                              "writerThumbnailUrl": "https://example.com/profile.jpg",
                                                                              "currentParticipants": 5
-                                                                        }, 
+                                                                        },
                                             
                                                                         {
                                                                              "partyId": 3,
