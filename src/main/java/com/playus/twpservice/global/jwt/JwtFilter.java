@@ -30,7 +30,6 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -52,9 +51,9 @@ public class JwtFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 String jti = jwtUtil.getJti(token);
-                if (redisTemplate.hasKey("blacklist:" + jti)) {
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "BLACKLISTED_TOKEN");
-                }
+//                if (redisTemplate.hasKey("blacklist:" + jti)) {
+//                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "BLACKLISTED_TOKEN");
+//                }
 
                 if (!jwtUtil.isExpired(token)) {
                     String userId = jwtUtil.getUserId(token);
