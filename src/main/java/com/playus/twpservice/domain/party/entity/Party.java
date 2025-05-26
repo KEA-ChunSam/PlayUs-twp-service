@@ -62,7 +62,7 @@ public class Party extends BaseTimeEntity {
     private Long matchId;
 
     @OneToOne
-    @JoinColumn(name = "chatroom_id")
+    @JoinColumn(nullable = false, name = "chat_room_id")
     private ChatRoom chatRoom;
 
     @Column(nullable = false, columnDefinition = "TEXT")
