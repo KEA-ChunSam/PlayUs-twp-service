@@ -46,11 +46,6 @@ public class JwtFilter extends OncePerRequestFilter {
                     token = cookie.getValue();
                     break;
                 }
-
-                if ("Refresh".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
             }
         }
 
@@ -83,4 +78,3 @@ public class JwtFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 }
-
