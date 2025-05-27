@@ -1567,14 +1567,14 @@ public interface PartyControllerSpecification {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "201", description = "신청 성공",
+                    responseCode = "200", description = "신청 성공",
                     content = @Content(
                             mediaType = APPLICATION_JSON_VALUE,
                             examples = @ExampleObject(
                                     name = "승인제 직관팟 신청 응답 예시",
                                     value = """
                                             {
-                                              "message": "직관팟 가입에 성공하셨습니다!"
+                                              "message": "직관팟 신청에 성공하셨습니다!"
                                             }
                                             """
                             )
