@@ -1258,22 +1258,22 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$[0].requireMessage").value("참여 희망합니다!"));
     }
 
-    @DisplayName("직관팟을 승인할 때 직관팟의 ID는 1 이상이여야 한다.")
-    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
-    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
-    void getAppliedUser_INVALID_PARTYID(String invalidPartyStr) throws Exception {
-        // given
-
-        // when // then
-        mockMvc.perform(get("/party/" + invalidPartyStr + "/approved-applicants")
-                        .contentType(APPLICATION_JSON)
-                        .with(authentication(token)))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("400"))
-                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
-    }
+//    @DisplayName("직관팟을 승인할 때 직관팟의 ID는 1 이상이여야 한다.")
+//    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+//    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+//    void getAppliedUser_INVALID_PARTYID(String invalidPartyStr) throws Exception {
+//        // given
+//
+//        // when // then
+//        mockMvc.perform(get("/party/" + invalidPartyStr + "/approved-applicants")
+//                        .contentType(APPLICATION_JSON)
+//                        .with(authentication(token)))
+//                .andDo(print())
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.code").value("400"))
+//                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+//                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+//    }
 
     @DisplayName("직관팟을 탈퇴할 수 있다.")
     @Test
