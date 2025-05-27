@@ -91,9 +91,10 @@ public class PartyController implements PartyControllerSpecification {
     }
 
     @GetMapping("/{partyId}/approved-applicants")
-    public List<PartyAppliedUserResponse> getAppliedUsers(@AuthenticationPrincipal CustomOAuth2User principal,
-                                                          @Valid PartyIdRequest idRequest) {
-        return partyReadOnlyService.getAppliedUsers(principal.getId(), idRequest.partyId());
+    public List<PartyAppliedUserResponse> getAppliedUsers(
+            @AuthenticationPrincipal CustomOAuth2User principal,
+            @PathVariable Long partyId) {
+        return partyReadOnlyService.getAppliedUsers(principal.getId(), partyId);
     }
 
     @PostMapping("/{partyId}/leave")

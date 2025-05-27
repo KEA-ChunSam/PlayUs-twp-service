@@ -34,6 +34,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -2150,9 +2151,9 @@ public interface PartyControllerSpecification {
                     )
             )
     })
-    List<PartyAppliedUserResponse> getAppliedUsers(@Parameter(hidden = true) CustomOAuth2User principal,
-                                                   @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
-
+    List<PartyAppliedUserResponse> getAppliedUsers(
+            @Parameter(hidden = true) CustomOAuth2User principal,
+            @Parameter(description = "직관팟 ID", required = true) @PathVariable Long partyId);
 
 
     @Tag(name = "Party Post", description = "직관팟 탈퇴 API")
