@@ -56,8 +56,8 @@ public record PartyInfoResponse(
                 .availableGender(availableGender.getDescription())
                 .authorName(authorName)
                 .authorGender(authorGender)
-//                .authorAge(PartyAgeGroup.getAgeDescriptionByAge((authorAge / 10) * 10))
-                .authorAge(PartyAgeGroup.getAgeDescriptionByAge(10)) // 임시
+                .authorAge(PartyAgeGroup.getAgeDescriptionByAge((authorAge / 10) * 10))
+//                .authorAge(PartyAgeGroup.getAgeDescriptionByAge(10)) // 임시
                 .matchDate(matchDate)
                 .currentParticipantsCount(currentParticipantsCount)
                 .maximumParticipantsCount(maximumParticipantsCount)
