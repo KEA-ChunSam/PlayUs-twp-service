@@ -1076,7 +1076,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         long partyId = 1L;
         PartyApproveApplyRequest request = PartyApproveApplyRequest.of("message");
-        PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+        PartyApplyResponse response = PartyApplyResponse.of("직관팟 승인에 성공했습니다!");
         given(partyService.applyParty(any(CustomOAuth2User.class), any(Long.class), anyString()))
                 .willReturn(response);
 
@@ -1086,8 +1086,8 @@ class PartyControllerTest extends ControllerTestSupport {
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("직관팟 가입에 성공했습니다!"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("직관팟 승인에 성공했습니다!"));
     }
 
     @DisplayName("메시지가 없어도 승인제 직관팟에 지원할 수 있다.")
@@ -1096,7 +1096,7 @@ class PartyControllerTest extends ControllerTestSupport {
         // given
         long partyId = 1L;
         PartyApproveApplyRequest request = PartyApproveApplyRequest.of(null);
-        PartyApplyResponse response = PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+        PartyApplyResponse response = PartyApplyResponse.of("직관팟 승인에 성공했습니다!");
         given(partyService.applyParty(any(CustomOAuth2User.class), any(Long.class), any()))
                 .willReturn(response);
 
@@ -1106,8 +1106,8 @@ class PartyControllerTest extends ControllerTestSupport {
                         .contentType(APPLICATION_JSON)
                         .with(authentication(token)))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("직관팟 가입에 성공했습니다!"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("직관팟 승인에 성공했습니다!"));
     }
 
     @DisplayName("승인제 직관팟을 지원할 때, 직관팟의 ID는 1 이상이여야 한다..")
