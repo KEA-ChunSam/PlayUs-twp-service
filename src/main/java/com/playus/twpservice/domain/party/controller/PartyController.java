@@ -77,7 +77,6 @@ public class PartyController implements PartyControllerSpecification {
         return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{partyId}/apply")
     public PartyApplyResponse applyParty(@AuthenticationPrincipal CustomOAuth2User principal, @Valid PartyIdRequest idRequest,
                                          @Valid @RequestBody PartyApproveApplyRequest request) {
