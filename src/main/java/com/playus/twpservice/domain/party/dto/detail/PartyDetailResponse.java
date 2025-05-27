@@ -32,7 +32,7 @@ public record PartyDetailResponse(
 
 ) {
 
-        // partyJoin,
+        // author, writer 관련 msa 주석 처리
         public static PartyDetailResponse of(
                 Long partyId,
                 Long writerId,
@@ -60,7 +60,8 @@ public record PartyDetailResponse(
                         .availableGender(availableGender.getDescription())
                         .authorName(authorName)
                         .authorGender(authorGender)
-                        .authorAge(PartyAgeGroup.getAgeDescriptionByAge( (authorAge/10) * 10 ))
+//                        .authorAge(PartyAgeGroup.getAgeDescriptionByAge( (authorAge/10) * 10 ))
+                        .authorAge(PartyAgeGroup.getAgeDescriptionByAge(10))
                         .matchDate(matchDate)
                         .currentParticipantsCount(currentParticipantsCount)
                         .maximumParticipantsCount(maximumParticipantsCount)

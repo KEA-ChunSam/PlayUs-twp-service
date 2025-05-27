@@ -155,7 +155,7 @@ public class PartyService {
                 partyId, party.getTitle(), party.getWriterId(), userId, PartyJoinRequestStatus.WAIT.getMessage(), requireMessage
         ));
 
-        return PartyApplyResponse.of("직관팟 가입에 성공했습니다!");
+        return PartyApplyResponse.of("직관팟 신청에 성공했습니다!");
     }
 
     public PresignedUrlForSaveImageResponse generatePresignedUrlForSaveImage(PresignedUrlForSaveImageRequest request) {

@@ -30,7 +30,7 @@ public record PartyInfoResponse(
         List<String> userThumbnailUrls
 ) {
 
-
+    // author, writer 관련 msa 주석 처리
     public static PartyInfoResponse of(
             Long partyId,
             Long writerId,
@@ -57,6 +57,7 @@ public record PartyInfoResponse(
                 .authorName(authorName)
                 .authorGender(authorGender)
                 .authorAge(PartyAgeGroup.getAgeDescriptionByAge((authorAge / 10) * 10))
+//                .authorAge(PartyAgeGroup.getAgeDescriptionByAge(10)) // 임시
                 .matchDate(matchDate)
                 .currentParticipantsCount(currentParticipantsCount)
                 .maximumParticipantsCount(maximumParticipantsCount)
