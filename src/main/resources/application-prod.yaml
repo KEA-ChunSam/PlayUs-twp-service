@@ -95,10 +95,10 @@ resilience4j:
 
 feign:
   user:
-    url: http://localhost:8080
+    url: ${USER_SERVICE_URL}
 
   match:
-    url: http://match-dummy
+    url: ${MATCH_SERVICE_URL}
 
 management:
   endpoints:
@@ -117,5 +117,5 @@ springdoc:
     with-credentials: true
 
 websocket:
-  allowed-origin: "http://localhost:3000"
+  allowed-origin: ${WEBSOCKET_ALLOWED_ORIGIN}
 
