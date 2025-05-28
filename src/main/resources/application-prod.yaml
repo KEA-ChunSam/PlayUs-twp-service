@@ -20,6 +20,17 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    database: mysql
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
+        show_sql: false
+
   jwt:
     secret: ${JWT_SECRET}
 
@@ -44,25 +55,14 @@ spring:
     partition-count: ${KAFKA_PARTITION_COUNT}
     replication-factor: ${KAFKA_REPLICATION_FACTOR}
 
-  jpa:
-    show-sql: false
-    hibernate:
-      ddl-auto: update
-    database: mysql
-    properties:
-      hibernate:
-        jdbc:
-          time_zone: Asia/Seoul
-        show_sql: false
-
 cloud:
   aws:
     credentials:
-      access-key: ${AWS_S3_ACCESS_KEY}
-      secret-key: ${AWS_S3_SECRET_KEY}
+      access-key: ${STORAGE_ACCESS_KEY}
+      secret-key: ${STORAGE_SECRET_KEY}
     s3:
-      bucket : ${AWS_S3_BUCKET_NAME}
-      endpoint : ${AWS_S3_ENDPOINT}
+      bucket : ${BUCKET_NAME}
+      endpoint : ${BUCKET_ENDPOINT}
 
 sentry:
   dsn: ${SENTRY_REPOSITORY_DSN}
@@ -76,11 +76,46 @@ logging:
 slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
 
-websocket:
-  allowed-origin: {WEBSOCKET_ALLOWED_ORIGIN}
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 80
+        slow-call-duration-threshold: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        max-wait-duration-in-half-open-state: 0s
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 10
+        wait-duration-in-open-state: 10s
+    instances:
+      circuit:
+        base-config: default
+
+feign:
+  user:
+    url: ${USER_SERVICE_URL}
+
+  match:
+    url: ${MATCH_SERVICE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health           # 애플리케이션 상태 확인
+          - prometheus       # 메트릭 데이터 노출
+
+  endpoint:
+    health:
+      show-details: never
 
 springdoc:
   swagger-ui:
-    enabled: false
-  api-docs:
-    enabled: false
+    with-credentials: true
+
+websocket:
+  allowed-origin: ${WEBSOCKET_ALLOWED_ORIGIN}
+
