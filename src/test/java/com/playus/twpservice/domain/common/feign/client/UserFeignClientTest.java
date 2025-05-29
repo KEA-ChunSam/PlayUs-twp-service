@@ -2,9 +2,11 @@ package com.playus.twpservice.domain.common.feign.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.playus.twpservice.IntegrationTestSupport;
+import com.playus.twpservice.domain.common.feign.request.TokenValidationRequest;
 import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.common.feign.response.PartyWriterInfoFeignResponse;
+import com.playus.twpservice.domain.common.feign.response.TokenValidationResponse;
 import com.playus.twpservice.global.response.ErrorResponse;
 import feign.FeignException;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -31,7 +34,7 @@ class UserFeignClientTest extends IntegrationTestSupport {
         PartyUserThumbnailUrlListResponse expectedResponse = PartyUserThumbnailUrlListResponse.of(List.of(
                 "http://user-thumb",
                 "http://user2-thumb"
-                ));
+        ));
         stubFor(post(urlEqualTo("/user/api/thumbnails"))
                 .withRequestBody(equalToJson(objectMapper.writeValueAsString(userIdList)))
                 .willReturn(aResponse()
@@ -147,7 +150,7 @@ class UserFeignClientTest extends IntegrationTestSupport {
         List<Long> userIdList = List.of(1L, 2L);
         List<PartyParticipantsInfoFeignResponse> expectedResponse = List.of(
                 PartyParticipantsInfoFeignResponse.of(1L, "kim", 14, "http://user1-thumb"),
-                PartyParticipantsInfoFeignResponse.of(2L, "jung", 27,  "http://user2-thumb")
+                PartyParticipantsInfoFeignResponse.of(2L, "jung", 27, "http://user2-thumb")
         );
 
         stubFor(post(urlEqualTo("/user/api/info"))
@@ -211,4 +214,26 @@ class UserFeignClientTest extends IntegrationTestSupport {
                 .hasMessageContaining("사용자가 존재하지 않습니다!");
     }
 
+    @DisplayName("토큰이 블랙리스트에 속해있는지 확인할 수 있다.")
+    @Test
+    void checkBlackList() throws JsonProcessingException {
+        // given
+        String token = "token";
+        TokenValidationRequest request = TokenValidationRequest.of(token);
+        TokenValidationResponse expectedResponse = TokenValidationResponse.of(false);
+
+        stubFor(post(urlEqualTo("/user/api/token/blacklist-check"))
+                .withRequestBody(equalToJson(objectMapper.writeValueAsString(request)))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(objectMapper.writeValueAsString(expectedResponse))
+                ));
+
+        // when
+        ResponseEntity<TokenValidationResponse> actualResponse = userFeignClient.checkBlackList(request);
+
+        // then
+        assertThat(actualResponse.getBody().blacklisted()).isFalse();
+    }
 }
