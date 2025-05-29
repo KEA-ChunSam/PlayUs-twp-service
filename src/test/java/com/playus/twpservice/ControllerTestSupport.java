@@ -1,6 +1,7 @@
 package com.playus.twpservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.party.controller.PartyController;
 import com.playus.twpservice.domain.party.facade.PartyApplyFacade;
 import com.playus.twpservice.domain.party.service.PartyReadOnlyService;
@@ -11,7 +12,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -49,7 +49,7 @@ public abstract class ControllerTestSupport {
     protected JwtUtil jwtUtil;
 
     @MockitoBean
-    protected RedisTemplate<String, String> redisTemplate;
+    protected UserFeignClient userFeignClient;
 
     @TestConfiguration
     static class TestSecurityConfig {
@@ -69,7 +69,6 @@ public abstract class ControllerTestSupport {
             );
 
             return http.build();
-
         }
     }
 }
