@@ -51,22 +51,6 @@ logging:
     com:
       mongodb : DEBUG
 
-resilience4j:
-  circuitbreaker:
-    configs:
-      default:
-        failure-rate-threshold: 50
-        slow-call-rate-threshold: 80
-        slow-call-duration-threshold: 10s
-        permitted-number-of-calls-in-half-open-state: 3
-        max-wait-duration-in-half-open-state: 0s
-        sliding-window-type: COUNT_BASED
-        sliding-window-size: 10
-        minimum-number-of-calls: 10
-        wait-duration-in-open-state: 10s
-    instances:
-      circuit:
-        base-config: default
 
 websocket:
   allowed-origin: "http://localhost:3000"
