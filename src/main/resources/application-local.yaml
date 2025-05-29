@@ -126,3 +126,5 @@ logging:
 websocket:
   allowed-origin: "http://localhost:3000"
 
+server:
+  port: 8081
