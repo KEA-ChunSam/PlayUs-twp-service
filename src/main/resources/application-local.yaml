@@ -125,4 +125,3 @@ logging:
 
 websocket:
   allowed-origin: "http://localhost:3000"
-

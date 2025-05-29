@@ -1,11 +1,10 @@
 package com.playus.twpservice.domain.common.feign.fallback;
 
 import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
-import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
-import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
-import com.playus.twpservice.domain.common.feign.response.PartyWriterInfoFeignResponse;
-import com.playus.twpservice.domain.common.feign.response.UserInfoResponse;
+import com.playus.twpservice.domain.common.feign.request.TokenValidationRequest;
+import com.playus.twpservice.domain.common.feign.response.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -37,4 +36,12 @@ public class UserFeignFallback implements UserFeignClient {
         log.error("503 happened in UserFeignClient at fetching applicants data!!!");
         return List.of(PartyParticipantsInfoFeignResponse.withServiceUnavailable());
     }
+
+    @Override
+    public ResponseEntity<TokenValidationResponse> checkBlackList(TokenValidationRequest req) {
+        log.error("503 happened in UserFeignClient at validating token!!!");
+        return ResponseEntity.internalServerError().body(TokenValidationResponse.of(true));
+    }
+
+
 }

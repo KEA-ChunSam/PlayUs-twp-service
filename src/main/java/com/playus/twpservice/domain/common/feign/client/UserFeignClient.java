@@ -1,12 +1,11 @@
 package com.playus.twpservice.domain.common.feign.client;
 
 import com.playus.twpservice.domain.common.feign.fallback.UserFeignFallback;
-import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
-import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
-import com.playus.twpservice.domain.common.feign.response.PartyWriterInfoFeignResponse;
-import com.playus.twpservice.domain.common.feign.response.UserInfoResponse;
+import com.playus.twpservice.domain.common.feign.request.TokenValidationRequest;
+import com.playus.twpservice.domain.common.feign.response.*;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,4 +28,7 @@ public interface UserFeignClient {
 
      @PostMapping("/info")
      List<PartyParticipantsInfoFeignResponse> getPartyApplicantsInfo(@RequestBody List<Long> userIdList);
+
+     @PostMapping("/token/blacklist-check")
+     ResponseEntity<TokenValidationResponse> checkBlackList(@RequestBody TokenValidationRequest req);
 }

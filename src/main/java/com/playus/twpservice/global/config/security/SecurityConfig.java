@@ -1,5 +1,6 @@
 package com.playus.twpservice.global.config.security;
 
+import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
 import com.playus.twpservice.global.jwt.JwtFilter;
 import com.playus.twpservice.global.jwt.JwtUtil;
 
@@ -7,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -24,6 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final UserFeignClient userFeignClient;
     private final CorsConfigurationSource corsConfigurationSource;
 
     private String [] getWhiteList() {
@@ -48,7 +49,7 @@ public class SecurityConfig {
 
                 // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 등록
                 .addFilterBefore(
-                        new JwtFilter(jwtUtil),
+                        new JwtFilter(jwtUtil, userFeignClient),
                         UsernamePasswordAuthenticationFilter.class
                 )
 
