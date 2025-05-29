@@ -680,7 +680,7 @@ public interface PartyControllerSpecification {
                     )
             )
     })
-    List<PartyInfoResponse> getPartiesByMatchId(@Valid @Parameter(description = "직관팟 리스트 요청", required = true) PartyInfoRequest request);
+    List<PartyInfoResponse> getPartiesByMatchId(@Valid @Parameter(description = "직관팟 리스트 요청", hidden = true) PartyInfoRequest request);
 
     @Tag(name = "Party Get", description = "직관팟 상세정보 조회 API")
     @Operation(
@@ -800,7 +800,7 @@ public interface PartyControllerSpecification {
                     )
             )
     })
-    PartyDetailResponse getPartyDetail(@Valid @Parameter(description = "직관팟 상세정보 요청", required = true) PartyDetailRequest request);
+    PartyDetailResponse getPartyDetail(@Valid @Parameter(description = "직관팟 상세정보 요청", hidden = true) PartyDetailRequest request);
 
 
     @Tag(name = "Party Put", description = "직관팟 수정 API")
@@ -1233,7 +1233,7 @@ public interface PartyControllerSpecification {
             )
     })
     PartyUpdateResponse updateParty(@Parameter(hidden = true) CustomOAuth2User principal,
-                                    @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest,
+                                    @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", hidden = true) PartyIdRequest idRequest,
                                     @Valid @Parameter(description = "직관팟 수정 요청", required = true) PartyUpdateRequest request);
 
     @Tag(name = "Party Patch", description = "직관팟 삭제 API")
@@ -1350,7 +1350,7 @@ public interface PartyControllerSpecification {
             )
     })
     PartyDeleteResponse deleteParty(@Parameter(hidden = true) CustomOAuth2User principal,
-                                    @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
+                                    @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", hidden = true) PartyIdRequest idRequest);
 
 
     @Tag(name = "Party Post", description = "직관팟 선착순 신청 API")
@@ -1527,7 +1527,7 @@ public interface PartyControllerSpecification {
             )
     })
     PartyApplyResponse applyPartyFCFS(@Parameter(hidden = true) CustomOAuth2User principal,
-                                      @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
+                                      @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", hidden = true) PartyIdRequest idRequest);
 
 
     @Tag(name = "Party Post", description = "승인제 직관팟 신청 API")
@@ -1718,7 +1718,7 @@ public interface PartyControllerSpecification {
             )
     })
     PartyApplyResponse applyParty(@Parameter(hidden = true) CustomOAuth2User principal,
-                                  @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest,
+                                  @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", hidden = true) PartyIdRequest idRequest,
                                   @Valid @Parameter(description = "직관팟 신청 시 방장에게 보여줄 requireMessage 작성") PartyApproveApplyRequest request);
 
 
@@ -2020,7 +2020,7 @@ public interface PartyControllerSpecification {
             )
     })
     PartyApproveResponse approveParty(@Parameter(hidden = true) CustomOAuth2User principal,
-                                      @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest,
+                                      @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", hidden = true) PartyIdRequest idRequest,
                                       @Valid @Parameter(description = "방장이 승인할 userId와 승인 여부 작성") PartyApproveRequest request);
 
 
@@ -2315,7 +2315,7 @@ public interface PartyControllerSpecification {
             )
     })
     PartyLeaveResponse leaveParty(@Parameter(hidden = true) CustomOAuth2User principal,
-                                  @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
+                                  @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", hidden = true) PartyIdRequest idRequest);
 
 
 
@@ -2494,7 +2494,7 @@ public interface PartyControllerSpecification {
             )
     })
     PartyCancelResponse cancelParty(@Parameter(hidden = true) CustomOAuth2User principal,
-                                    @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", required = true) PartyIdRequest idRequest);
+                                    @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", hidden = true) PartyIdRequest idRequest);
 
 
     @Tag(name = "Party Get", description = "신청한 직관팟 현황 조회 API")
