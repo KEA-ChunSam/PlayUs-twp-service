@@ -55,9 +55,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                String jti = jwtUtil.getJti(token);
-
-                ResponseEntity<TokenValidationResponse> tokenResponse = userFeignClient.checkBlackList(TokenValidationRequest.of(jti));
+                ResponseEntity<TokenValidationResponse> tokenResponse = userFeignClient.checkBlackList(TokenValidationRequest.of(token));
                 if (Objects.requireNonNull(tokenResponse.getBody()).blacklisted()) {
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "BLACKLISTED_TOKEN");
                 }
