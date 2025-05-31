@@ -27,6 +27,7 @@ public record PartyDetailResponse(
 
         Long currentParticipantsCount,
         Long maximumParticipantsCount,
+        Long chatRoomId,
         List<String> partyThumbnailUrls,
         List<String> userThumbnailUrls
 
@@ -47,6 +48,7 @@ public record PartyDetailResponse(
                 LocalDateTime matchDate,
                 Long currentParticipantsCount,
                 Long maximumParticipantsCount,
+                Long chatRoomId,
                 List<String> partyThumbnailUrls,
                 List<String> userThumbnailUrls
         ) {
@@ -65,6 +67,7 @@ public record PartyDetailResponse(
                         .matchDate(matchDate)
                         .currentParticipantsCount(currentParticipantsCount)
                         .maximumParticipantsCount(maximumParticipantsCount)
+                        .chatRoomId(chatRoomId)
                         .partyThumbnailUrls(partyThumbnailUrls)
                         .userThumbnailUrls(userThumbnailUrls)
                         .build();
