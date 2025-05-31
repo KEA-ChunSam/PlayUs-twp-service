@@ -116,7 +116,6 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                         .append("as", "partyAge")
         );
 
-
         AggregationOperation partyJoinLookupOperation = context -> new Document(
                 "$lookup",
                 new Document("from", "party_join")
@@ -149,6 +148,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("text").as("text")
                 .and("writer_id").as("writerId")
                 .and("match_id").as("matchId")
+                .and("chat_room_id").as("chatRoomId")
                 .and("current_participants").as("currentParticipantsCount")
                 .and("partyJoin.user_id").as("userIdList")
                 .and("party_join_method").as("partyJoinMethod")

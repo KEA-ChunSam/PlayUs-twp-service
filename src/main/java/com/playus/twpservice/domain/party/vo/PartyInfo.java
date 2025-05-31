@@ -31,6 +31,7 @@ public class PartyInfo {
     private List<Integer> ages;
     private Long currentParticipantsCount;
     private Long maximumParticipants;
+    private Long chatRoomId;
     private List<String> thumbnailUrls;
 
     private String writerName;
@@ -97,6 +98,7 @@ public class PartyInfo {
                 matchDate,
                 currentParticipantsCount,
                 maximumParticipants,
+                chatRoomId,
                 thumbnailUrls,
                 userThumbnailUrls
         );
