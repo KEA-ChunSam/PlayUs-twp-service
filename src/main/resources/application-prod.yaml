@@ -97,9 +97,6 @@ feign:
   user:
     url: ${USER_SERVICE_URL}
 
-  match:
-    url: ${MATCH_SERVICE_URL}
-
 management:
   endpoints:
     web:

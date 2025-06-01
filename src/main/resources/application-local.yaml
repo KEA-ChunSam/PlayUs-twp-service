@@ -99,9 +99,6 @@ feign:
   user:
     url: http://localhost:8080
 
-  match:
-    url: http://match-dummy
-
 management:
   endpoints:
     web:
