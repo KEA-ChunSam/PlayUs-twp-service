@@ -31,6 +31,7 @@ public class SecurityConfig {
         return new String[] {
                 "/error",
                 "/health",
+                "/actuator",
                 "/swagger",
                 "/swagger-ui.html",
                 "/swagger-ui/**",
