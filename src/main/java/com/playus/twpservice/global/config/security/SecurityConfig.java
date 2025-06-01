@@ -30,6 +30,7 @@ public class SecurityConfig {
     private String [] getWhiteList() {
         return new String[] {
                 "/error",
+                "/health",
                 "/swagger",
                 "/swagger-ui.html",
                 "/swagger-ui/**",
