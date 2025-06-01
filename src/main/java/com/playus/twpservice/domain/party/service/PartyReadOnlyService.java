@@ -11,7 +11,6 @@ import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
-import com.playus.twpservice.domain.common.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
@@ -36,7 +35,6 @@ public class PartyReadOnlyService {
 
     private final PartyReadOnlyRepository partyRepository;
     private final UserFeignClient userFeignClient;
-    private final MatchFeignClient matchFeignClient;
     private final PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
 
 
