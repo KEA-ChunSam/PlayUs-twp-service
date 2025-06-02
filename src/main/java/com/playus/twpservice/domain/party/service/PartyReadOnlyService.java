@@ -11,7 +11,6 @@ import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
-import com.playus.twpservice.domain.common.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,7 +35,6 @@ public class PartyReadOnlyService {
 
     private final PartyReadOnlyRepository partyRepository;
     private final UserFeignClient userFeignClient;
-    private final MatchFeignClient matchFeignClient;
     private final PartyJoinReadOnlyRepository partyJoinReadOnlyRepository;
 
 
@@ -48,7 +45,6 @@ public class PartyReadOnlyService {
 
 //        updateUserThumbnailUrls(partyInfoList);
 //        updateWriterInfo(partyInfoList);
-//        updateMatchDate(partyInfoList, matchId);
 
         return partyInfoList.stream()
                 .map(PartyInfo::toResponse)
@@ -62,7 +58,6 @@ public class PartyReadOnlyService {
 
 //        updateUserThumbnailUrls(List.of(partyDetail));
 //        updateWriterInfo(List.of(partyDetail));
-//        updateMatchDate(List.of(partyDetail), partyDetail.getMatchId());
 
         return partyDetail.toPartyDetailResponse();
     }
@@ -169,10 +164,5 @@ public class PartyReadOnlyService {
 
         IntStream.range(0, summaries.size()).forEach(i ->
                 summaries.get(i).updateWriterInfoWhenUpdatingWriterThumbnailOnly(writerInfoList.get(i)));
-    }
-
-    private void updateMatchDate(List<PartyInfo> summaries, Long matchId) {
-        LocalDateTime matchDate = matchFeignClient.getMatchDate(matchId);
-        summaries.forEach(party -> party.updateMatchDate(matchDate));
     }
 }

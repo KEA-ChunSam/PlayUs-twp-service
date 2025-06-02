@@ -32,7 +32,6 @@ import org.mockito.Mockito;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -434,12 +433,11 @@ class PartyControllerTest extends ControllerTestSupport {
         Long matchId = 1L;
         Long writerId = 1L;
         List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
-        LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
         PartyInfoResponse response = PartyInfoResponse.of(1L, writerId, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
-                "ZSJ", "남성", 15, matchDate,
+                "ZSJ", "남성", 15,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
         List<PartyInfoResponse> result = List.of(response);
@@ -464,7 +462,6 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$[0].authorName").value("ZSJ"))
                 .andExpect(jsonPath("$[0].authorGender").value("남성"))
                 .andExpect(jsonPath("$[0].authorAge").value("10대"))
-                .andExpect(jsonPath("$[0].matchDate").value("3.22(토) 오후 2:00"))
                 .andExpect(jsonPath("$[0].currentParticipantsCount").value(10))
                 .andExpect(jsonPath("$[0].maximumParticipantsCount").value(14))
                 .andExpect(jsonPath("$[0].partyThumbnailUrls[0]").value("http://party-thumbnail"))
@@ -473,65 +470,17 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$[0].userThumbnailUrls[1]").value("http://user2-thumbnailUrl"));
     }
 
-    @DisplayName("직관팟을 가져올 때, 날짜를 의도한 형식대로 변환해 반환할 수 있다.")
-    @MethodSource("matchDateWithFormattedResult")
-    @ParameterizedTest(name = "Date = {0}, formatted Date = {1}")
-    void getPartiesByMatchId(LocalDateTime matchDate, String expectedFormattedDate) throws Exception {
-        // given
-        Long matchId = 1L;
-        List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
-        List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
-        List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
-
-        PartyInfoResponse response = PartyInfoResponse.of(1L, 1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
-                "ZSJ", "남성", 17, matchDate,
-                10L, 14L, partyThumbnailUrls, userThumbnailUrls);
-
-        List<PartyInfoResponse> result = List.of(response);
-
-        given(partyReadOnlyService.getPartyInfoListByMatchId(any(Long.class)))
-                .willReturn(result);
-
-
-        // when // then
-        mockMvc.perform(get("/party")
-                        .param("matchId", String.valueOf(matchId))
-                        .contentType(APPLICATION_JSON)
-                        .with(authentication(token)))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].matchDate").value(expectedFormattedDate));
-    }
-
-    private static Stream<Arguments> matchDateWithFormattedResult() {
-        return Stream.of(
-                Arguments.of(LocalDateTime.of(2025, 3, 22, 14, 0), "3.22(토) 오후 2:00"),
-                Arguments.of(LocalDateTime.of(2025, 3, 22, 0, 0), "3.22(토) 오전 12:00"),
-                Arguments.of(LocalDateTime.of(2025, 5, 1, 19, 30), "5.1(목) 오후 7:30"),
-                Arguments.of(LocalDateTime.of(2025, 12, 15, 10, 5), "12.15(월) 오전 10:05"),
-                Arguments.of(LocalDateTime.of(2025, 3, 23, 12, 0), "3.23(일) 오후 12:00"),
-                Arguments.of(LocalDateTime.of(2025, 3, 23, 1, 0), "3.23(일) 오전 1:00"),
-                Arguments.of(LocalDateTime.of(2025, 12, 31, 23, 59), "12.31(수) 오후 11:59"),
-                Arguments.of(LocalDateTime.of(2026, 1, 1, 0, 0), "1.1(목) 오전 12:00"),
-                Arguments.of(LocalDateTime.of(2025, 6, 15, 11, 59), "6.15(일) 오전 11:59"),
-                Arguments.of(LocalDateTime.of(2025, 6, 15, 12, 0), "6.15(일) 오후 12:00"),
-                Arguments.of(LocalDateTime.of(2025, 7, 20, 0, 0), "7.20(일) 오전 12:00"),
-                Arguments.of(LocalDateTime.of(2025, 7, 20, 23, 59), "7.20(일) 오후 11:59")
-        );
-    }
-
     @DisplayName("직관팟을 가져올 때 그 경기의 ID는 필수이다.")
     @NullAndEmptySource
     @ParameterizedTest
     void getPartiesByMatchId_EMPTY_MATCHID(String emptyMatchIdStr) throws Exception {
         // given
         List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
-        LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
         PartyInfoResponse response = PartyInfoResponse.of(1L, 1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
-                "ZSJ", "남성", 17, matchDate,
+                "ZSJ", "남성", 17,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
         List<PartyInfoResponse> result = List.of(response);
@@ -558,12 +507,11 @@ class PartyControllerTest extends ControllerTestSupport {
     void getPartiesByMatchId_INVALID_MATCHID(String invalidMatchIdStr) throws Exception {
         // given
         List<PartyAgeGroup> partyAges = List.of(PartyAgeGroup.AGE_10, PartyAgeGroup.AGE_20);
-        LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0, 0);
         List<String> partyThumbnailUrls = List.of("http://party-thumbnail", "http://party-thumbnail2.com");
         List<String> userThumbnailUrls = List.of("http://user-thumbnailUrl", "http://user2-thumbnailUrl");
 
         PartyInfoResponse response = PartyInfoResponse.of(1L, 1L, "title", PartyJoinMethod.RESERVATION, partyAges, PartyGender.MALE,
-                "ZSJ", "남성", 17, matchDate,
+                "ZSJ", "남성", 17,
                 10L, 14L, partyThumbnailUrls, userThumbnailUrls);
 
         List<PartyInfoResponse> result = List.of(response);

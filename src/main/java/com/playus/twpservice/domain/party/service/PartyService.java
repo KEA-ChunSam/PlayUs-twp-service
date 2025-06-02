@@ -190,13 +190,13 @@ public class PartyService {
             partyJoin.approve();
             partyJoinRepository.save(partyJoin);
             notificationFeignClient.notifyParty(PartyNotificationEvent.approveResult(
-                    partyId, party.getTitle(), loginUserId, writerId, true)
+                    partyId, party.getTitle(), writerId, loginUserId, true)
             );
         } else {
             partyJoin.refuse();
             partyJoinRepository.save(partyJoin);
             notificationFeignClient.notifyParty(PartyNotificationEvent.approveResult(
-                    partyId, party.getTitle(), loginUserId, writerId, false)
+                    partyId, party.getTitle(), writerId, loginUserId, false)
             );
             return PartyApproveResponse.of("직관팟 가입 신청 거절 성공했습니다!");
         }

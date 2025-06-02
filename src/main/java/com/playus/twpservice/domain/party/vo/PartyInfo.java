@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -40,7 +39,6 @@ public class PartyInfo {
     private int writerAge;
 
     private List<String> userThumbnailUrls;
-    private LocalDateTime matchDate;
 
     public void updateUserThumbnailUrls(List<String> userThumbnailUrls) {
         this.userThumbnailUrls = userThumbnailUrls;
@@ -60,10 +58,6 @@ public class PartyInfo {
         this.writerThumbnailUrl = partyWriterInfoFeignResponse.writerThumbnailUrl();
     }
 
-    public void updateMatchDate(LocalDateTime matchDate) {
-        this.matchDate = matchDate;
-    }
-
     public PartyInfoResponse toResponse() {
         return PartyInfoResponse.of(
                 partyId,
@@ -75,7 +69,6 @@ public class PartyInfo {
                 writerName,
                 writerGender,
                 writerAge,
-                matchDate,
                 currentParticipantsCount,
                 maximumParticipants,
                 thumbnailUrls,
@@ -95,7 +88,6 @@ public class PartyInfo {
                 writerName,
                 writerGender,
                 writerAge,
-                matchDate,
                 currentParticipantsCount,
                 maximumParticipants,
                 chatRoomId,

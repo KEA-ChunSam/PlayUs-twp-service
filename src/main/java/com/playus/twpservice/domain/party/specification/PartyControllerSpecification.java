@@ -583,7 +583,6 @@ public interface PartyControllerSpecification {
                                                                          "availableGender": "남자만",
                                                                          "authorName": "ZSJ",
                                                                          "authorGender": "남성",
-                                                                         "matchDate": "3.22(토) 오후 2:00",
                                                                          "currentParticipantsCount": 10,
                                                                          "maximumParticipantsCount": 14,
                                                                          "partyThumbnailUrls": [
@@ -604,7 +603,6 @@ public interface PartyControllerSpecification {
                                                                              "availableGender": "여자만",
                                                                              "authorName": "ZSJ",
                                                                              "authorGender": "남성",
-                                                                             "matchDate": "3.22(토) 오후 2:00",
                                                                              "currentParticipantsCount": 1,
                                                                              "maximumParticipantsCount": 5,
                                                                              "partyThumbnailUrls": [
@@ -723,7 +721,6 @@ public interface PartyControllerSpecification {
                                               "availableGender": "남자만",
                                               "authorName": "ZSJ",
                                               "authorGender": "남성",
-                                              "matchDate": "3.22(토) 오후 2:00",
                                               "currentParticipantsCount": 10,
                                               "maximumParticipantsCount": 14,
                                               "partyThumbnailUrls": [

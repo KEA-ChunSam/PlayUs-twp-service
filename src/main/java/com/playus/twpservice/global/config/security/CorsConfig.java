@@ -14,10 +14,8 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
-
     private static final List<String> ALLOWED_ORIGINS = List.of(
-            "http://localhost:3000",
-            "http://localhost:8080"
+            "*"
     );
 
     @Bean("corsConfigurationSource")
@@ -27,7 +25,7 @@ public class CorsConfig {
 
         configuration.setAllowedOrigins(ALLOWED_ORIGINS);
         configuration.setAllowedHeaders(Collections.singletonList("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(false);
         configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
         configuration.addAllowedMethod(HttpMethod.GET.name());

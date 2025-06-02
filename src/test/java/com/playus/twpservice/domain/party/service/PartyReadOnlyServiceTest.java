@@ -10,7 +10,6 @@ import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
 import com.playus.twpservice.domain.party.exception.entity.PartyException;
-import com.playus.twpservice.domain.common.feign.client.MatchFeignClient;
 import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.party.repository.read.PartyAgeReadOnlyRepository;
@@ -51,10 +50,6 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
     @MockitoBean
     protected UserFeignClient userFeignClient;
-
-    @MockitoBean
-    protected MatchFeignClient matchFeignClient;
-
 
     @AfterEach
     void tearDown() {

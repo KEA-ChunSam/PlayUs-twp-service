@@ -11,7 +11,6 @@ import org.springframework.test.context.TestPropertySource;
 @AutoConfigureWireMock(port = 0)
 @TestPropertySource(properties = {
         "feign.user.url=http://localhost:${wiremock.server.port}",
-        "feign.match.url=http://localhost:${wiremock.server.port}",
 })
 public abstract class OpenFeignClientTestSupport {
 
