@@ -27,7 +27,7 @@ public class CorsConfig {
 
         configuration.setAllowedOrigins(ALLOWED_ORIGINS);
         configuration.setAllowedHeaders(Collections.singletonList("*"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(Collections.singletonList("Authorization"));
 
         configuration.addAllowedMethod(HttpMethod.GET.name());
