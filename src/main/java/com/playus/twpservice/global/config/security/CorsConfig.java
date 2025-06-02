@@ -15,7 +15,9 @@ import java.util.List;
 public class CorsConfig {
 
     private static final List<String> ALLOWED_ORIGINS = List.of(
-            "*"
+            "https://web.playus.o-r.kr",
+            "https://api.playus.o-r.kr",
+            "http://localhost:3000"
     );
 
     @Bean("corsConfigurationSource")
