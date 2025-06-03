@@ -6,7 +6,7 @@ spring:
     name: twp-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL}?useSSL=false&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&socketTimeout=60000&connectTimeout=60000
+    url: "${SPRING_DATASOURCE_URL}?useSSL=false&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&socketTimeout=60000&connectTimeout=60000"
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -26,9 +26,9 @@ spring:
   data:
     mongodb:
       read:
-        uri: ${SPRING_DATA_MONGODB_READ_URI}&connectTimeoutMS=30000&socketTimeoutMS=30000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000
+        uri: "${SPRING_DATA_MONGODB_READ_URI}&connectTimeoutMS=30000&socketTimeoutMS=30000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000"
       chat:
-        uri: ${SPRING_DATA_MONGODB_CHAT_URI}&connectTimeoutMS=30000&socketTimeoutMS=30000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000
+        uri: "${SPRING_DATA_MONGODB_CHAT_URI}&connectTimeoutMS=30000&socketTimeoutMS=30000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000"
       auto-index-creation: true
 
     redis:
@@ -45,21 +45,16 @@ spring:
     database: mysql
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false  # 성능 및 보안을 위해 false로 설정
     open-in-view: false  # 성능 개선을 위해 추가
     properties:
       hibernate.format_sql: true
-      hibernate.show_sql: true
       hibernate.jdbc.time_zone: Asia/Seoul
 
       # OCI 환경에서 안정성 우선 설정
       hibernate.jdbc.batch_size: 1     # 배치 비활성화 (안정성 우선)
       hibernate.order_inserts: false   # OCI 환경에서 순서 보장 비활성화
       hibernate.order_updates: false
-
-      # OCI 프록시 연결 관리
-      hibernate.connection.acquisition_timeout: 60000
-      hibernate.connection.validation_timeout: 10000
 
   jwt:
     secret: ${JWT_SECRET}
