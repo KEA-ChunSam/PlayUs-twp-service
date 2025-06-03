@@ -426,8 +426,8 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         ));
 
         given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(List.of(
-                PartyParticipantsInfoFeignResponse.of(userId + 1, "writer1",   17,"http://writer1-thumbnail"),
-                PartyParticipantsInfoFeignResponse.of(userId + 2, "writer2", 26, "http://writer2-thumbnail")
+                PartyParticipantsInfoFeignResponse.of(userId + 2, "writer2", 26, "http://writer2-thumbnail"),
+                PartyParticipantsInfoFeignResponse.of(userId + 1, "writer1",   17,"http://writer1-thumbnail")
         ));
 
         partyThumbnailUrlReadOnlyRepository.saveAll(List.of(

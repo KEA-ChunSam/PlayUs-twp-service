@@ -120,18 +120,29 @@ public class PartyReadOnlyService {
     }
 
     private List<PartyParticipantsInfoResponse> getParticipantsInfoList(List<Long> participantIds, List<PartyParticipantsInfoFeignResponse> partyParticipantsInfoFeignResponses) {
-        return IntStream.range(0, participantIds.size())
-                .mapToObj(i -> {
-                    Long userId = participantIds.get(i);
-                    PartyParticipantsInfoFeignResponse userInfo = partyParticipantsInfoFeignResponses.get(i);
+        // Feign 응답을 userId 기준으로 Map으로 변환
+        Map<Long, PartyParticipantsInfoFeignResponse> userInfoMap = partyParticipantsInfoFeignResponses.stream()
+                .collect(Collectors.toMap(
+                        PartyParticipantsInfoFeignResponse::userId,
+                        response -> response
+                ));
+
+        // participantIds를 순회하면서 해당하는 userInfo 매핑
+        return participantIds.stream()
+                .map(participantId -> {
+                    PartyParticipantsInfoFeignResponse userInfo = userInfoMap.get(participantId);
+                    if (userInfo == null) {
+                        throw new IllegalStateException("참가자 ID " + participantId + "에 대한 사용자 정보를 찾을 수 없습니다.");
+                    }
 
                     return PartyParticipantsInfoResponse.of(
-                            userId,
+                            participantId,
                             userInfo.name()
                     );
                 })
                 .toList();
     }
+
 
     private List<Long> getParticipantsIdWithoutLoginUser(PartyDocument partyDocument, Long userId) {
         List<Long> participantIds = partyJoinReadOnlyRepository.findByPartyIdAndStatus(partyDocument.getId(), PartyJoinRequestStatus.ACCEPT).stream()
