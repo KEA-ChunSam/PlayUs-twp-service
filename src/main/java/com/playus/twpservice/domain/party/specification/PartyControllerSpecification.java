@@ -17,6 +17,7 @@ import com.playus.twpservice.domain.party.dto.info.PartyInfoRequest;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.leave.PartyLeaveResponse;
+import com.playus.twpservice.domain.party.dto.participants.PartyParticipantsInfoResponse;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -2153,6 +2154,132 @@ public interface PartyControllerSpecification {
             @Parameter(description = "직관팟 ID", required = true) @PathVariable Long partyId);
 
 
+    @Tag(name = "Party Get", description = "유저 평가 위한 직관팟 참가자 조회 API")
+    @Operation(
+            summary = "유저 평가 위한 직관팟 참가자 조회 API",
+            description = "직관팟 종료 후 유저 평가 위해 로그인 유저를 제외한 직관팟 참가자를 조회합니다",
+            security = @SecurityRequirement(name = "Access"),
+            parameters = {
+                    @Parameter(
+                            name = "Access",
+                            description = "JWT Access Token (쿠키)",
+                            in = ParameterIn.COOKIE,
+                            required = true,
+                            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    ),
+                    @Parameter(
+                            name = "partyId",
+                            in = ParameterIn.PATH,
+                            description = "직관팟 ID",
+                            required = true,
+                            example = "1"
+                    )
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200", description = "조회 성공",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    name = "직관팟 참가자 조회 응답 예시",
+                                    value = """
+                                                                    [
+                                                                       {
+                                                                         "userId": 1,
+                                                                         "name": "ZSJ"
+                                                                       },
+                                            
+                                                                       {
+                                                                         "userId": 2,
+                                                                         "name": "KIM"
+                                                                       },
+                                                                     ]
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400", description = "직관팟 ID가 1 미만일 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 400,
+                                              "status": "BAD_REQUEST",
+                                              "message": "직관팟 ID는 1 이상이여야 합니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "인증 실패",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 401,
+                                              "status": "UNAUTHORIZED",
+                                              "message": "유효하지 않은 토큰입니다."
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "직관팟 ID로 직관팟을 찾을 수 없는 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "직관팟이 존재하지 않습니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "로그인 유저가 직관팟 참가자가 아닐 경우 발생",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 404,
+                                              "status": "NOT_FOUND",
+                                              "message": "이 직관팟에 참여하지 않은 인원입니다!"
+                                            }
+                                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(
+                            mediaType = APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                    value = """
+                                            {
+                                              "code": 500,
+                                              "status": "INTERNAL_SERVER_ERROR",
+                                              "message": "서버 내부 오류가 발생했습니다. 관리자에게 문의해 주세요."
+                                            }
+                                            """
+                            )
+                    )
+            )
+    })
+    List<PartyParticipantsInfoResponse> getParticipants(
+            @Parameter(hidden = true) CustomOAuth2User principal,
+            @Parameter(description = "직관팟 ID", hidden = true) PartyIdRequest idRequest);
+
+
     @Tag(name = "Party Post", description = "직관팟 탈퇴 API")
     @Operation(
             summary = "직관팟 탈퇴 API",
@@ -2313,8 +2440,6 @@ public interface PartyControllerSpecification {
     })
     PartyLeaveResponse leaveParty(@Parameter(hidden = true) CustomOAuth2User principal,
                                   @Valid @Parameter(description = "API 경로로 들어오는 직관팟 ID 위해 작성", hidden = true) PartyIdRequest idRequest);
-
-
 
 
     @Tag(name = "Party Patch", description = "직관팟 신청 취소 API")
