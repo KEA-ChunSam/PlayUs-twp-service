@@ -77,6 +77,7 @@ public class ExceptionAdvice {
     @ResponseStatus(NOT_FOUND)
     @ExceptionHandler({
             PartyException.NotFoundException.class,
+            PartyException.ParticipantsNotFoundException.class,
             PartyDocumentException.NotFoundException.class,
             ChatRoomException.NotFoundException.class,
             ChatMessageException.NotFoundException.class,
