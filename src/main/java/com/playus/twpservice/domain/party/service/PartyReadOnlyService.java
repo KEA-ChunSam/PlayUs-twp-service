@@ -8,6 +8,7 @@ import com.playus.twpservice.domain.party.dto.appliedparty.AppliedPartyResponse;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.participants.PartyParticipantsInfoResponse;
 import com.playus.twpservice.domain.party.enums.PartyAgeGroup;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
 import com.playus.twpservice.domain.party.exception.document.PartyDocumentException;
@@ -15,6 +16,7 @@ import com.playus.twpservice.domain.common.feign.client.UserFeignClient;
 import com.playus.twpservice.domain.common.feign.response.PartyParticipantsInfoFeignResponse;
 import com.playus.twpservice.domain.common.feign.response.PartyUserThumbnailUrlListResponse;
 import com.playus.twpservice.domain.common.feign.response.PartyWriterInfoFeignResponse;
+import com.playus.twpservice.domain.party.exception.entity.PartyException;
 import com.playus.twpservice.domain.party.repository.read.PartyJoinReadOnlyRepository;
 import com.playus.twpservice.domain.party.repository.read.PartyReadOnlyRepository;
 import com.playus.twpservice.domain.party.vo.PartyInfo;
@@ -43,8 +45,8 @@ public class PartyReadOnlyService {
 
         List<PartyInfo> partyInfoList = partyRepository.findPartyInfoList(matchId);
 
-//        updateUserThumbnailUrls(partyInfoList);
-//        updateWriterInfo(partyInfoList);
+        updateUserThumbnailUrls(partyInfoList);
+        updateWriterInfo(partyInfoList);
 
         return partyInfoList.stream()
                 .map(PartyInfo::toResponse)
@@ -56,8 +58,8 @@ public class PartyReadOnlyService {
         PartyInfo partyDetail = partyRepository.findPartyDetail(partyId)
                 .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
 
-//        updateUserThumbnailUrls(List.of(partyDetail));
-//        updateWriterInfo(List.of(partyDetail));
+        updateUserThumbnailUrls(List.of(partyDetail));
+        updateWriterInfo(List.of(partyDetail));
 
         return partyDetail.toPartyDetailResponse();
     }
@@ -101,6 +103,47 @@ public class PartyReadOnlyService {
 
         // 주의: Feign 클라이언트가 요청 순서를 보존한다고 가정합니다
         return returnPartyApplicantInfoList(orderedUserIds, orderedUserInfos, userRequireMessageMap);
+    }
+
+    public List<PartyParticipantsInfoResponse> getParticipants(CustomOAuth2User principal, Long partyId) {
+
+        Long userId = principal.getId();
+
+        PartyDocument partyDocument = partyRepository.findById(partyId)
+                .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        List<Long> participantIds = getParticipantsIdWithoutLoginUser(partyDocument, userId);
+
+        List<PartyParticipantsInfoFeignResponse> partyParticipantsInfoFeignResponses = userFeignClient.getPartyApplicantsInfo(participantIds);
+
+        return getParticipantsInfoList(participantIds, partyParticipantsInfoFeignResponses);
+    }
+
+    private List<PartyParticipantsInfoResponse> getParticipantsInfoList(List<Long> participantIds, List<PartyParticipantsInfoFeignResponse> partyParticipantsInfoFeignResponses) {
+        return IntStream.range(0, participantIds.size())
+                .mapToObj(i -> {
+                    Long userId = participantIds.get(i);
+                    PartyParticipantsInfoFeignResponse userInfo = partyParticipantsInfoFeignResponses.get(i);
+
+                    return PartyParticipantsInfoResponse.of(
+                            userId,
+                            userInfo.name()
+                    );
+                })
+                .toList();
+    }
+
+    private List<Long> getParticipantsIdWithoutLoginUser(PartyDocument partyDocument, Long userId) {
+        List<Long> participantIds = partyJoinReadOnlyRepository.findByPartyIdAndStatus(partyDocument.getId(), PartyJoinRequestStatus.ACCEPT).stream()
+                .map(PartyJoinDocument::getUserId)
+                .collect(Collectors.toList());
+
+        participantIds.add(partyDocument.getWriterId());
+        if (!participantIds.contains(userId)) {
+            throw new PartyException.ParticipantsNotFoundException("이 직관팟에 참여하지 않은 인원입니다!");
+        }
+        participantIds.remove(userId);
+        return participantIds;
     }
 
     private static List<PartyAppliedUserResponse> returnPartyApplicantInfoList(
