@@ -63,6 +63,9 @@ public class PartyDocument {
     @NotNull
     private String text;
 
+    @NotNull
+    private Boolean isEnded;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

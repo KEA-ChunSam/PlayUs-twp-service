@@ -68,6 +68,9 @@ public class Party extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String text;
 
+    @Column(nullable = false, name = "is_ended")
+    private Boolean isEnded = false;
+
     private LocalDateTime deletedAt;
 
     @Builder
@@ -92,6 +95,10 @@ public class Party extends BaseTimeEntity {
         this.maximumParticipants = updateRequest.maximumParticipants();
         this.partyGender = PartyGender.toEnumValue(updateRequest.partyGender());
         this.partyJoinMethod = PartyJoinMethod.toEnumValue(updateRequest.partyJoinMethod());
+    }
+
+    public void terminateParty() {
+        this.isEnded = true;
     }
 
     public void increaseCurrentParticipants() {
