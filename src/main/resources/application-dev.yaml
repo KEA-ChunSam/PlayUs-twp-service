@@ -16,8 +16,8 @@ spring:
       idle-timeout: 60000                # OCI 프록시가 빨리 끊으므로 1분
       max-lifetime: 180000               # OCI 프록시 정책 고려 3분
       keepalive-time: 30000
-      maximum-pool-size: 5               # 작은 풀 크기 (OCI 동시 연결 제한)
-      minimum-idle: 1                    # 최소한만 유지
+      maximum-pool-size: 8               # 채팅/실시간 서비스라 조금 더 큰 풀
+      minimum-idle: 2                    # 최소 연결 수 증가
       validation-timeout: 10000          # 네트워크 지연 고려 10초
       leak-detection-threshold: 30000    # 30초로 단축
       connection-test-query: "SELECT 1"  # 연결 검증 쿼리
@@ -29,7 +29,6 @@ spring:
         uri: ${SPRING_DATA_MONGODB_READ_URI}&connectTimeoutMS=30000&socketTimeoutMS=30000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000
       chat:
         uri: ${SPRING_DATA_MONGODB_CHAT_URI}&connectTimeoutMS=30000&socketTimeoutMS=30000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000
-
       auto-index-creation: true
 
     redis:
@@ -50,10 +49,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-    open-in-view: false
+    open-in-view: false  # 성능 개선을 위해 추가
     properties:
-      hibernate.format_sql: true
-      hibernate.show_sql: true
+      hibernate.format_sql:    true
+      hibernate.show_sql:      true
       hibernate.jdbc.time_zone: Asia/Seoul
 
       # OCI 환경에서 안정성 우선 설정
@@ -95,8 +94,21 @@ cloud:
       access-key: ${STORAGE_ACCESS_KEY}
       secret-key: ${STORAGE_SECRET_KEY}
     s3:
-      bucket : ${BUCKET_NAME}
-      endpoint : ${BUCKET_ENDPOINT}
+      bucket: ${BUCKET_NAME}
+      endpoint: ${BUCKET_ENDPOINT}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health           # 애플리케이션 상태 확인
+          - info             # 애플리케이션 정보
+          - prometheus       # 메트릭 데이터 노출
+
+  endpoint:
+    health:
+      show-details: never
 
 sentry:
   dsn: ${SENTRY_REPOSITORY_DSN}
@@ -127,7 +139,7 @@ resilience4j:
       circuit:
         base-config: default
 
-  # OCI 환경 Retry 설정 추가 x
+  # OCI 환경 Retry 설정 추가
   retry:
     configs:
       default:
@@ -137,26 +149,16 @@ resilience4j:
           - java.sql.SQLException
           - com.mysql.cj.jdbc.exceptions.CommunicationsException
           - java.net.SocketTimeoutException
+          - org.springframework.kafka.KafkaException
     instances:
       database:
+        base-config: default
+      kafka:
         base-config: default
 
 feign:
   user:
     url: ${USER_SERVICE_URL}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include:
-          - health           # 애플리케이션 상태 확인
-          - info             # 애플리케이션 정보
-          - prometheus       # 메트릭 데이터 노출
-
-  endpoint:
-    health:
-      show-details: never
 
 springdoc:
   swagger-ui:
