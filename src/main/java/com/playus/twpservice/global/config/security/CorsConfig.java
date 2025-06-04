@@ -3,12 +3,10 @@ package com.playus.twpservice.global.config.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -16,7 +14,6 @@ public class CorsConfig {
 
     private static final List<String> ALLOWED_ORIGINS = List.of(
             "https://web.playus.o-r.kr",
-            "https://api.playus.o-r.kr",
             "http://localhost:3000"
     );
 
@@ -26,15 +23,10 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(ALLOWED_ORIGINS);
-        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-        configuration.addAllowedMethod(HttpMethod.GET.name());
-        configuration.addAllowedMethod(HttpMethod.POST.name());
-        configuration.addAllowedMethod(HttpMethod.PUT.name());
-        configuration.addAllowedMethod(HttpMethod.DELETE.name());
-        configuration.addAllowedMethod(HttpMethod.OPTIONS.name());
+        configuration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
