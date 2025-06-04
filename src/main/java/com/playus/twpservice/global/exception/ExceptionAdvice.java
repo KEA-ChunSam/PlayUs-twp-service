@@ -95,7 +95,8 @@ public class ExceptionAdvice {
             PartyException.ExceedPartyParticipantsException.class,
             PartyException.InsufficientPartyParticipantsException.class,
             PartyJoinDocumentException.DuplicateApplyException.class,
-            PartyException.AlreadyCreatedPartyForPerMatchException.class
+            PartyException.AlreadyCreatedPartyForPerMatchException.class,
+            PartyException.AlreadyTerminatedException.class
     })
     public ErrorResponse handleConflictException(Exception e) {
         String errorMessage = e.getMessage();

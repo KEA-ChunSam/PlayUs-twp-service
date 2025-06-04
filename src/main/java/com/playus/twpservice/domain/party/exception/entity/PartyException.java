@@ -8,6 +8,12 @@ public abstract class PartyException {
         }
     }
 
+    public static class AlreadyTerminatedException extends RuntimeException {
+        public AlreadyTerminatedException(String message) {
+            super(message);
+        }
+    }
+
     public static class AlreadyCreatedPartyForPerMatchException extends RuntimeException {
         public AlreadyCreatedPartyForPerMatchException(String message) {
             super(message);
