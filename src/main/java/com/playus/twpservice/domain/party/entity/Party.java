@@ -97,8 +97,9 @@ public class Party extends BaseTimeEntity {
         this.partyJoinMethod = PartyJoinMethod.toEnumValue(updateRequest.partyJoinMethod());
     }
 
-    public void terminateParty() {
+    public Party terminateParty() {
         this.isEnded = true;
+        return this;
     }
 
     public void increaseCurrentParticipants() {
@@ -133,5 +134,9 @@ public class Party extends BaseTimeEntity {
                 .matchId(matchId)
                 .chatRoom(chatRoom)
                 .build();
+    }
+
+    public Boolean isEndedParty() {
+        return this.isEnded;
     }
 }
