@@ -18,6 +18,7 @@ import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
+import com.playus.twpservice.domain.party.dto.end.PartyEndResponse;
 import com.playus.twpservice.domain.party.dto.leave.PartyLeaveResponse;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
@@ -41,12 +42,14 @@ import com.playus.twpservice.domain.party.repository.write.PartyJoinRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyRepository;
 import com.playus.twpservice.domain.party.repository.write.PartyThumbnailUrlRepository;
 import com.playus.twpservice.global.s3.S3Service;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.playus.twpservice.domain.party.exception.entity.PartyException.*;
 
@@ -125,6 +128,22 @@ public class PartyService {
         chatRoomRepository.deleteById(chatRoomId);
 
         return PartyDeleteResponse.of(partyId);
+    }
+
+    public PartyEndResponse terminateParty(CustomOAuth2User principal, Long partyId) {
+
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new NotFoundException("직관팟이 존재하지 않습니다!"));
+
+        if (party.isEndedParty()) {
+            throw new PartyException.AlreadyTerminatedException("이미 종료된 직관팟입니다!");
+        }
+
+        PartyAssert.isLoginUserWriter(principal.getId(), party.getWriterId(), "작성자가 아니면 직관팟을 종료할 수 없습니다!");
+
+        party.terminateParty();
+
+        return PartyEndResponse.of(party.getId());
     }
 
     public void applyPartyFCFS(CustomOAuth2User oauth2User, Long partyId) {
