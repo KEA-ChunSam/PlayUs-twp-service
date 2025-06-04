@@ -11,6 +11,7 @@ import com.playus.twpservice.domain.party.dto.cancel.PartyCancelResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailRequest;
 import com.playus.twpservice.domain.party.dto.detail.PartyDetailResponse;
+import com.playus.twpservice.domain.party.dto.end.PartyEndResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoRequest;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
@@ -69,6 +70,11 @@ public class PartyController implements PartyControllerSpecification {
     @PatchMapping("/{partyId}")
     public PartyDeleteResponse deleteParty(@AuthenticationPrincipal CustomOAuth2User principal, @Valid PartyIdRequest idRequest) {
         return partyService.deleteParty(principal.getId(), idRequest.partyId());
+    }
+
+    @PatchMapping("/{partyId}/end")
+    public PartyEndResponse terminateParty(@AuthenticationPrincipal CustomOAuth2User principal, @Valid PartyIdRequest idRequest) {
+        return partyService.terminateParty(principal, idRequest.partyId());
     }
 
     @ResponseStatus(HttpStatus.CREATED)
