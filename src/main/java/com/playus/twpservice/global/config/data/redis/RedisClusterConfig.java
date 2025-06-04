@@ -5,10 +5,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.playus.twpservice.domain.chat.dto.request.ChattingMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,21 +19,30 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.text.SimpleDateFormat;
 
 @Configuration
-@Profile({"local", "test"})
-@ConditionalOnProperty(prefix = "spring.data.redis", name = "host")
-public class RedisConfig {
+@Profile({"dev", "prod"})  // dev, prod 프로필에서만 사용
+public class RedisClusterConfig {
 
-    @Value("${spring.data.redis.host}")
-    private String host;
+    @Value("${spring.data.redis.cluster.nodes}")
+    private String redisClusterNodes;
 
-    @Value("${spring.data.redis.port}")
-    private int port;
+    @Value("${spring.data.redis.cluster.max-redirects}")
+    private int maxRedirects;
+
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(host, port);
-    }
+        RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration();
 
+        String[] nodes = redisClusterNodes.split(",");
+        for (String node : nodes) {
+            String[] hostPort = node.trim().split(":");
+            clusterConfig.clusterNode(hostPort[0], Integer.parseInt(hostPort[1]));
+        }
+
+        clusterConfig.setMaxRedirects(maxRedirects);
+
+        return new LettuceConnectionFactory(clusterConfig);
+    }
 
     @Bean
     @Qualifier("chatRedisTemplate")

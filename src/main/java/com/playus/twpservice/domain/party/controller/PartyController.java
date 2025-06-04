@@ -17,6 +17,7 @@ import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.leave.PartyLeaveResponse;
+import com.playus.twpservice.domain.party.dto.participants.PartyParticipantsInfoResponse;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -96,6 +97,15 @@ public class PartyController implements PartyControllerSpecification {
             @PathVariable Long partyId) {
         return partyReadOnlyService.getAppliedUsers(principal.getId(), partyId);
     }
+
+    @GetMapping("/{partyId}/participants")
+    public List<PartyParticipantsInfoResponse> getParticipants(
+            @AuthenticationPrincipal CustomOAuth2User principal,
+            @Valid PartyIdRequest idRequest
+    ) {
+        return partyReadOnlyService.getParticipants(principal, idRequest.partyId());
+    }
+
 
     @PostMapping("/{partyId}/leave")
     public PartyLeaveResponse leaveParty(@AuthenticationPrincipal CustomOAuth2User principal,

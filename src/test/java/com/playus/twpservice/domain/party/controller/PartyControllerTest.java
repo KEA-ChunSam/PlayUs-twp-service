@@ -16,6 +16,7 @@ import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.leave.PartyLeaveResponse;
+import com.playus.twpservice.domain.party.dto.participants.PartyParticipantsInfoResponse;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateResponse;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -45,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class PartyControllerTest extends ControllerTestSupport {
 
-//    Long userId = 1L;
+    //    Long userId = 1L;
     List<String> thumbnailUrl = List.of("http://image.com");
 //    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(applicantUserId, null, List.of(new SimpleGrantedAuthority("USER")));
 
@@ -1143,7 +1144,7 @@ class PartyControllerTest extends ControllerTestSupport {
 
     @DisplayName("직관팟을 승인할 때 지원자의 ID는 1 이상이여야 한다.")
     @Test
-    void approveParty_NEGATIVE_APPLICANT() throws Exception {
+    void approveParty_NEGATIVE_APPLICANT_ID() throws Exception {
         // given
         long partyId = 1L;
         PartyApproveRequest request = PartyApproveRequest.of(null, Boolean.TRUE);
@@ -1204,6 +1205,46 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$[0].ageGroup").value("10대"))
                 .andExpect(jsonPath("$[0].thumbnailUrl").value("http://image.jpg"))
                 .andExpect(jsonPath("$[0].requireMessage").value("참여 희망합니다!"));
+    }
+
+    @DisplayName("직관팟 참여자를 조회할 수 있다.")
+    @Test
+    void getParticipants() throws Exception {
+        // given
+        long partyId = 1L;
+        given(partyReadOnlyService.getParticipants(any(), any()))
+                .willReturn(List.of(
+                        PartyParticipantsInfoResponse.of(1L, "name"),
+                        PartyParticipantsInfoResponse.of(2L, "name2")
+                ));
+
+        // when // then
+        mockMvc.perform(get("/party/" + partyId + "/participants")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].userId").value(1L))
+                .andExpect(jsonPath("$[0].name").value("name"))
+                .andExpect(jsonPath("$[1].userId").value(2L))
+                .andExpect(jsonPath("$[1].name").value("name2"));
+    }
+
+    @DisplayName("직관팟 참가자를 불러올 때 직관팟의 ID는 1 이상이여야 한다.")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void getParticipants_INVALID_PARTYID(String invalidPartyStr) throws Exception {
+        // given
+
+        // when // then
+        mockMvc.perform(get("/party/" + invalidPartyStr + "/participants")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
     }
 
 //    @DisplayName("직관팟을 승인할 때 직관팟의 ID는 1 이상이여야 한다.")
@@ -1307,7 +1348,7 @@ class PartyControllerTest extends ControllerTestSupport {
                         AppliedPartyResponse.of(3L, "title3", List.of("50대", "60대 이상"), "상관없음",
                                 "승인 거부됨", 3L, "JUNG", "남성", "40대", "http://image3.jpg", 1L)
 
-                        ));
+                ));
 
         // when // then
         mockMvc.perform(get("/party/applied-parties")

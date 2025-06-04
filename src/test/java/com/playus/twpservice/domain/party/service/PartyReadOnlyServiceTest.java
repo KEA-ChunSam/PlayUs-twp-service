@@ -1,10 +1,17 @@
 package com.playus.twpservice.domain.party.service;
 
 import com.playus.twpservice.IntegrationTestSupport;
+import com.playus.twpservice.domain.common.security.CustomOAuth2User;
+import com.playus.twpservice.domain.common.security.Gender;
+import com.playus.twpservice.domain.common.security.Role;
+import com.playus.twpservice.domain.common.security.UserDto;
+import com.playus.twpservice.domain.party.document.PartyAgeDocument;
 import com.playus.twpservice.domain.party.document.PartyDocument;
 import com.playus.twpservice.domain.party.document.PartyJoinDocument;
+import com.playus.twpservice.domain.party.document.PartyThumbnailUrlDocument;
 import com.playus.twpservice.domain.party.dto.applieduser.PartyAppliedUserResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
+import com.playus.twpservice.domain.party.dto.participants.PartyParticipantsInfoResponse;
 import com.playus.twpservice.domain.party.enums.PartyGender;
 import com.playus.twpservice.domain.party.enums.PartyJoinMethod;
 import com.playus.twpservice.domain.party.enums.PartyJoinRequestStatus;
@@ -320,7 +327,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
         List<PartyAppliedUserResponse> response = partyReadOnlyService.getAppliedUsers(userId, p1.getId());
 
         // then
-        assertThat(response).hasSize(0);
+        assertThat(response).isEmpty();
     }
 
 //    @DisplayName("자신이 지원한 직관팟 정보를 가져올 수 있다.")
@@ -381,4 +388,129 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 //                        tuple(2L, "title2", List.of("30대", "40대"), "여자만", "신청중", userId + 2, "writer2", "여성", "20대", "http://writer2-thumbnail", 1L)
 //                );
 //    }
+
+    @DisplayName("직관팟 참가자를 조회할 수 있다.")
+    @Test
+    void getParticipants() {
+        // given
+        Long userId = 1L;
+        Long matchId = 1L;
+
+        UserDto userDto = UserDto.createForTest(userId, "nickname", Gender.FEMALE, Role.USER, "http://image.com", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "accesstoken");
+
+        List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(
+                PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 1L,
+                        PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, 1L), // 대상
+
+                PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 1L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, userId + 2, matchId + 1, 2L)
+        ));
+
+        partyAgeReadOnlyRepository.saveAll(List.of(
+                PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), 10),
+                PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), 20),
+                PartyAgeDocument.createForOnlyTest(3L, partyDocuments.get(1).getId(), 30),
+                PartyAgeDocument.createForOnlyTest(4L, partyDocuments.get(1).getId(), 40)
+        ));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+
+                // 대상
+                PartyJoinDocument.createForOnlyTest(1L, userId + 1, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null),
+
+                // 대상
+                PartyJoinDocument.createForOnlyTest(2L, userId + 2, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, "가입 원합니다!"),
+
+                PartyJoinDocument.createForOnlyTest(3L, userId + 3, partyDocuments.get(0).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!")
+        ));
+
+        given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(List.of(
+                PartyParticipantsInfoFeignResponse.of(userId + 2, "writer2", 26, "http://writer2-thumbnail"),
+                PartyParticipantsInfoFeignResponse.of(userId + 1, "writer1",   17,"http://writer1-thumbnail")
+        ));
+
+        partyThumbnailUrlReadOnlyRepository.saveAll(List.of(
+                PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), "thumbnailUrl1"),
+                PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), "thumbnailUrl2")
+        ));
+
+        // when
+        List<PartyParticipantsInfoResponse> result = partyReadOnlyService.getParticipants(customOAuth2User, partyDocuments.get(0).getId());
+
+        // then
+        assertThat(result).hasSize(2)
+                .extracting("userId", "name")
+                .containsExactlyInAnyOrder(
+                        tuple(userId + 1, "writer1"),
+                        tuple(userId + 2, "writer2")
+                );
+    }
+
+    @DisplayName("존재하지 않는 직관팟에 대한 참가자를 조회할 수 없다")
+    @Test
+    void getParticipants_INVALID_PARTY() {
+        // given
+        Long userId = 1L;
+
+        UserDto userDto = UserDto.createForTest(userId, "nickname", Gender.FEMALE, Role.USER, "http://image.com", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "accesstoken");
+
+        // when // then
+        assertThatThrownBy(() -> partyReadOnlyService.getParticipants(customOAuth2User, 1L))
+                .isInstanceOf(PartyDocumentException.NotFoundException.class)
+                .hasMessage("직관팟이 존재하지 않습니다!");
+    }
+
+    @DisplayName("직관팟 참가자를 조회할 때, 본인은 반드시 그 직관팟에 참여되어 있어야 한다.")
+    @Test
+    void getParticipants_MUST_PARTICIPATE() {
+        // given
+        Long userId = 1L;
+        Long matchId = 1L;
+
+        UserDto userDto = UserDto.createForTest(userId + 1000, "nickname", Gender.FEMALE, Role.USER, "http://image.com", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "accesstoken");
+
+        List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(
+                PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 1L,
+                        PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, 1L), // 대상
+
+                PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 1L,
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, userId + 2, matchId + 1, 2L)
+        ));
+
+        partyAgeReadOnlyRepository.saveAll(List.of(
+                PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), 10),
+                PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), 20),
+                PartyAgeDocument.createForOnlyTest(3L, partyDocuments.get(1).getId(), 30),
+                PartyAgeDocument.createForOnlyTest(4L, partyDocuments.get(1).getId(), 40)
+        ));
+
+        partyJoinReadOnlyRepository.saveAll(List.of(
+
+                // 대상
+                PartyJoinDocument.createForOnlyTest(1L, userId + 1, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, null),
+
+                // 대상
+                PartyJoinDocument.createForOnlyTest(2L, userId + 2, partyDocuments.get(0).getId(), PartyJoinRequestStatus.ACCEPT, "가입 원합니다!"),
+
+                PartyJoinDocument.createForOnlyTest(3L, userId + 3, partyDocuments.get(0).getId(), PartyJoinRequestStatus.WAIT, "가입 원합니다!")
+        ));
+
+        given(userFeignClient.getPartyApplicantsInfo(List.of(userId + 1, userId + 2))).willReturn(List.of(
+                PartyParticipantsInfoFeignResponse.of(userId + 1, "writer1",   17,"http://writer1-thumbnail"),
+                PartyParticipantsInfoFeignResponse.of(userId + 2, "writer2", 26, "http://writer2-thumbnail")
+        ));
+
+        partyThumbnailUrlReadOnlyRepository.saveAll(List.of(
+                PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), "thumbnailUrl1"),
+                PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), "thumbnailUrl2")
+        ));
+
+        // when // then
+        assertThatThrownBy(() -> partyReadOnlyService.getParticipants(customOAuth2User, 1L))
+                .isInstanceOf(PartyException.ParticipantsNotFoundException.class)
+                .hasMessage("이 직관팟에 참여하지 않은 인원입니다!");
+    }
 }
