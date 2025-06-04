@@ -40,6 +40,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'mysql:mysql-connector-java:8.0.33'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.apache.commons:commons-pool2'
 	implementation("org.redisson:redisson-spring-boot-starter:3.46.0") // for applying party!
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb:3.4.5")
 
