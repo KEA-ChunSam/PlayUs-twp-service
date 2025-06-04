@@ -19,7 +19,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.text.SimpleDateFormat;
 
 @Configuration
-@Profile("local")
+@Profile({"local", "test"})
 @ConditionalOnProperty(prefix = "spring.data.redis", name = "host")
 public class RedisConfig {
 
