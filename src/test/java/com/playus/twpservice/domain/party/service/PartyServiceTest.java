@@ -504,7 +504,7 @@ class PartyServiceTest extends IntegrationTestSupport {
     @Test
     void terminateParty_ALLOWED_ONLY_WRITER() {
         // given
-        Long writerId = 1L;
+        Long writerId = 2L;
         Long userId = 2L;
         Long matchId = 1L;
 
@@ -523,7 +523,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long partyId = party.getId();
 
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId + 1, matchId, false, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
@@ -541,10 +541,9 @@ class PartyServiceTest extends IntegrationTestSupport {
     void terminateParty_ALREADY_TERMINATED_PARTY() {
         // given
         Long writerId = 1L;
-        Long userId = 2L;
         Long matchId = 1L;
 
-        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        UserDto userDto = UserDto.createForTest(writerId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
         CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
@@ -564,7 +563,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
                 PartyThumbnailUrl.create(party, "url2")));
-        partyJoinRepository.saveAll(List.of(PartyJoin.create(userId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
 
         // when // then
         assertThatThrownBy(() -> partyService.terminateParty(customOAuth2User, party.getId()))
