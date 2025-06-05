@@ -505,7 +505,7 @@ class PartyServiceTest extends IntegrationTestSupport {
     void terminateParty_ALLOWED_ONLY_WRITER() {
         // given
         Long writerId = 2L;
-        Long userId = 2L;
+        Long userId = 1L;
         Long matchId = 1L;
 
         UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
