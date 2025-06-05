@@ -57,13 +57,14 @@ public class PartyDocument {
     private Long matchId;
 
     @NotNull
-    @Field(name = "chatroom_id")
+    @Field(name = "chat_room_id")
     private Long chatRoomId;
 
     @NotNull
     private String text;
 
     @NotNull
+    @Field(name = "is_ended")
     private Boolean isEnded;
 
     private LocalDateTime createdAt;
@@ -74,7 +75,7 @@ public class PartyDocument {
 
     @Builder
     private PartyDocument(Long id, String title, String text, Long minimumParticipants, Long maximumParticipants, Long currentParticipants,
-                          PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, Long chatRoomId) {
+                          PartyGender partyGender, PartyJoinMethod partyJoinMethod, Long writerId, Long matchId, Boolean isEnded, Long chatRoomId) {
         this.id = id;
         this.title = title;
         this.text = text;
@@ -84,13 +85,14 @@ public class PartyDocument {
         this.partyGender = partyGender;
         this.partyJoinMethod = partyJoinMethod;
         this.matchId = matchId;
+        this.isEnded = isEnded;
         this.chatRoomId = chatRoomId;
         this.writerId = writerId;
     }
 
     public static PartyDocument createForOnlyTest(Long id, String title, String text, Long minimumParticipants,
                                                   Long maximumParticipants, Long currentParticipantsCount, PartyGender partyGender, PartyJoinMethod partyJoinMethod,
-                                                  Long writerId, Long matchId, Long chatRoomId) {
+                                                  Long writerId, Long matchId, Boolean isEnded, Long chatRoomId) {
         return PartyDocument.builder()
                 .id(id)
                 .title(title)
@@ -102,6 +104,7 @@ public class PartyDocument {
                 .partyJoinMethod(partyJoinMethod)
                 .writerId(writerId)
                 .matchId(matchId)
+                .isEnded(isEnded)
                 .chatRoomId(chatRoomId)
                 .build();
     }
