@@ -11,6 +11,7 @@ import com.playus.twpservice.domain.party.dto.approve.PartyApproveRequest;
 import com.playus.twpservice.domain.party.dto.approve.PartyApproveResponse;
 import com.playus.twpservice.domain.party.dto.cancel.PartyCancelResponse;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
+import com.playus.twpservice.domain.party.dto.end.PartyEndResponse;
 import com.playus.twpservice.domain.party.dto.info.PartyInfoResponse;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
@@ -986,6 +987,40 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
     }
 
+    @DisplayName("직관팟을 종료할 수 있다")
+    @Test
+    void terminateParty() throws Exception {
+        // given
+        Long terminatedPartyId = 1L;
+        PartyEndResponse expectedResponse = PartyEndResponse.of(terminatedPartyId);
+        given(partyService.terminateParty(any(), any(Long.class))).willReturn(expectedResponse);
+
+        // when // then
+        mockMvc.perform(patch("/party/" + terminatedPartyId + "/end")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.endedPartyId").value("1"));
+    }
+
+    @DisplayName("직관팟을 종료할 때, 직관팟의 ID는 1 이상이여야 한다..")
+    @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
+    @ParameterizedTest(name = "invalidPartyIdStr = {0}")
+    void terminateParty_INVALID_PARTYID(String invalidPartyIdStr) throws Exception {
+        // given
+
+        // when // then
+        mockMvc.perform(patch("/party/" + invalidPartyIdStr + "/end")
+                        .contentType(APPLICATION_JSON)
+                        .with(authentication(token)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("400"))
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.message").value("직관팟 ID는 1 이상이어야 합니다!"));
+    }
+
     @DisplayName("선착순 직관팟에 지원할 수 있다.")
     @Test
     void applyPartyFCFS() throws Exception {
@@ -1002,7 +1037,7 @@ class PartyControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value("직관팟 가입에 성공했습니다!"));
     }
 
-    @DisplayName("직관팟을 삭제할 때, 직관팟의 ID는 1 이상이여야 한다..")
+    @DisplayName("선착순 직관팟에 지원할 때, 직관팟의 ID는 1 이상이여야 한다..")
     @CsvSource(value = {"0", "-1", "-100", "-1000", "-10000"})
     @ParameterizedTest(name = "invalidPartyIdStr = {0}")
     void applyPartyFCFS_INVALID_PARTYID(String invalidPartyIdStr) throws Exception {

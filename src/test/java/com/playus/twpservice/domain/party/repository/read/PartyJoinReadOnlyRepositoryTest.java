@@ -40,7 +40,7 @@ class PartyJoinReadOnlyRepositoryTest extends IntegrationTestSupport {
         Long chatRoomId = 1L;
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 2L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, chatRoomId));
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, false, chatRoomId));
 
         partyJoinReadOnlyRepository.saveAll(List.of(
                 PartyJoinDocument.createForOnlyTest(1L, userId, p1.getId(), PartyJoinRequestStatus.ACCEPT, null), // 대상
@@ -66,7 +66,7 @@ class PartyJoinReadOnlyRepositoryTest extends IntegrationTestSupport {
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(
                 1L, "title1", "text1", 1L, 10L, 2L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, chatRoomId)
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, false, chatRoomId)
         );
 
         // when

@@ -82,21 +82,21 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 //                PartyWriterInfoFeignResponse.of(2L, "writer2", "여성", 26, "http://writer2-thumbnail")
 //        ));
 //
-//        LocalDateTime matchDate = LocalDateTime.of(2025, 3, 22, 14, 0);
-//        given(matchFeignClient.getMatchDate(matchId)).willReturn(matchDate);
-//
 //        PartyDocument p1 = PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 3L,
-//                PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, "chatRoomId"); // 대상
+//                PartyGender.MALE, PartyJoinMethod.FIRST_COME, 1L, matchId, false, 1L); // 대상
 //        PartyDocument p2 = PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 1L,
-//                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, "chatRoom2Id"); // 대상
+//                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 2L, matchId, false, 2L); // 대상
 //        PartyDocument p3 = PartyDocument.createForOnlyTest(3L, "title3", "text3", 1L, 10L, 1L,
-//                PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, "chatRoom3Id");
+//                PartyGender.NO_MATTER, PartyJoinMethod.RESERVATION, 3L, matchId + 1, false, 3L);
+//        PartyDocument p4 = PartyDocument.createForOnlyTest(4L, "title4", "text4", 1L, 10L, 1L,
+//                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, 4L, matchId, true, 4L);
 //
-//        List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(p1, p2, p3));
+//        List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(p1, p2, p3, p4));
 //
 //        PartyAgeDocument pa1 = PartyAgeDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), 10);
 //        PartyAgeDocument pa2 = PartyAgeDocument.createForOnlyTest(2L, partyDocuments.get(1).getId(), 20);
-//        partyAgeReadOnlyRepository.saveAll(List.of(pa1, pa2));
+//        PartyAgeDocument pa3 = PartyAgeDocument.createForOnlyTest(3L, partyDocuments.get(3).getId(), 20);
+//        partyAgeReadOnlyRepository.saveAll(List.of(pa1, pa2, pa3));
 //
 //        PartyThumbnailUrlDocument ptu1 = PartyThumbnailUrlDocument.createForOnlyTest(1L, partyDocuments.get(0).getId(), "thumbnailUrl1");
 //        PartyThumbnailUrlDocument ptu2 = PartyThumbnailUrlDocument.createForOnlyTest(2L, partyDocuments.get(0).getId(), "thumbnailUrl2");
@@ -113,14 +113,14 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 //        assertThat(result).hasSize(2)
 //
 //                .extracting("partyId", "writerId", "title", "partyJoinMethod", "partyAges", "availableGender", "authorName", "authorGender", "authorAge",
-//                        "matchDate", "currentParticipantsCount", "maximumParticipantsCount", "partyThumbnailUrls", "userThumbnailUrls")
+//                         "currentParticipantsCount", "maximumParticipantsCount", "partyThumbnailUrls", "userThumbnailUrls")
 //
 //                .containsExactlyInAnyOrder(
 //                        tuple(1L, 1L, "title1", PartyJoinMethod.FIRST_COME.getDescription(), List.of("10대"), PartyGender.MALE.getDescription(), "writer1", "남성", "10대",
-//                                matchDate, 3L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2"), List.of("http://writer1-thumbnail", "http://user1", "http://user2")),
+//                                3L, 10L, List.of("thumbnailUrl1", "thumbnailUrl2"), List.of("http://writer1-thumbnail", "http://user1", "http://user2")),
 //
 //                        tuple(2L, 2L, "title2", PartyJoinMethod.RESERVATION.getDescription(), List.of("20대"), PartyGender.FEMALE.getDescription(), "writer2", "여성", "20대",
-//                                matchDate, 1L, 10L, List.of(), List.of("http://writer2-thumbnail"))
+//                                1L, 10L, List.of(), List.of("http://writer2-thumbnail"))
 //                );
 //    }
 
@@ -223,7 +223,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(
                 1L, "title1", "text1", 1L, 10L, 3L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, chatRoomId)
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, false, chatRoomId)
         );
 
         partyJoinReadOnlyRepository.saveAll(
@@ -262,7 +262,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(
                 1L, "title1", "text1", 1L, 10L, 3L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, chatRoomId)
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, false, chatRoomId)
         );
 
         partyJoinReadOnlyRepository.saveAll(List.of(
@@ -292,7 +292,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(
                 1L, "title1", "text1", 1L, 10L, 3L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId + 1, matchId, chatRoomId)
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId + 1, matchId, false, chatRoomId)
         );
 
         partyJoinReadOnlyRepository.saveAll(List.of(
@@ -320,7 +320,7 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
         PartyDocument p1 = partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(
                 1L, "title1", "text1", 1L, 10L, 3L,
-                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, chatRoomId)
+                PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, false, chatRoomId)
         );
 
         // when
@@ -401,10 +401,10 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
         List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(
                 PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 1L,
-                        PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, 1L), // 대상
+                        PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, false, 1L), // 대상
 
                 PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 1L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, userId + 2, matchId + 1, 2L)
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, userId + 2, matchId + 1, false, 2L)
         ));
 
         partyAgeReadOnlyRepository.saveAll(List.of(
@@ -474,10 +474,10 @@ class PartyReadOnlyServiceTest extends IntegrationTestSupport {
 
         List<PartyDocument> partyDocuments = partyReadOnlyRepository.saveAll(List.of(
                 PartyDocument.createForOnlyTest(1L, "title1", "text1", 1L, 10L, 1L,
-                        PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, 1L), // 대상
+                        PartyGender.MALE, PartyJoinMethod.FIRST_COME, userId, matchId, false, 1L), // 대상
 
                 PartyDocument.createForOnlyTest(2L, "title2", "text2", 1L, 10L, 1L,
-                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, userId + 2, matchId + 1, 2L)
+                        PartyGender.FEMALE, PartyJoinMethod.RESERVATION, userId + 2, matchId + 1, false, 2L)
         ));
 
         partyAgeReadOnlyRepository.saveAll(List.of(

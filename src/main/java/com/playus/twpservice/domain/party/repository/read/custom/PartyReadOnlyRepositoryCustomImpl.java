@@ -29,7 +29,8 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
     public List<PartyInfo> findPartyInfoList(Long matchId) {
 
         MatchOperation matchOperation = match(new Criteria("match_id").is(matchId)
-                .and("deleted_at").is(null));
+                .and("deleted_at").is(null)
+                .and("is_ended").is(false));
 
         AggregationOperation partyAgeLookupOperation = context -> new Document(
                 "$lookup",

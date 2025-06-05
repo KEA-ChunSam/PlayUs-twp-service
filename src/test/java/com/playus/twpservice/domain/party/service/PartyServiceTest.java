@@ -22,6 +22,7 @@ import com.playus.twpservice.domain.party.dto.create.PartyCreateRequest;
 import com.playus.twpservice.domain.party.dto.create.PartyCreateResponse;
 import com.playus.twpservice.domain.common.request.PartyIdRequest;
 import com.playus.twpservice.domain.party.dto.delete.PartyDeleteResponse;
+import com.playus.twpservice.domain.party.dto.end.PartyEndResponse;
 import com.playus.twpservice.domain.party.dto.leave.PartyLeaveResponse;
 import com.playus.twpservice.domain.party.dto.update.PartyUpdateRequest;
 import com.playus.twpservice.domain.party.dto.presigned.PresignedUrlForSaveImageRequest;
@@ -184,7 +185,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title2", "16일 경기 같이 보실 분~",
-                1L, 15L, 1L, PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+                1L, 15L, 1L, PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
 
         // when // then
         assertThatThrownBy(() -> partyService.createParty(writerId, request))
@@ -354,7 +355,7 @@ class PartyServiceTest extends IntegrationTestSupport {
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
         Long partyId = party.getId();
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
@@ -400,7 +401,7 @@ class PartyServiceTest extends IntegrationTestSupport {
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
         Long partyId = party.getId();
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
@@ -434,7 +435,7 @@ class PartyServiceTest extends IntegrationTestSupport {
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
         Long partyId = party.getId();
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
@@ -445,6 +446,129 @@ class PartyServiceTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> partyService.deleteParty(userId, invalidPartyId))
                 .isInstanceOf(PartyException.NotFoundException.class)
                 .hasMessage("잘못된 직관팟 번호입니다!");
+    }
+
+    @DisplayName("직관팟을 종료할 수 있다")
+    @Test
+    void terminateParty() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+
+        UserDto userDto = UserDto.createForTest(writerId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
+        chatParticipantRepository.saveAll(List.of(ChatParticipant.of(chatRoom, writerId), ChatParticipant.of(chatRoom, writerId + 1)));
+        chatMessageRepository.saveAll(List.of(
+                ChatMessage.of(chatRoom.getId(), writerId, "sender", "안녕하세요!", MessageType.MESSAGE),
+                ChatMessage.of(chatRoom.getId(), writerId + 1, "sender", "반가워요!", MessageType.MESSAGE)));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
+
+        Long partyId = party.getId();
+
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId + 1, matchId, false, chatRoom.getId()));
+
+        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
+                PartyThumbnailUrl.create(party, "url2")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+
+        // when
+        PartyEndResponse response = partyService.terminateParty(customOAuth2User, party.getId());
+
+        // then
+        assertThat(partyRepository.findById(partyId).get().getIsEnded()).isTrue();
+        assertThat(response.endedPartyId()).isEqualTo(partyId);
+    }
+
+    @DisplayName("존재하지 않는 직관팟을 종료할 수 없다.")
+    @Test
+    void terminateParty_NOT_FOUND() {
+        // given
+        Long writerId = 1L;
+
+        UserDto userDto = UserDto.createForTest(writerId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
+
+        // when // then
+        assertThatThrownBy(() -> partyService.terminateParty(customOAuth2User, 1L))
+                .isInstanceOf(PartyException.NotFoundException.class)
+                .hasMessage("직관팟이 존재하지 않습니다!");
+    }
+
+    @DisplayName("방장이 아닌 인원은 직관팟을 종료할 수 없다.")
+    @Test
+    void terminateParty_ALLOWED_ONLY_WRITER() {
+        // given
+        Long writerId = 2L;
+        Long userId = 1L;
+        Long matchId = 1L;
+
+        UserDto userDto = UserDto.createForTest(userId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
+        chatParticipantRepository.saveAll(List.of(ChatParticipant.of(chatRoom, writerId), ChatParticipant.of(chatRoom, writerId + 1)));
+        chatMessageRepository.saveAll(List.of(
+                ChatMessage.of(chatRoom.getId(), writerId, "sender", "안녕하세요!", MessageType.MESSAGE),
+                ChatMessage.of(chatRoom.getId(), writerId + 1, "sender", "반가워요!", MessageType.MESSAGE)));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
+
+        Long partyId = party.getId();
+
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
+
+        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
+                PartyThumbnailUrl.create(party, "url2")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(userId, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.terminateParty(customOAuth2User, party.getId()))
+                .isInstanceOf(PartyException.NotPartyWriterException.class)
+                .hasMessage("작성자가 아니면 직관팟을 종료할 수 없습니다!");
+    }
+
+    @DisplayName("이미 종료된 직관팟을 다시 종료할 수 없다.")
+    @Test
+    void terminateParty_ALREADY_TERMINATED_PARTY() {
+        // given
+        Long writerId = 1L;
+        Long matchId = 1L;
+
+        UserDto userDto = UserDto.createForTest(writerId, "test", Gender.FEMALE, Role.USER, "http://test.test", 20);
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDto, "test-access-token");
+
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
+        chatParticipantRepository.saveAll(List.of(ChatParticipant.of(chatRoom, writerId), ChatParticipant.of(chatRoom, writerId + 1)));
+        chatMessageRepository.saveAll(List.of(
+                ChatMessage.of(chatRoom.getId(), writerId, "sender", "안녕하세요!", MessageType.MESSAGE),
+                ChatMessage.of(chatRoom.getId(), writerId + 1, "sender", "반가워요!", MessageType.MESSAGE)));
+
+        Party party = partyRepository.save(Party.create("title", "설명", 1L, 10L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom).terminateParty());
+
+        Long partyId = party.getId();
+
+        partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId + 1, matchId, false, chatRoom.getId()));
+
+        partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
+        partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
+                PartyThumbnailUrl.create(party, "url2")));
+        partyJoinRepository.saveAll(List.of(PartyJoin.create(2L, party, PartyJoinRequestStatus.WAIT, "참여 희망합니다!")));
+
+        // when // then
+        assertThatThrownBy(() -> partyService.terminateParty(customOAuth2User, party.getId()))
+                .isInstanceOf(PartyException.AlreadyTerminatedException.class)
+                .hasMessage("이미 종료된 직관팟입니다!");
     }
 
     @DisplayName("직관팟에 선착순으로 가입할 수 있다.")
@@ -643,7 +767,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         // then
         verify(notificationFeignClient).notifyParty(PartyNotificationEvent.request(party.getId(), "title", writerId, userId, PartyJoinRequestStatus.WAIT.getMessage(), "참여 희망합니다!"));
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatParticipantRepository.count()).isEqualTo(0);
+        assertThat(chatParticipantRepository.count()).isZero();
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(1);
 
         assertThat(partyJoinRepository.findAll().get(0))
@@ -760,7 +884,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(partyJoinRepository.count()).isEqualTo(1); // partyJoin 에 작성자는 존재 X
-        assertThat(chatParticipantRepository.count()).isEqualTo(0);
+        assertThat(chatParticipantRepository.count()).isZero();
         assertThat(partyRepository.findAll().get(0).getCurrentParticipants()).isEqualTo(1);
 
         assertThat(partyJoinRepository.findAll().get(0))
