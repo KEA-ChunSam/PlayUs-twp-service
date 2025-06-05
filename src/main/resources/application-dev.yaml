@@ -31,38 +31,39 @@ spring:
         uri: ${SPRING_DATA_MONGODB_CHAT_URI}&connectTimeoutMS=30000&socketTimeoutMS=30000&serverSelectionTimeoutMS=10000&maxIdleTimeMS=60000
       auto-index-creation: true
 
+    # 클러스터 → 단일 Redis로 변경
     redis:
-      cluster:
-        nodes: ${REDIS_CLUSTER_NODES}
-        max-redirects: 3  # 여기가 맞는 위치
+      host: ${REDIS_HOST}                # dev-redis-lock.dev-twp-service.svc.cluster.local
+      port: ${REDIS_PORT:6379}           # 기본값 6379
       timeout: 5s
       lettuce:
         pool:
           max-active: 10
           max-idle: 10
           min-idle: 1
-      repositories:
-        enabled: false
+          max-wait: 3s
 
   jpa:
     database: mysql
     hibernate:
-      ddl-auto: update
-    show-sql: true
-    open-in-view: false  # 성능 개선을 위해 추가
+      ddl-auto: validate                 # update → validate (프로덕션 안전)
+    show-sql: false                      # true → false (프로덕션 성능)
+    open-in-view: false                  # 성능 개선을 위해 추가
     properties:
-      hibernate.format_sql:    true
-      hibernate.show_sql:      true
+      hibernate.format_sql: false        # true → false (프로덕션)
+      hibernate.show_sql: false          # true → false (프로덕션)
       hibernate.jdbc.time_zone: Asia/Seoul
 
-      # OCI 환경에서 안정성 우선 설정
-      hibernate.jdbc.batch_size: 1     # 배치 비활성화 (안정성 우선)
-      hibernate.order_inserts: false   # OCI 환경에서 순서 보장 비활성화
-      hibernate.order_updates: false
+      # OCI 환경에서 채팅 서비스 최적화
+      hibernate.jdbc.batch_size: 10      # 1 → 10 (채팅 성능 향상)
+      hibernate.order_inserts: true      # false → true (배치 최적화)
+      hibernate.order_updates: true      # false → true (배치 최적화)
+      hibernate.jdbc.batch_versioned_data: true
 
-      # OCI 프록시 연결 관리
-      hibernate.connection.acquisition_timeout: 60000
-      hibernate.connection.validation_timeout: 10000
+      # 성능 최적화
+      hibernate.cache.use_second_level_cache: false
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
 
   jwt:
     secret: ${JWT_SECRET}
@@ -105,7 +106,6 @@ management:
           - health           # 애플리케이션 상태 확인
           - info             # 애플리케이션 정보
           - prometheus       # 메트릭 데이터 노출
-
   endpoint:
     health:
       show-details: never
@@ -122,43 +122,9 @@ logging:
 slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
 
-resilience4j:
-  circuitbreaker:
-    configs:
-      default:
-        failure-rate-threshold: 60
-        slow-call-rate-threshold: 80
-        slow-call-duration-threshold: 15s
-        permitted-number-of-calls-in-half-open-state: 3
-        max-wait-duration-in-half-open-state: 0s
-        sliding-window-type: COUNT_BASED
-        sliding-window-size: 10
-        minimum-number-of-calls: 10
-        wait-duration-in-open-state: 15s
-    instances:
-      circuit:
-        base-config: default
-
-  # OCI 환경 Retry 설정 추가
-  retry:
-    configs:
-      default:
-        max-attempts: 5    # OCI 환경에서 재시도 증가
-        wait-duration: 2s
-        retry-exceptions:
-          - java.sql.SQLException
-          - com.mysql.cj.jdbc.exceptions.CommunicationsException
-          - java.net.SocketTimeoutException
-          - org.springframework.kafka.KafkaException
-    instances:
-      database:
-        base-config: default
-      kafka:
-        base-config: default
-
 feign:
   user:
-    url: ${USER_SERVICE_URL}
+    url: ${FEIGN_USER_URL}
 
 springdoc:
   swagger-ui:
@@ -166,3 +132,88 @@ springdoc:
 
 websocket:
   allowed-origin: ${WEBSOCKET_ALLOWED_ORIGIN}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 70
+        slow-call-duration-threshold: 10s   # 15s → 10s (채팅 응답성)
+        permitted-number-of-calls-in-half-open-state: 3
+        max-wait-duration-in-half-open-state: 0s
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 10
+        wait-duration-in-open-state: 10s # 15s → 10s (빠른 복구)
+      # 채팅 서비스 특화 설정
+      chat-config:
+        failure-rate-threshold: 40
+        slow-call-duration-threshold: 5s
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 5s
+    instances:
+      database:
+        base-config: default
+      kafka:
+        base-config: chat-config # 카프카는 채팅 설정 사용
+      user-service:
+        base-config: default
+
+  # 채팅 서비스 Retry 설정 최적화
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.sql.SQLException
+          - com.mysql.cj.jdbc.exceptions.CommunicationsException
+          - java.net.SocketTimeoutException
+      chat-config:
+        max-attempts: 2
+        wait-duration: 500ms
+        retry-exceptions:
+          - org.springframework.kafka.KafkaException
+          - java.net.SocketTimeoutException
+          - java.net.ConnectException
+    instances:
+      database:
+        base-config: default
+      kafka:
+        base-config: chat-config
+      user-service:
+        base-config: default
+
+  # 동시 요청 제어 (채팅 특화)
+  bulkhead:
+    configs:
+      default:
+        max-concurrent-calls: 20
+        max-wait-duration: 3s
+      chat-config:
+        max-concurrent-calls: 50        # 채팅은 더 많은 동시 요청 허용
+        max-wait-duration: 1s
+    instances:
+      database:
+        base-config: default
+      kafka:
+        base-config: chat-config
+      user-service:
+        base-config: default
+
+  # 타임아웃 제어 (채팅 특화)
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 10s
+      chat-config:
+        timeout-duration: 5s
+    instances:
+      database:
+        base-config: default
+      kafka:
+        base-config: chat-config
+      user-service:
+        base-config: default
