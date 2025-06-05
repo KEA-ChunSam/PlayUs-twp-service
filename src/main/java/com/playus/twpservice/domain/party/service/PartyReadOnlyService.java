@@ -58,6 +58,9 @@ public class PartyReadOnlyService {
         PartyInfo partyDetail = partyRepository.findPartyDetail(partyId)
                 .orElseThrow(() -> new PartyDocumentException.NotFoundException("직관팟이 존재하지 않습니다!"));
 
+        if (partyRepository.findById(partyId).get().getIsEnded()) {
+            throw new PartyException.AlreadyTerminatedException("이미 종료된 직관팟입니다!");
+        }
         updateUserThumbnailUrls(List.of(partyDetail));
         updateWriterInfo(List.of(partyDetail));
 
