@@ -45,8 +45,8 @@ public class PartyReadOnlyService {
 
         List<PartyInfo> partyInfoList = partyRepository.findPartyInfoList(matchId);
 
-        updateUserThumbnailUrls(partyInfoList);
-        updateWriterInfo(partyInfoList);
+//        updateUserThumbnailUrls(partyInfoList);
+//        updateWriterInfo(partyInfoList);
 
         return partyInfoList.stream()
                 .map(PartyInfo::toResponse)
@@ -61,8 +61,8 @@ public class PartyReadOnlyService {
         if (partyRepository.findById(partyId).get().getIsEnded()) {
             throw new PartyException.AlreadyTerminatedException("이미 종료된 직관팟입니다!");
         }
-        updateUserThumbnailUrls(List.of(partyDetail));
-        updateWriterInfo(List.of(partyDetail));
+//        updateUserThumbnailUrls(List.of(partyDetail));
+//        updateWriterInfo(List.of(partyDetail));
 
         return partyDetail.toPartyDetailResponse();
     }
