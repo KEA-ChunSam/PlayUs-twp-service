@@ -185,7 +185,7 @@ class PartyServiceTest extends IntegrationTestSupport {
 
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create());
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(1L, "title2", "16일 경기 같이 보실 분~",
-                1L, 15L, 1L, PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+                1L, 15L, 1L, PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
 
         // when // then
         assertThatThrownBy(() -> partyService.createParty(writerId, request))
@@ -355,7 +355,7 @@ class PartyServiceTest extends IntegrationTestSupport {
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
         Long partyId = party.getId();
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
@@ -401,7 +401,7 @@ class PartyServiceTest extends IntegrationTestSupport {
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
         Long partyId = party.getId();
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
@@ -435,7 +435,7 @@ class PartyServiceTest extends IntegrationTestSupport {
                 PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom));
         Long partyId = party.getId();
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
@@ -470,7 +470,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long partyId = party.getId();
 
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId + 1, matchId, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId + 1, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
@@ -523,7 +523,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long partyId = party.getId();
 
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId + 1, matchId, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId + 1, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
@@ -559,7 +559,7 @@ class PartyServiceTest extends IntegrationTestSupport {
         Long partyId = party.getId();
 
         partyReadOnlyRepository.save(PartyDocument.createForOnlyTest(partyId, "title", "설명", 1L, 10L, 2L,
-                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId + 1, matchId, chatRoom.getId()));
+                PartyGender.FEMALE, PartyJoinMethod.RESERVATION, writerId + 1, matchId, false, chatRoom.getId()));
 
         partyAgeRepository.saveAll(List.of(PartyAge.create(party, 10)));
         partyThumbnailUrlRepository.saveAll(List.of(PartyThumbnailUrl.create(party, "url1"),
