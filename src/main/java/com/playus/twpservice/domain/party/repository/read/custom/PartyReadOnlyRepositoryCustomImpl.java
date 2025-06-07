@@ -61,7 +61,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
 
         AggregationOperation partyThumbnailUrlLookupOperation = context -> new Document(
                 "$lookup",
-                new Document("from", "party_thumbnailurl")
+                new Document("from", "party_thumbnail_url")
                         .append("let", new Document("partyId", "$_id"))
                         .append("pipeline", Arrays.asList(
                                 new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
@@ -83,7 +83,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")
-                .and("partyThumbnailUrl.thumbnailUrl").as("thumbnailUrls");
+                .and("partyThumbnailUrl.thumbnail_url").as("thumbnailUrls");
 
         Aggregation aggregation = newAggregation(
                 matchOperation,
@@ -132,7 +132,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
 
         AggregationOperation partyThumbnailUrlLookupOperation = context -> new Document(
                 "$lookup",
-                new Document("from", "party_thumbnailurl")
+                new Document("from", "party_thumbnail_url")
                         .append("let", new Document("partyId", "$_id"))
                         .append("pipeline", Arrays.asList(
                                 new Document("$match", new Document("$expr", new Document("$and", Arrays.asList(
@@ -156,7 +156,7 @@ public class PartyReadOnlyRepositoryCustomImpl implements PartyReadOnlyRepositor
                 .and("party_gender").as("partyGender")
                 .and("maximum_participants").as("maximumParticipants")
                 .and("partyAge.age").as("ages")
-                .and("partyThumbnailUrl.thumbnailUrl").as("thumbnailUrls");
+                .and("partyThumbnailUrl.thumbnail_url").as("thumbnailUrls");
 
         Aggregation aggregation = Aggregation.newAggregation(
                 matchOperation,

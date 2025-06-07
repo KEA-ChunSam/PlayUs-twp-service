@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@Document(collection = "party_thumbnailurl")
+@Document(collection = "party_thumbnail_url")
 public class PartyThumbnailUrlDocument {
 
     @Id
@@ -26,6 +26,7 @@ public class PartyThumbnailUrlDocument {
     private Long partyId;
 
     @NotNull
+    @Field(name = "thumbnail_url")
     private String thumbnailUrl;
 
     private LocalDateTime createdAt;
