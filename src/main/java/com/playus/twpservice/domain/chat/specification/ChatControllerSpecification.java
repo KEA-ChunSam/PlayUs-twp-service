@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
@@ -132,8 +134,8 @@ public interface ChatControllerSpecification {
     )
     ResponseEntity<ChatResponse> getChatMessages(@Parameter(hidden = true) CustomOAuth2User principal,
                                                  @Parameter(description = "채팅방 ID", required = true) Long roomId,
-                                                 @Parameter(description = "페이지 번호", required = true) int pageNumber,
-                                                 @Parameter(description = "페이지 크기", required = true) int pageSize,
+                                                 @Parameter(description = "페이지 번호", required = true) @Min(0) int pageNumber,
+                                                 @Parameter(description = "페이지 크기", required = true) @Min(0) @Max(100) int pageSize,
                                                  @Parameter(description = "마지막 메시지 타임스탬프") LocalDateTime lastMessageTimeStamp);
 
     @Tag(name = "Chat Get", description = "채팅방 참여자 정보 조회 API")
@@ -300,5 +302,5 @@ public interface ChatControllerSpecification {
     ResponseEntity<Void> exitChatRoom(@Parameter(hidden = true) CustomOAuth2User principal,
                                       @Parameter(description = "채팅방 ID", required = true) Long roomId);
 
-    void message(ChatMessageRequest request, SimpMessageHeaderAccessor headerAccessor);
+    void message(@Valid ChatMessageRequest request, SimpMessageHeaderAccessor headerAccessor);
 } 
