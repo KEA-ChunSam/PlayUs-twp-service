@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -41,25 +39,11 @@ public class SecurityConfig {
                 "/api-docs",
                 "/api-docs/**",
                 "/v3/api-docs/**",
-                "/ws",
                 "/ws/**",
         };
     }
 
-    // WebSocket 전용 체인
-    @Bean @Order(1)
-    public SecurityFilterChain wsChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/ws", "/ws/**")
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .authorizeHttpRequests(a -> a.anyRequest().permitAll())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        return http.build();
-    }
-
-    // JwtFilter 적용
-    @Bean @Order(2)
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -75,7 +59,6 @@ public class SecurityConfig {
 
                 // 인증/인가
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(getWhiteList())
                         .permitAll()
                         .anyRequest().authenticated()
