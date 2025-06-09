@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
@@ -43,7 +44,20 @@ public class SecurityConfig {
         };
     }
 
-    @Bean
+    // WebSocket 전용 체인
+    @Bean @Order(1)
+    public SecurityFilterChain wsChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/ws/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .authorizeHttpRequests(a -> a.anyRequest().permitAll())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
+
+    // JwtFilter 적용
+    @Bean @Order(2)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
