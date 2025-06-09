@@ -140,7 +140,8 @@ public class PartyReadOnlyService {
 
                     return PartyParticipantsInfoResponse.of(
                             participantId,
-                            userInfo.name()
+                            userInfo.name(),
+                            userInfo.thumbnailUrl()
                     );
                 })
                 .toList();
