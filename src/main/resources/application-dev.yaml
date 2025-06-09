@@ -138,4 +138,4 @@ springdoc:
 #    org.springframework.web.socket: debug
 
 websocket:
-  allowed-origin: ${WEBSOCKET_ALLOWED_ORIGIN}
+  allowed-origin: https://web.playus.o-r.kr
